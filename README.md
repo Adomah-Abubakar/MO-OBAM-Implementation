@@ -504,7 +504,7 @@ Write the proposed server plan without starting optimization:
 ```bash
 .venv/bin/python run_prti_experiments.py parameter-grid \
   --source data/PRTI-GH-study/PRTI-GH-study.xls \
-  --output-directory evidence/prti-parameter-grid-k10-15-20-v1 \
+  --output-directory evidence/prti-parameter-grid-k10-15-20-v2 \
   --minimum-clusters 1 \
   --maximum-clusters 148 \
   --k-values 10 15 20 \
@@ -526,7 +526,7 @@ approving that protocol, execute the first server batch:
 ```bash
 .venv/bin/python run_prti_experiments.py parameter-grid \
   --source data/PRTI-GH-study/PRTI-GH-study.xls \
-  --output-directory evidence/prti-parameter-grid-k10-15-20-v1 \
+  --output-directory evidence/prti-parameter-grid-k10-15-20-v2 \
   --minimum-clusters 1 \
   --maximum-clusters 148 \
   --k-values 10 15 20 \
@@ -543,6 +543,11 @@ approving that protocol, execute the first server batch:
 
 Repeat that exact command to resume. Worker count and batch size may be
 adjusted after a stable batch without changing the declared scientific grid.
+The selection CSV and JSON retain mean, standard deviation, minimum, and
+maximum entropy sums and identify the privacy-eligible information-loss/entropy
+Pareto frontier. Automatic selection remains privacy-first and then chooses the
+lowest mean information loss; Pareto status is an additional analysis, not a
+replacement rule.
 
 That mode bounds C separately for each k, writes aggregate-only resumable
 checkpoints, requires an unseen held-out seed and an explicit reuse policy,
@@ -583,9 +588,9 @@ For a completed joint workflow, use:
 
 ```bash
 .venv/bin/python run_prti_selected_candidate.py \
-  --study-directory evidence/prti-parameter-grid-k10-15-20-v1 \
-  --output-directory outputs/prti/parameter-grid-selected-heldout-seed11-v1 \
-  --evidence-directory evidence/prti-parameter-grid-final-selection-v1 \
+  --study-directory evidence/prti-parameter-grid-k10-15-20-v2 \
+  --output-directory outputs/prti/parameter-grid-selected-heldout-seed11-v2 \
+  --evidence-directory evidence/prti-parameter-grid-final-selection-v2 \
   --plan-only
 ```
 
