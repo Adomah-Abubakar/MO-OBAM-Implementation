@@ -521,7 +521,27 @@ Write the proposed server plan without starting optimization:
 
 Inspect `prti_parameter_grid_plan.json`, including the source, parameter sets,
 seed separation, feasibility bounds, and `patient_level_outputs: false`. After
-approving that protocol, execute the first server batch:
+approving that protocol, limit each worker process to one internal numerical-
+library thread before executing a real server batch:
+
+```bash
+export OMP_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
+export MKL_NUM_THREADS=1
+export NUMEXPR_NUM_THREADS=1
+```
+
+The study already parallelizes independent runs with `--workers` and
+`--worker-backend process`. NumPy, SciPy, OpenBLAS, MKL, or NumExpr may
+otherwise create additional threads inside every worker process. For example,
+32 process workers that each create several library threads can oversubscribe
+the server's CPUs, increase memory use and context switching, and make the
+study slower or unstable. Setting these variables to `1` keeps parallelism at
+the runner level; it does not change k, C, lambda, the PSO population or
+iterations, seeds, numerical formulas, privacy rules, or selection results.
+Set them once in every new shell before starting or resuming a real study.
+
+Then execute the first server batch:
 
 ```bash
 .venv/bin/python run_prti_experiments.py parameter-grid \
