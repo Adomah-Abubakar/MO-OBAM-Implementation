@@ -88,8 +88,10 @@ The relevant upstream references are the
 
 `xlrd` is required because PRTI-GH is an Excel 97-2003 `.xls` workbook. SciPy
 provides the compiled pairwise-distance kernels used by the PSO implementation.
+`openpyxl` writes the single multi-objective Excel report; it is not an
+optimizer dependency.
 Every new PRTI audit and anonymization summary records the Python, NumPy,
-pandas, SciPy, and xlrd versions used. It also records the exact paper
+pandas, SciPy, xlrd, and openpyxl versions used. It also records the exact paper
 identifier, revision date, and URL. The January 2025 PDF previously downloaded
 beside the other project is arXiv v1; the implementation authority is
 [`arXiv:2501.01002v2`](https://arxiv.org/abs/2501.01002v2), revised 15 May 2025.
@@ -259,8 +261,9 @@ matches the research task:
 | Workflow | Use it when | Recommended order |
 |---|---|---|
 | Fresh installation preflight | The repository or dataset is new on a machine | Section 3 audit, then smoke test |
-| Main fixed-parameter cluster study | `k` and lambda are already fixed and only `C` must be selected | Sections 3, 5, then 7 |
-| Main joint-parameter study | `k`, `C`, and lambda must all be compared | Sections 3, 6, then 7 |
+| Main fixed-parameter cluster study | `k` and lambda are already fixed and only `C` must be selected | Sections 3, 5, then 8 |
+| Main joint-parameter study | `k`, `C`, and lambda must all be compared | Sections 3, 6, then 8 |
+| Faster multi-objective study | Search `k` and `C` jointly while analysing the full lambda domain without separate lambda runs | Sections 3 and 7 |
 | Historical reproducibility | A recorded baseline or earlier experiment must be reproduced | Section 3, then the required command in Section 4 |
 
 Do not run the historical seed-9 baseline merely because the audit succeeded.
@@ -582,7 +585,87 @@ SciPy's compiled distance kernel and compiled entropy counting retain every
 declared run while removing the dominant temporary-array and Python dispatch
 overhead.
 
-### 7. Generate one held-out candidate after selection
+### 7. Faster multi-objective extension across C=1 through C=30
+
+The original scalar PSO and its recorded `v3` results remain the baseline. The
+additive multi-objective extension searches information loss and sensitive-
+attribute entropy jointly and retains a bounded Pareto archive. It does not run
+PSO separately for every lambda. Instead, after each run it calculates the
+scalar objective `IL - lambda * entropy_sum` and its crossover intervals over
+the complete lambda domain `[0,1]` represented by the discovered archive.
+
+The complete declared study contains:
+
+```text
+30 cluster counts (C=1 through C=30)
+5 k values (10, 15, 20, 25, 30)
+10 comparison seeds (0 through 9)
+= 1,500 optimizer runs
+```
+
+Every declared cluster count from 1 through 30 is included. The command never
+runs the held-out seed during configuration selection.
+
+First write and inspect the immutable plan. This performs no optimization and
+does not read patient rows:
+
+```bash
+.venv/bin/python run_prti_multiobjective.py \
+  --source data/PRTI-GH-study/PRTI-GH-study.xls \
+  --output-directory evidence/prti-multiobjective-v1 \
+  --minimum-clusters 1 \
+  --maximum-clusters 30 \
+  --k-values 10 15 20 25 30 \
+  --population 100 \
+  --iterations 100 \
+  --archive-size 100 \
+  --initialization-attempts 20 \
+  --random-coefficient-max 0.01 \
+  --seeds 0 1 2 3 4 5 6 7 8 9 \
+  --held-out-seed 12 \
+  --maximum-information-loss 0.60 \
+  --maximum-homogeneity-fraction 0.20 \
+  --maximum-zero-entropy-sensitive-attributes 1 \
+  --workers 32 \
+  --dry-run
+```
+
+After checking the plan, run or resume all missing comparison runs by using the
+same command without `--dry-run`. The SQLite checkpoint database makes an
+interrupted invocation resumable. `--max-new-runs N` may be used to stop cleanly
+after a declared batch; a partial study writes diagnostics but cannot select a
+configuration.
+
+The study directory contains only four persistent artifacts:
+
+```text
+prti_multiobjective_plan.json
+prti_multiobjective_selection.json
+prti_multiobjective_report.xlsx
+prti_multiobjective_checkpoints.sqlite3
+```
+
+The Excel workbook contains the readable summary, configuration comparison,
+and lambda intervals. SQLite is internal resumable evidence. The study is
+aggregate-only and produces no anonymized patient rows. To regenerate the JSON
+selection and Excel report from SQLite without optimization, repeat the command
+with `--report-only`.
+
+The project-specific homogeneity and IL thresholds are explicit required
+arguments so they cannot be silently hidden in a new study. The resulting
+selection is a best-observed stochastic Pareto result, not proof of a global
+mathematical optimum and not approval for unrestricted data release.
+
+The PSO random-coefficient bound is also a required argument. Use `0.01` to
+match the authors' implementation. It is written into the immutable plan and
+SQLite metadata, so changing it requires a new versioned output directory.
+
+### 8. Generate one held-out candidate after selection
+
+This section applies to the existing scalar `dense-clusters` and
+`parameter-grid` workflows. The multi-objective command deliberately stops at
+aggregate selection and does not pass its result into the scalar held-out
+runner.
 
 Do not manually choose a configuration after looking at the comparison
 results. Wait until the selected study reports completion, then let the
@@ -618,7 +701,7 @@ For either workflow, inspect the generated plan and then repeat its exact
 command without `--plan-only`. The same candidate runner supports both
 completed study types.
 
-### 8. Maintain previously recorded results
+### 9. Maintain previously recorded results
 
 The commands in this section operate on existing recorded candidates and
 reports. They are not steps in a new main study.
@@ -692,7 +775,7 @@ rerunning PSO or modifying any research-data CSV:
 .venv/bin/python run_prti.py --refresh-manifest
 ```
 
-### 9. Saved outputs and privacy boundary
+### 10. Saved outputs and privacy boundary
 
 Full baseline runs, saved-table display, and manifest refresh use
 `outputs/prti/baseline-v1-seed9/` by default. Audit-only and smoke-test modes
@@ -731,7 +814,7 @@ cross-checked for row alignment, column order, complete mappings, unchanged
 SAs, matching QID after-values, cluster totals, hard k-anonymity, and complete
 entropy rows.
 
-### 10. Interpretation boundary
+### 11. Interpretation boundary
 
 `C=30`, `k=10`, and `lambda=1` define the first PRTI model configuration. Seed
 0 remains the historical first baseline. A deterministic 20-iteration screen

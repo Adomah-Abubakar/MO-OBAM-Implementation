@@ -285,7 +285,7 @@ class PRTIAnonymizationRunner:
             "machine": platform.machine(),
             "packages": {
                 name: package_version(name)
-                for name in ("numpy", "pandas", "scipy", "xlrd")
+                for name in ("numpy", "pandas", "scipy", "xlrd", "openpyxl")
             },
         }
 

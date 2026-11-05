@@ -237,7 +237,9 @@ class PRTIDataTests(unittest.TestCase):
         pins = dict(requirement.split("==", maxsplit=1) for requirement in requirements)
         environment = PRTIAnonymizationRunner._runtime_environment()
 
-        self.assertEqual(set(pins), {"numpy", "pandas", "scipy", "xlrd"})
+        self.assertEqual(
+            set(pins), {"numpy", "pandas", "scipy", "xlrd", "openpyxl"}
+        )
         self.assertTrue(environment["python"].startswith("3.12."))
         self.assertEqual(environment["packages"], pins)
 

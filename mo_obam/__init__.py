@@ -75,6 +75,15 @@ from .prti_release_readiness import (
     build_readiness_record,
     generate_release_readiness,
 )
+from .prti_multiobjective_solver import (
+    PRTIMultiObjectiveParticleSwarm,
+    PRTIMultiObjectiveResult,
+    PRTIParetoCandidate,
+)
+from .prti_multiobjective import (
+    PRTIMultiObjectiveConfig,
+    PRTIMultiObjectiveStudy,
+)
 
 __all__ = [
     "ADULT_COLUMNS",
@@ -117,6 +126,11 @@ __all__ = [
     "PRTIParameterGridConfig",
     "PRTIParameterGridPlan",
     "PRTIParameterGridRunner",
+    "PRTIMultiObjectiveConfig",
+    "PRTIMultiObjectiveParticleSwarm",
+    "PRTIMultiObjectiveResult",
+    "PRTIMultiObjectiveStudy",
+    "PRTIParetoCandidate",
     "PRTIPreparedData",
     "PRTIRunConfig",
     "PRTIRobustnessConfig",
