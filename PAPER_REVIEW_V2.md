@@ -3,7 +3,7 @@
 Reviewed source: Wei et al., arXiv:2501.01002v2, revised 15 May 2025.
 The repository was previously based on the January 2025 v1 PDF. This review
 records which v2 statements are implemented and which ambiguities remain.
-Implementation cross-check refreshed: 4 November 2026.
+Implementation cross-check refreshed: 5 November 2026.
 
 ## Formulation implemented
 
@@ -124,9 +124,10 @@ results under a fixed seed, feasibility, metric agreement with the formulation,
 and proximity to the exact small-data optimum. Adult preparation and baseline
 privacy counts are also regression-tested against Table 6.
 
-The current repository verification snapshot contains 83 passing tests,
+The current repository verification snapshot contains 94 passing tests,
 including the held-out PRTI-GH policy, joint-grid feasibility and recovery,
-and aggregate results-package boundaries.
+aggregate results-package boundaries, and the additive multi-objective
+extension's Pareto, hard-k, immutable-plan, SQLite, and Excel-report checks.
 
 Sources:
 

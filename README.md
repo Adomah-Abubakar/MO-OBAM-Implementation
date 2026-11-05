@@ -96,6 +96,13 @@ identifier, revision date, and URL. The January 2025 PDF previously downloaded
 beside the other project is arXiv v1; the implementation authority is
 [`arXiv:2501.01002v2`](https://arxiv.org/abs/2501.01002v2), revised 15 May 2025.
 
+The active implementation is the `mo_obam/` package and the documented
+`run_*.py`, `generate_*.py`, and cluster-study shell entry points. The root
+`MO-OBAM.ipynb`, `constants.py`, `utils.py`, `model_train.py`, and
+`particle_swarm.py` files are the retained authors' reference bundle. They are
+not imported by the active PRTI-GH implementation and must not be mistaken for
+the server workflow.
+
 ## Implemented paper formulation
 
 `mo_obam.MOOBAMFormulation` implements:
@@ -575,7 +582,7 @@ replacement rule.
 That mode bounds C separately for each k, writes aggregate-only resumable
 checkpoints, requires an unseen held-out seed and an explicit reuse policy,
 prevents concurrent writers to one study directory, and withholds selection
-until every declared configuration/seed outcome is recorded. The proposed
+until every declared configuration/seed outcome is recorded. The expanded
 full-grid command and its 21,450-run count are documented in
 [`PRTI_CLUSTER_RANGE_STUDY.md`](PRTI_CLUSTER_RANGE_STUDY.md#16-joint-k-cluster-count-and-lambda-study-on-a-server).
 On a Linux server, `--worker-backend process` runs independent configurations
@@ -920,7 +927,7 @@ Run the tests with the project virtual environment:
 .venv/bin/python -m unittest discover -v
 ```
 
-Verification on 5 November 2026 completed with 85 passing tests.
+Verification on 5 November 2026 completed with 94 passing tests.
 
 The tests cover the paper's nine-record example, multiple sensitive attributes
 with `sum(min(entropy))`, the direct v2 objective, hard membership and k
@@ -938,7 +945,10 @@ identifier patterns and potential free text, exports no source values, and
 keeps external approval and downstream-utility claims explicitly pending.
 The server-readiness tests additionally cover joint k/C/lambda plan bounds,
 held-out handoff, atomic checkpoint writes, corrupt-checkpoint recovery, and
-single-writer locking.
+single-writer locking. The multi-objective tests cover Pareto dominance,
+deterministic hard-k-feasible execution, the complete C=1 through C=30 plan,
+lambda crossover intervals, immutable PSO settings, SQLite metadata rejection,
+and the documented three-sheet Excel report.
 
 ## Small exact experiment
 

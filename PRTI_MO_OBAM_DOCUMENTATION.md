@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Status | Living research document |
-| Document version | 1.2.0 |
+| Document version | 1.3.0 |
 | Last updated | 5 November 2026 |
 | Dataset | Pediatric Road Traffic Injury in Ghana (PRTI-GH) |
 | Methodological authority | Wei et al., MO-OBAM, arXiv:2501.01002v2, 15 May 2025 |
@@ -14,7 +14,8 @@
 | Robustness study | 40 planned seed runs recorded: 34 completed and 6 found no feasible initial particle |
 | Held-out candidate | Four clusters, seed 10; passed all predeclared project screening checks; external release not approved |
 | Follow-up range protocol | Code ready and primary execution in progress for a mathematically feasible inclusive cluster sweep with explicit comparison seeds and a prospectively reserved held-out seed; selection not yet complete |
-| Joint parameter protocol | Server-ready aggregate grid mode implemented for multiple k, C, and lambda values; proposed grid not yet approved or executed |
+| Scalar joint parameter protocol | Expanded v3 plan contains 2,145 configurations and 21,450 runs; server evidence is not tracked in this checkout and is not integrated into the recorded results |
+| Additive multi-objective protocol | C=1 through C=30 across five k values and ten comparison seeds; 1,500 aggregate runs planned, no result recorded yet |
 | Current reporting package | `evidence/prti-results-v2/`: 8 aggregate CSV tables, 5 PNG/SVG figure pairs, index, and provenance manifest; no patient rows or centroids |
 | Release readiness | Automated 106-attribute triage complete; external release remains blocked pending custodian, clinical, privacy/governance, and independent disclosure-control review |
 | Machine-learning phase | Paused; not evaluated in the current PRTI-GH result |
@@ -945,13 +946,14 @@ sensitive-attribute entropy sum. This descriptive frontier does not replace the
 predeclared automatic rule: select the lowest mean information loss among
 eligible configurations, with the documented deterministic tie breakers.
 
-The proposed k={10,15,20,25,30}, paper-derived
+The expanded k={10,15,20,25,30}, paper-derived
 lambda={0.0001,0.001,0.01,0.1,1}, C=1 through its k-specific maximum,
 ten-seed plan contains 2,145 configurations and 21,450 runs. Values k=25 and
 k=30 extend the paper-derived sensitivity values as a declared PRTI-GH project
-adaptation so the search includes stronger privacy settings. This is a proposed
-protocol, not a completed result; its exact grid must be approved before
-execution. Commands and server preflight checks are in
+adaptation so the search includes stronger privacy settings. The v3 plan was
+executed on the external server, but its complete evidence directory is not
+tracked in this checkout. It is therefore not incorporated into the recorded
+results in this document. Commands and server preflight checks are in
 [`PRTI_CLUSTER_RANGE_STUDY.md`](PRTI_CLUSTER_RANGE_STUDY.md).
 
 Runtime optimization does not reduce that plan. Equation 12 now uses compiled
@@ -961,6 +963,30 @@ use forked process workers through `--worker-backend process`; threads remain
 available as the portable default. These are execution changes only: k, C,
 lambda, population, iterations, comparison seeds, held-out seed, and privacy
 rules remain unchanged.
+
+### 8.9 Additive multi-objective protocol
+
+The additive multi-objective extension keeps the scalar PSO baseline unchanged.
+For each k/C/seed run it searches information loss and sensitive-attribute
+entropy jointly and retains a bounded non-dominated archive. The declared study
+uses C=1 through C=30, k={10,15,20,25,30}, and comparison seeds 0 through 9:
+150 k/C configurations and 1,500 optimizer runs. Held-out seed 12 is reserved
+and is not executed during aggregate selection.
+
+Lambda is not repeated as a separate optimizer dimension. For the discovered
+privacy-eligible archive, the report evaluates `IL - lambda * entropy_sum` and
+calculates candidate crossover intervals over the full lambda domain [0,1].
+Population, iterations, archive size, initialization attempts, random-
+coefficient bound, privacy thresholds, seeds, k values, cluster limits and
+worker count are terminal parameters and are recorded in the immutable plan.
+
+The workflow stores an immutable plan, aggregate selection JSON, an Excel
+report, and one SQLite checkpoint database. SQLite contains aggregate run and
+candidate metrics only and supports duplicate prevention and resumability. It
+contains no patient rows, assignments, centroids, prepared records or
+anonymized records. Selection is withheld until all declared comparison runs
+are recorded. The workflow has not yet produced a result and does not currently
+generate the final held-out anonymized dataset.
 
 ## 9. Output artifacts
 
@@ -1037,17 +1063,28 @@ QID representatives, or cluster centroids.
 | [`mo_obam/prti_runner.py`](mo_obam/prti_runner.py) | End-to-end preparation, optimization, decoding, validation, reporting, and output generation |
 | [`mo_obam/prti_experiments.py`](mo_obam/prti_experiments.py) | Aggregate-only seed screening, Wei-grid sensitivity experiments, and fresh-versus-legacy reproduction comparison |
 | [`mo_obam/prti_robustness.py`](mo_obam/prti_robustness.py) | Resumable multi-seed execution, per-seed aggregate checkpoints, stability statistics, and provenance |
+| [`mo_obam/prti_dense_clusters.py`](mo_obam/prti_dense_clusters.py) | Inclusive C-only and joint scalar parameter-grid planning, aggregate checkpointing, selection and Pareto summaries |
+| [`mo_obam/prti_dense_release.py`](mo_obam/prti_dense_release.py) | Validates completed scalar selection evidence and derives one prospectively held-out candidate without manual parameter overrides |
+| [`mo_obam/prti_multiobjective_solver.py`](mo_obam/prti_multiobjective_solver.py) | Additive Pareto PSO extension that jointly minimizes information loss and maximizes sensitive-attribute entropy |
+| [`mo_obam/prti_multiobjective.py`](mo_obam/prti_multiobjective.py) | Immutable multi-objective planning, process execution, SQLite checkpoints, aggregate selection and Excel reporting |
 | [`mo_obam/prti_results.py`](mo_obam/prti_results.py) | Aggregate write-up tables, per-SA risk ranking, class-risk table, and results provenance |
 | [`mo_obam/prti_results_package.py`](mo_obam/prti_results_package.py) | Validates recorded evidence and builds the aggregate-only results-v2 tables, GNUPlot figures, index, and hash manifest |
 | [`mo_obam/prti_release.py`](mo_obam/prti_release.py) | Prospective selection-plan enforcement, held-out execution, project-screening assessment, and aggregate evidence |
 | [`mo_obam/prti_release_readiness.py`](mo_obam/prti_release_readiness.py) | Value-free attribute triage, bounded experiment/utility decisions, and explicit external release gates |
 | [`run_prti.py`](run_prti.py) | Reproducible command-line interface |
 | [`run_prti_experiments.py`](run_prti_experiments.py) | Reproducible seed-screen, sensitivity, robustness, and comparison command-line interface |
+| [`run_prti_multiobjective.py`](run_prti_multiobjective.py) | Reproducible aggregate-only C=1 through C=30 multi-objective command-line interface |
 | [`run_prti_release.py`](run_prti_release.py) | Reproducible held-out candidate and evaluate-only command-line interface |
+| [`run_prti_selected_candidate.py`](run_prti_selected_candidate.py) | Derives and executes a scalar study's prospectively reserved held-out candidate |
 | [`generate_prti_release_readiness.py`](generate_prti_release_readiness.py) | Regenerates the aggregate-only attribute review and release-readiness decision record |
 | [`generate_prti_results.py`](generate_prti_results.py) | Regenerates write-up-ready result tables without rerunning PSO |
 | [`generate_prti_results_package.py`](generate_prti_results_package.py) | Regenerates the consolidated results-v2 package without rerunning PSO |
 | [`tests/`](tests/) | Equation, solver, data-preservation, output, and regression checks |
+
+The active implementation is the `mo_obam/` package and the entry points shown
+above. The root `MO-OBAM.ipynb`, `constants.py`, `utils.py`, `model_train.py`,
+and `particle_swarm.py` files are retained authors' reference material. The
+active PRTI-GH workflow does not import them.
 
 ### 10.2 Recorded export checks
 
@@ -1269,6 +1306,7 @@ meaning, limitations, and provenance.
 
 | Version | Date | Change |
 |---|---|---|
+| 1.3.0 | 5 November 2026 | Documented the 1,500-run additive multi-objective protocol, aggregate SQLite boundary, scalar v3 evidence boundary, active-versus-reference code layout, expanded implementation map, and 94-test verification |
 | 1.2.0 | 5 November 2026 | Added compiled distance kernels, process-based configuration/seed parallelism, standalone repository paths, project-local environment support, portable aggregate provenance, and 85-test verification |
 | 1.1.0 | 4 November 2026 | Added the separate joint k/C/lambda server protocol, k-specific feasibility bounds, explicit no-reuse mode, atomic checkpoints, periodic aggregate refresh, single-writer locking, held-out handoff, and 83-test verification |
 | 1.0.0 | 4 November 2026 | Added the mathematically bounded inclusive cluster-range protocol, explicit comparison and held-out seed separation, privacy-first selection, selection-aware final-candidate command, a clear pending-results boundary, and 73-test verification |

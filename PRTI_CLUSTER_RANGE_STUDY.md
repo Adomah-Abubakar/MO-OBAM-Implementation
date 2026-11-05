@@ -12,11 +12,12 @@ and release-readiness evidence.
 |---|---|
 | Range-study code | Complete and tested |
 | Joint k/C/lambda grid code | Complete and tested separately from the range study |
-| Verified repository tests | 83 passing tests |
+| Verified repository tests | 94 passing tests |
 | Selection-stage patient rows | Disabled |
 | Mathematical bound | `C <= floor(1485/k)` enforced in shell and Python |
 | Automatic selection | Privacy and feasibility first, then lowest mean information loss |
 | Held-out seed | Declared before selection and prohibited from comparison seeds |
+| Additive multi-objective protocol | Implemented separately for C=1 through C=30; no result recorded yet |
 | External release approval | Not granted by this workflow |
 
 This is a project protocol rather than an experiment reported in the source
@@ -382,9 +383,9 @@ Show its self-contained help and example:
 .venv/bin/python run_prti_experiments.py parameter-grid --help
 ```
 
-The following proposed full grid retains the project privacy floor `k>=10` and
-uses the paper-derived lambda values. Treat the dry plan as a proposed protocol
-until the k and lambda sets have been approved for the thesis:
+The following approved expanded grid retains the project privacy floor `k>=10`
+and uses the paper-derived lambda values. The dry plan records the protocol that
+was used for the external v3 server execution:
 
 ```bash
 .venv/bin/python run_prti_experiments.py parameter-grid \
@@ -415,8 +416,12 @@ This plan contains:
 - 2,145 configurations; and
 - 21,450 aggregate comparison runs across ten seeds.
 
+The server execution completed, but its complete v3 evidence directory is not
+tracked in this checkout. Therefore, this runbook records the protocol but does
+not treat the absent server files as locally verified results.
+
 Inspect `prti_parameter_grid_plan.json` before removing `--dry-run`. For the
-52-physical-core, 93-GiB server reviewed for this project, begin real execution
+52-physical-core, 93-GiB server reviewed for this project, begin a repeat execution
 with `--workers 32 --worker-backend process --max-new-runs 64`. If that batch
 is stable, use `--workers 48 --worker-backend process --max-new-runs 480` and
 repeat the otherwise identical command. Worker count, backend, and batch size
@@ -503,3 +508,42 @@ combined CSV/JSON reports refresh every 25 completed runs and again at clean
 exit; use the checkpoint-count command while a batch is still running. The
 worker queue is bounded to the active worker count, so an interrupt cancels
 work that has not started and preserves checkpoints already written.
+
+## 18. Additive multi-objective C=1 through C=30 protocol
+
+The scalar parameter grid above runs the optimizer separately for each declared
+lambda. The additive multi-objective workflow instead minimizes information
+loss and maximizes the sensitive-attribute entropy sum in one Pareto PSO search
+for each k/C/seed combination. It leaves the existing scalar solver and its
+recorded evidence unchanged.
+
+The documented protocol uses five k values, every C from 1 through 30, and ten
+comparison seeds, producing 150 configurations and 1,500 optimizer runs. Lambda
+is not another run dimension: after optimization, the report calculates the
+scalar objective and exact candidate crossover intervals over lambda in [0,1].
+Seed 12 is prospectively reserved and is not executed during selection.
+
+Show the complete command and required parameters with:
+
+```bash
+.venv/bin/python run_prti_multiobjective.py --help
+```
+
+Run the example with `--dry-run` first and inspect the immutable plan. Removing
+`--dry-run` executes or resumes missing comparison runs. The workflow persists
+only:
+
+```text
+evidence/prti-multiobjective-v1/
+  prti_multiobjective_plan.json
+  prti_multiobjective_selection.json
+  prti_multiobjective_report.xlsx
+  prti_multiobjective_checkpoints.sqlite3
+```
+
+The SQLite file is an internal aggregate checkpoint store that prevents
+duplicate k/C/seed runs and supports safe resume. It stores no patient rows,
+assignments, centroids, prepared records, or anonymized records. The JSON and
+Excel reports cannot select a configuration until every declared comparison
+run is recorded. This workflow currently stops at aggregate selection; it does
+not generate a held-out anonymized dataset and has no recorded result yet.

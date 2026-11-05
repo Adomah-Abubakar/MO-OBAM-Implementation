@@ -5,8 +5,8 @@
 | Field | Value |
 |---|---|
 | Status | Write-up-ready results; held-out candidate passed project screening; external release not approved |
-| Results version | 1.5.0 |
-| Analysis date | 4 November 2026 |
+| Results version | 1.6.0 |
+| Analysis date | 5 November 2026 |
 | Method | Wei et al. MO-OBAM, arXiv:2501.01002v2 |
 | Dataset | PRTI-GH, 1,485 records and 106 attributes |
 | Current roles | 29 QIDs and 77 sensitive attributes |
@@ -34,11 +34,15 @@ historical results remain the current completed evidence until the new range,
 selection, and held-out run finish. See
 [`PRTI_CLUSTER_RANGE_STUDY.md`](PRTI_CLUSTER_RANGE_STUDY.md).
 
-A separate joint k/C/lambda server mode is also implemented but has not been
-executed. Its proposed 1,605-configuration, 16,050-run plan is not a result and
-does not change any table in this document. It would answer a broader question
-than the fixed-k, fixed-lambda cluster range and must be approved as a separate
-prospective protocol before execution.
+The documented scalar joint k/C/lambda server plan contains 2,145
+configurations and 21,450 comparison runs. Its v3 server evidence is not
+tracked in this checkout and is therefore not incorporated into the tables in
+this document.
+
+The newer additive multi-objective C=1 through C=30 protocol contains 150 k/C
+configurations and 1,500 comparison runs. It analyses lambda after each Pareto
+search instead of repeating PSO for each lambda. It has no recorded result in
+this repository and does not change any table in this document.
 
 ## 1. Analysis scope
 
@@ -397,9 +401,11 @@ This paragraph should be accompanied by the limitations in the next section.
 - The new inclusive range can identify only the best observed eligible
   configuration within its declared values, seeds, and PSO budget; it cannot
   prove a global mathematical optimum.
-- The joint-grid implementation can compare declared k, C, and lambda values,
-  but no joint-grid result exists until its protocol is approved and every
-  planned configuration/seed outcome is recorded.
+- The scalar joint-grid implementation compared declared k, C, and lambda
+  values on the external server, but its v3 evidence is not tracked in this
+  checkout and is therefore not integrated into these results.
+- The additive multi-objective protocol has no result until all 1,500 declared
+  comparison runs are recorded and its evidence is reviewed.
 
 ## 8. Reproduction
 
@@ -469,7 +475,7 @@ Run validation:
 .venv/bin/python -m unittest discover -v
 ```
 
-The verification snapshot on 5 November 2026 contains 85 passing tests. The
+The verification snapshot on 5 November 2026 contains 94 passing tests. The
 results-v2 CSVs were also reloaded with the spreadsheet validation tooling,
 all output hashes were checked, and each PNG figure was visually inspected at
 1600 by 1000 pixels.

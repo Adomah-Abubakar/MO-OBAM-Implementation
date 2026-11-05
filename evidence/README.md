@@ -46,6 +46,19 @@ the run-level CSV, and the configuration summary CSV/JSON. Thirty-four runs
 completed and six recorded no feasible initial particle. It contains no
 assignments, centroids, or patient rows.
 
+The tracked `prti-dense-clusters-v1/` and `prti-primary-range-k10-v1/`
+directories are incomplete historical follow-up studies. Their selection JSON
+files report `selection_incomplete`; the primary-range study has no selected
+configuration. Any interim selection present in the older dense-cluster file is
+not a completed-study conclusion and must not be used as the current result.
+These directories are retained only as aggregate historical evidence.
+
+The scalar v3 parameter-grid execution was performed on the external server,
+but `prti-parameter-grid-k10-15-20-25-30-v3/` is not tracked in this checkout.
+Its results must not be inferred or regenerated from the older incomplete
+directories above; install and verify the complete v3 evidence separately
+before incorporating it into a reporting package.
+
 The `prti-final-selection-v1/` directory records the prospective held-out
 candidate plan and its aggregate screening result. The plan fixes the selected
 configuration, held-out seed rule, and project thresholds before execution.
@@ -77,5 +90,13 @@ remain `PENDING` until named reviewers supply evidence. The decision record
 also explains why the remaining 181 grid points and downstream utility testing
 are not required for the bounded current claims.
 
-The repository verification snapshot on 5 November 2026 contains 85 passing
+The additive multi-objective workflow writes a new versioned directory such as
+`prti-multiobjective-v1/` only when the user runs it. Its four persistent files
+are an immutable JSON plan, a selection JSON, one human-readable Excel report,
+and an internal SQLite checkpoint database. SQLite stores aggregate run and
+Pareto-candidate metrics only; it contains no patient rows, assignments,
+centroids, prepared records, or anonymized records. No multi-objective result is
+reported until all 1,500 declared comparison runs are recorded.
+
+The repository verification snapshot on 5 November 2026 contains 94 passing
 tests.

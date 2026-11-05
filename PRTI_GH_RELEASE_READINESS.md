@@ -21,12 +21,17 @@ of global optimality. Its partial checkpoints must not be interpreted until
 every planned cluster/seed result is recorded and the prospectively reserved
 held-out seed is evaluated once.
 
-A separate joint k/C/lambda implementation is now available for a broader
-server study. Its proposed grid is not yet approved or executed and does not
-alter the historical or fixed-range claims above. If approved, it must use a
-new immutable plan and evidence directory, record every declared
-configuration/seed outcome, and evaluate only its prospectively reserved
-held-out seed after aggregate selection completes.
+A separate scalar joint k/C/lambda implementation is available for a broader
+server study. The documented expanded plan contains 2,145 configurations and
+21,450 comparison runs. Its v3 server evidence is not tracked in this checkout,
+so it does not alter the historical or fixed-range claims above.
+
+An additive multi-objective implementation is also available for C=1 through
+C=30 across five k values and ten comparison seeds. It searches information
+loss and sensitive-attribute entropy jointly and analyses lambda after the
+Pareto search. No result is recorded in this repository. It must complete all
+1,500 aggregate comparison runs before selection, and it does not itself
+generate or approve patient-level output.
 
 ## Downstream-utility decision
 
