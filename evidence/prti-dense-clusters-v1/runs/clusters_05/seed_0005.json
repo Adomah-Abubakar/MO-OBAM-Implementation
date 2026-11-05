@@ -1,0 +1,47 @@
+{
+  "paper_identifier": "arXiv:2501.01002v2",
+  "paper_revision": "15 May 2025",
+  "source_sha256": "0deb1fc54a3dccba3a4c0339696ed1fb4f124a0349afde9f06e4b79dbf89a37e",
+  "configuration_id": "clusters_05",
+  "model_configuration": {
+    "k": 10,
+    "n_clusters": 5,
+    "lambda_weight": 1.0
+  },
+  "pso_configuration": {
+    "population_size": 100,
+    "iterations": 100,
+    "seed": 5,
+    "random_coefficient_max": 0.01
+  },
+  "patient_level_outputs": false,
+  "result_row": {
+    "configuration_id": "clusters_05",
+    "model_run_id": "k10_c005_lambda1",
+    "purpose": "Dense cluster-count comparison at C=5",
+    "k": 10,
+    "configured_clusters": 5,
+    "lambda": 1.0,
+    "population": 100,
+    "iterations": 100,
+    "seed": 5,
+    "status": "completed",
+    "issue": null,
+    "information_loss": 0.5531120212927316,
+    "entropy_sum": 99.02742866119776,
+    "objective": -98.47431663990503,
+    "equivalence_classes": 5,
+    "minimum_cluster_size": 191,
+    "maximum_cluster_size": 396,
+    "linkage_records_tau_0_05": 0,
+    "linkage_records_tau_0_075": 0,
+    "linkage_records_tau_0_1": 0,
+    "homogeneity_records_any_sa": 0,
+    "zero_minimum_entropy_sensitive_attributes": 0,
+    "best_iteration_zero_based": 87,
+    "feasible_evaluations": 9947,
+    "infeasible_evaluations": 53,
+    "feasible_evaluation_percent": 99.47,
+    "runtime_seconds": 431.51620391203323
+  }
+}

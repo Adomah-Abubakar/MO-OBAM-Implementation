@@ -1,0 +1,12 @@
+metric,prepared_baseline,recorded_seed9_baseline,heldout_seed10_candidate,unit,preferred_direction,definition
+equivalence_classes,1481.0,30.0,4.0,classes,context dependent,Distinct released QID patterns
+minimum_equivalence_class_size,1.0,16.0,238.0,records,higher,Smallest released equivalence class
+maximum_equivalence_class_size,2.0,148.0,471.0,records,context dependent,Largest released equivalence class
+linkage_attack_records_tau_0_05,1485.0,67.0,0.0,records,lower,Records in classes where 1/|E| is greater than 0.05
+linkage_attack_records_tau_0_075,1485.0,0.0,0.0,records,lower,Records in classes where 1/|E| is greater than 0.075
+linkage_attack_records_tau_0_1,1485.0,0.0,0.0,records,lower,Records in classes where 1/|E| is greater than 0.1
+homogeneity_attack_records_any_sa,1485.0,1249.0,0.0,records,lower,Records homogeneous for at least one configured SA
+information_loss,,0.4366537386166644,0.5342360914448178,ratio,lower,Wei Equation (14) QID information-loss ratio
+entropy_sum,,52.31126541274985,101.07627722444862,bits,higher,Sum of minimum cluster entropy across 77 SAs
+objective,,-51.874611674133185,-100.5420411330038,objective units,lower,Information loss minus lambda times entropy sum; lambda is 1 for both runs
+zero_minimum_entropy_sensitive_attributes,,30.0,0.0,attributes,lower,SAs with zero entropy in at least one released class

@@ -1,0 +1,11 @@
+item,value,unit,definition
+records,1485,records,Rows in the reviewed workbook
+attributes,106,attributes,Columns in the reviewed workbook
+quasi_identifiers,29,attributes,Attributes replaced by cluster representatives
+numeric_qids,2,attributes,QIDs evaluated with numerical distance
+categorical_qids,27,attributes,QIDs evaluated with categorical mismatch
+sensitive_attributes,77,attributes,Attributes preserved row by row and used in entropy
+source_sha256,0deb1fc54a3dccba3a4c0339696ed1fb4f124a0349afde9f06e4b79dbf89a37e,SHA-256,Fingerprint of the unchanged source workbook
+paper_identifier,arXiv:2501.01002v2,reference,Implemented MO-OBAM paper
+paper_revision,15 May 2025,reference,Paper revision used by the implementation
+final_run_id,prti-20261102T200626Z-privacy-candidate-heldout-seed10-k10-c4-lambda1p0-seed10,run identifier,Held-out candidate evaluated in this package

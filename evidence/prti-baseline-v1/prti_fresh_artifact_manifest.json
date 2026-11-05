@@ -1,0 +1,149 @@
+{
+  "manifest_version": 2,
+  "generated_at_utc": "2026-10-27T17:34:57+00:00",
+  "update_policy": "Artifact hashes may be refreshed, but a generation snapshot captured at run start is preserved. The manifest never modifies research data.",
+  "run": {
+    "run_id": "prti-20261027T173235Z-baseline-v1-seed9-k10-c30-lambda1p0-seed9",
+    "run_label": "baseline-v1-seed9",
+    "started_at_utc": "2026-10-27T17:32:35+00:00",
+    "completed_at_utc": "2026-10-27T17:34:57+00:00",
+    "timestamp_status": "recorded during execution"
+  },
+  "source": {
+    "filename": "PRTI-GH-study.xls",
+    "sha256": "0deb1fc54a3dccba3a4c0339696ed1fb4f124a0349afde9f06e4b79dbf89a37e"
+  },
+  "configuration": {
+    "model": {
+      "k": 10,
+      "n_clusters": 30,
+      "lambda_weight": 1.0
+    },
+    "pso": {
+      "population_size": 100,
+      "iterations": 100,
+      "seed": 9,
+      "random_coefficient_max": 0.01
+    }
+  },
+  "execution": {
+    "canonical_command": [
+      ".venv/bin/python",
+      "run_prti.py",
+      "--source",
+      "data/PRTI-GH-study/PRTI-GH-study.xls",
+      "--output-directory",
+      "outputs/prti/baseline-v1-seed9",
+      "--run-label",
+      "baseline-v1-seed9",
+      "--k",
+      "10",
+      "--clusters",
+      "30",
+      "--lambda-weight",
+      "1.0",
+      "--population",
+      "100",
+      "--iterations",
+      "100",
+      "--seed",
+      "9"
+    ],
+    "working_directory": "."
+  },
+  "code": {
+    "snapshot_status": "captured_at_run_start",
+    "git": {
+      "commit": "e8d86597d2915d7f0977884aeeb18a12935a9d0e",
+      "working_tree_clean": true,
+      "changed_path_count": 0
+    },
+    "generation_files": {
+      "mo_obam/__init__.py": "5898873ac3e29eea4c9b3f7d9f8c88df9a8cbbff85f5009fa1fbced5799f1ba9",
+      "mo_obam/adult_data.py": "dfbaf4644b423160ebbc75ddf724219b5cb246c496afc9599ad418e520496160",
+      "mo_obam/adult_experiments.py": "4058a6b8a7008b598dc5ff97c7408fd65fbf6dd7b9d19f383a31830899615a0c",
+      "mo_obam/adult_reporting.py": "9324219eb302a4431c7bc947d94e3e2a82ab13bb889d1417f9dcc1e898044300",
+      "mo_obam/adult_runner.py": "a784ff003a8f987f537670659024149bcd9705289323267275250a2a994a0d49",
+      "mo_obam/exact_solver.py": "eaf0b7837a948dd1387595d9fb297cf315aae7d753f7447099d8ab058b7c9059",
+      "mo_obam/formulation.py": "4e961893f962d22c5b76f775996e556608066c8b66d7aa04ffec2c7b4281a9ac",
+      "mo_obam/privacy_metrics.py": "2f038b599e7ac5ab012cddc6ccd5687c680f89e2b6319f4ebcb8dad911d0621a",
+      "mo_obam/provenance.py": "be44b754bb7693b7113dd759db183597c9de8ff4ac7c478404906e387aa0053f",
+      "mo_obam/prti_data.py": "cc5026fad2d0dc1946b1f85974d8e458f87d33038b398af712ed6e749576ae5b",
+      "mo_obam/prti_experiments.py": "70a5eccd0dca83af373c933ad1ae02d86b947b25d493055a5c9b34c712606a37",
+      "mo_obam/prti_runner.py": "8613a008f2ae61e6a4cded5f668921231a870bc1f5917548d79eed0473de26f9",
+      "mo_obam/pso_solver.py": "d31c94cf3b6a454a3e5242ca16f3d032f16660d5dfa232a8a5594e922775b9a9",
+      "mo_obam/schema.py": "04962804ee7bbd7186229ed1492bedf03ed8318cd1de6ba31a585d6771882310",
+      "run_prti.py": "22c8c68d2788a903dde170a2fab629351b31fa4c7c3eac429ae5c2dea24a3acd",
+      "run_prti_experiments.py": "932c62996985e30cf10bb8d5df40ed634ba26a9260b9b8a0d5bd84bec03decfc",
+      "requirements.txt": "547730a8d46abd83d4e1fe0a33a3ac6a4bf98e98ba58e7435ff79797caf9451b"
+    },
+    "validation_files": {
+      "tests/test_adult_data.py": "2b96e62fb37bfec5065e184f26f57424900031dd6bccf568f67bc9216aeedf5d",
+      "tests/test_adult_experiments.py": "435b6ce9a9fcb99c22e965ebf1dec924e6569324e809db16a0f3286b39f24e78",
+      "tests/test_adult_reporting.py": "5c4119989cc6577029520c6411707c31d33028b8c049e4a877ce76d17ed8a3d6",
+      "tests/test_exact_solver.py": "11092865731ebf4fffb924811706cc8ab50b0d3d0343a94bb1895e68693add37",
+      "tests/test_formulation.py": "05b5f044e328ed1daa853283d134e8588603098a68afc6433e9e6b379affe983",
+      "tests/test_privacy_metrics.py": "a3e92c25ca6de1e7ba580efac90dc48c29a0e208986bed6f1c47da5b3ca57b7f",
+      "tests/test_prti_data.py": "c6a3fa5e34896176af2c1144858017692f01756f0d96096cb107c75b9af136b4",
+      "tests/test_prti_experiments.py": "d4ec1a70add6e56dc17993e321185b4cc705cb792fee2d7f376dbc11986b07da",
+      "tests/test_pso_solver.py": "725d778ff4ffe45db7df8d09a2c56bc969db28fc7b9424ef47d65c59f9487d69"
+    },
+    "documentation_files": {
+      "README.md": "e9d0a258e11595107602650653730107b9b397cce366275b7549205cf93aa270",
+      "PAPER_REVIEW_V2.md": "320aab824a57ac17588ab1a153a90b08ac13524fc2fe1b94978dccaa80532c1e",
+      "PRTI_MO_OBAM_DOCUMENTATION.md": "81c1acf5b9594bf16091b5567c017ca4df58641990fd8919ba66364201f53bfb"
+    }
+  },
+  "artifacts": {
+    "anonymized_final": {
+      "filename": "prti_anonymized_final.csv",
+      "bytes": 1046969,
+      "sha256": "b280d503211ee9cb344c4950430962f8e1734f37d9ea9244268029931c6a2e1e"
+    },
+    "before_after_anonymization": {
+      "filename": "prti_before_after_anonymization.csv",
+      "bytes": 1493539,
+      "sha256": "b4fce8ad05a5ce291f8193b2d574f58134af2705abca9015bed1117da243cd85"
+    },
+    "category_mappings": {
+      "filename": "prti_category_mappings.csv",
+      "bytes": 212851,
+      "sha256": "1ee7e525091217affc37b525963193c06a02f888d71ca5cbc3b397f2dc3ea178"
+    },
+    "cluster_details": {
+      "filename": "prti_cluster_details.csv",
+      "bytes": 13086,
+      "sha256": "1cc30a95d0493a05ea00cb8c26e8fbba1488e7ea1dd33c2a74a8b4fb98ffd0da"
+    },
+    "input_audit": {
+      "filename": "prti_input_audit.csv",
+      "bytes": 16489,
+      "sha256": "948bcbebf694d76afc036e6df560a5810a691783559b736d0083f7f14c14bf97"
+    },
+    "model_evaluation": {
+      "filename": "prti_model_evaluation.csv",
+      "bytes": 410,
+      "sha256": "5bdb6072d79cb9fbf418301667362f6bd0ae159bbda913f3202962e8386e3942"
+    },
+    "preparation_summary": {
+      "filename": "prti_preparation_summary.json",
+      "bytes": 8493,
+      "sha256": "26a1052f76f2084d18914f424f1ff98ff020c539569e35c1e9f83f2486bcc3b3"
+    },
+    "prepared_input": {
+      "filename": "prti_prepared_input.csv",
+      "bytes": 372432,
+      "sha256": "fe5cb471d4edc9503fe36318338f47c7a2e9f49a6c028bb98f788c3fac21152a"
+    },
+    "run_summary": {
+      "filename": "prti_run_summary.json",
+      "bytes": 32480,
+      "sha256": "ed2c4f551d14d825dc3794686ae7c7cef99a4d8e23a6216774eb78e3eeddafc6"
+    },
+    "sensitive_entropy": {
+      "filename": "prti_sensitive_entropy.csv",
+      "bytes": 96394,
+      "sha256": "f7e3393be936c245379c6b6528e418cdb73d6836a9c25dd31f15ab60f3dfcd18"
+    }
+  }
+}

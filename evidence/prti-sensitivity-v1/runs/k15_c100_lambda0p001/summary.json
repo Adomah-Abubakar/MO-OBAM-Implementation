@@ -1,0 +1,28 @@
+{
+  "paper_identifier": "arXiv:2501.01002v2",
+  "paper_revision": "15 May 2025",
+  "source_sha256": "0deb1fc54a3dccba3a4c0339696ed1fb4f124a0349afde9f06e4b79dbf89a37e",
+  "model_configuration": {
+    "k": 15,
+    "n_clusters": 100,
+    "lambda_weight": 0.001
+  },
+  "pso_configuration": {
+    "population_size": 100,
+    "iterations": 100,
+    "seed": 9,
+    "random_coefficient_max": 0.01
+  },
+  "patient_level_outputs": false,
+  "result_row": {
+    "run_id": "k15_c100_lambda0p001",
+    "k": 15,
+    "configured_clusters": 100,
+    "lambda": 0.001,
+    "population": 100,
+    "iterations": 100,
+    "seed": 9,
+    "status": "mathematically_infeasible",
+    "issue": "Equation (20) cannot hold because k * configured_clusters = 1500 exceeds n = 1485."
+  }
+}

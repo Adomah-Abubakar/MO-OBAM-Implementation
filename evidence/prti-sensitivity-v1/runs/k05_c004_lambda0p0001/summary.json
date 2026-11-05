@@ -1,0 +1,43 @@
+{
+  "paper_identifier": "arXiv:2501.01002v2",
+  "paper_revision": "15 May 2025",
+  "source_sha256": "0deb1fc54a3dccba3a4c0339696ed1fb4f124a0349afde9f06e4b79dbf89a37e",
+  "model_configuration": {
+    "k": 5,
+    "n_clusters": 4,
+    "lambda_weight": 0.0001
+  },
+  "pso_configuration": {
+    "population_size": 100,
+    "iterations": 100,
+    "seed": 9,
+    "random_coefficient_max": 0.01
+  },
+  "patient_level_outputs": false,
+  "result_row": {
+    "run_id": "k05_c004_lambda0p0001",
+    "k": 5,
+    "configured_clusters": 4,
+    "lambda": 0.0001,
+    "population": 100,
+    "iterations": 100,
+    "seed": 9,
+    "status": "completed",
+    "issue": null,
+    "information_loss": 0.4693709503946481,
+    "entropy_sum": 96.65913115991385,
+    "objective": 0.4597050372786567,
+    "equivalence_classes": 4,
+    "minimum_cluster_size": 111,
+    "maximum_cluster_size": 591,
+    "linkage_records_tau_0_05": 0,
+    "linkage_records_tau_0_075": 0,
+    "linkage_records_tau_0_1": 0,
+    "homogeneity_records_any_sa": 111,
+    "zero_minimum_entropy_sensitive_attributes": 2,
+    "best_iteration_zero_based": 77,
+    "feasible_evaluations": 9997,
+    "infeasible_evaluations": 3,
+    "runtime_seconds": 101.4456279760052
+  }
+}

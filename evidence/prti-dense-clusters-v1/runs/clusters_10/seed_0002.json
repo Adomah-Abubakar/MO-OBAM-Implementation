@@ -1,0 +1,52 @@
+{
+  "paper_identifier": "arXiv:2501.01002v2",
+  "paper_revision": "15 May 2025",
+  "source_sha256": "0deb1fc54a3dccba3a4c0339696ed1fb4f124a0349afde9f06e4b79dbf89a37e",
+  "configuration_id": "clusters_10",
+  "model_configuration": {
+    "k": 10,
+    "n_clusters": 10,
+    "lambda_weight": 1.0
+  },
+  "pso_configuration": {
+    "population_size": 100,
+    "iterations": 100,
+    "seed": 2,
+    "random_coefficient_max": 0.01
+  },
+  "patient_level_outputs": false,
+  "result_row": {
+    "configuration_id": "clusters_10",
+    "model_run_id": "k10_c010_lambda1",
+    "purpose": "Dense cluster-count comparison at C=10",
+    "k": 10,
+    "configured_clusters": 10,
+    "lambda": 1.0,
+    "population": 100,
+    "iterations": 100,
+    "seed": 2,
+    "status": "completed",
+    "issue": null,
+    "information_loss": 0.47874768167592757,
+    "entropy_sum": 87.18642426927296,
+    "objective": -86.70767658759704,
+    "equivalence_classes": 10,
+    "minimum_cluster_size": 78,
+    "maximum_cluster_size": 252,
+    "linkage_records_tau_0_05": 0,
+    "linkage_records_tau_0_075": 0,
+    "linkage_records_tau_0_1": 0,
+    "homogeneity_records_any_sa": 828,
+    "zero_minimum_entropy_sensitive_attributes": 9,
+    "best_iteration_zero_based": 89,
+    "feasible_evaluations": 9012,
+    "infeasible_evaluations": 988,
+    "feasible_evaluation_percent": 90.12,
+    "runtime_seconds": 228.4473490100063
+  },
+  "reused_aggregate_checkpoint": {
+    "path": "evidence/prti-robustness-v1/runs/compromise_candidate/seed_0002.json",
+    "sha256": "c4e975e6ec83c3a10a27450c132b1d46e526b97dcc57f12a6cfabaa3dc1509bf",
+    "original_configuration_id": "compromise_candidate"
+  }
+}

@@ -1,0 +1,107 @@
+position,attribute,current_role,source_dtype,distinct_nonmissing_values,missing_values,cardinality_percentage,maximum_characters,maximum_tokens,mean_tokens,email_pattern_records,uuid_pattern_records,phone_pattern_records,potential_direct_identifier,potential_free_text,automated_review_flags,clinical_review_status,privacy_review_status,data_governance_review_status,approved_release_role,reviewer,review_date,review_rationale
+1,zonesGhana,QID - categorical,str,3,0,0.002020202020202,13,2,2.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+2,region,QID - categorical,str,17,0,0.0114478114478114,11,2,1.0747474747474748,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+3,district,QID - categorical,str,147,0,0.0989898989898989,37,4,2.068013468013468,0,0,0,False,False,high-cardinality QID,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+4,remotenessCommunity,QID - categorical,str,3,0,0.002020202020202,10,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+5,a3Hospital,QID - categorical,str,3,0,0.002020202020202,4,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+6,childsAge,QID - numeric,int64,18,0,0.0121212121212121,0,0,0.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+7,sexOfTheChild,QID - categorical,str,2,0,0.0013468013468013,6,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+8,educationLevel,QID - categorical,str,6,0,0.004040404040404,14,2,1.8444444444444446,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+9,religiousAffiliation,QID - categorical,str,3,0,0.002020202020202,31,4,1.0161616161616163,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+10,months,QID - categorical,str,12,0,0.008080808080808,9,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+11,year,QID - numeric,int64,4,0,0.0026936026936026,0,0,0.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+12,weatherSeason,QID - categorical,str,3,0,0.002020202020202,16,2,2.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+13,dayOfWeek,QID - categorical,str,7,0,0.0047138047138047,9,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+14,timeOfDay,QID - categorical,str,4,0,0.0026936026936026,9,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+15,modePrehospitalTransport,QID - categorical,str,5,0,0.0033670033670033,19,2,1.3602693602693603,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+16,referredHospital,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+17,typeOfRoadUser,QID - categorical,str,7,0,0.0047138047138047,14,2,1.084848484848485,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+18,carSeatBeltUse,QID - categorical,str,3,0,0.002020202020202,1,1,0.02962962962962963,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+19,typeOfRoad,QID - categorical,str,3,0,0.002020202020202,21,3,2.461279461279461,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+20,natureOfRoad,QID - categorical,str,3,0,0.002020202020202,22,4,2.608080808080808,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+21,presenceOfSupervisionsRoadGuideF,QID - categorical,str,2,1001,0.0013468013468013,3,1,1.0,0,0,0,False,False,missing retained as an explicit model state,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+22,crashType,QID - categorical,str,7,0,0.0047138047138047,33,6,3.892929292929293,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+23,circumstancesOfInjury,QID - categorical,str,8,0,0.0053872053872053,33,6,3.0444444444444443,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+24,mechanismOfInjury,QID - categorical,str,9,0,0.006060606060606,24,3,2.587878787878788,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+25,whatIsTheActualCauseTheAccident,QID - categorical,str,109,0,0.0734006734006734,80,17,2.8525252525252527,0,0,0,False,True,potential free text; high-cardinality QID,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+26,overtaking,QID - categorical,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+27,perceivedSpeeding,QID - categorical,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+28,vehicleCrossLane,QID - categorical,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+29,driverWasTiredSleeping,QID - categorical,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+30,vehicleTyreBust,QID - categorical,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+31,radiologicInvestigations,sensitive attribute,str,16,0,0.0107744107744107,18,2,1.1205387205387205,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+32,xray,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+33,xray1,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+34,ctScan,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+35,ultrasound,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+36,bodyPartsExaminedXray,sensitive attribute,str,120,18,0.0808080808080808,59,10,0.43558282208588955,0,0,0,False,True,potential free text; high-cardinality SA may dominate entropy review; missing retained as an explicit model state,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+37,bodyPartsExaminedCtScan,sensitive attribute,str,13,0,0.0087542087542087,44,7,0.18451178451178452,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+38,sufferedMultipleInjuries,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+39,commonInjuriesSuffered,sensitive attribute,str,113,0,0.076094276094276,96,14,1.447138047138047,0,0,0,False,True,potential free text; high-cardinality SA may dominate entropy review,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+40,headInjuriesSuffered,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+41,facialInjuriesSuffered,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+42,neckInjuriesSuffered,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+43,abdomenInjuriesSuffered,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+44,upperLimbsInjuriesSuffered,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+45,lowerLimbsInjuriesSuffered,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+46,superficialExternalInjuriesSuff,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+47,musculoskeletalPain,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+48,typeOfHeadInjuries,sensitive attribute,str,349,0,0.235016835016835,67,13,1.736026936026936,0,0,0,False,True,potential free text; high-cardinality SA may dominate entropy review,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+49,scalpLacerationHematoma,sensitive attribute,str,2,678,0.0013468013468013,3,1,1.0,0,0,0,False,False,missing retained as an explicit model state,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+50,skullFracture,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+51,intracranialHemorrhage,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+52,epiduralHemorrhage,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+53,subduralHemorrhage,sensitive attribute,str,2,678,0.0013468013468013,3,1,1.0,0,0,0,False,False,missing retained as an explicit model state,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+54,subarachnoidHemorrhage,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+55,cerebralContusion,sensitive attribute,str,2,678,0.0013468013468013,3,1,1.0,0,0,0,False,False,missing retained as an explicit model state,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+56,cerebralEdema,sensitive attribute,str,2,678,0.0013468013468013,3,1,1.0,0,0,0,False,False,missing retained as an explicit model state,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+57,diffuseAxonalInjury,sensitive attribute,str,2,678,0.0013468013468013,3,1,1.0,0,0,0,False,False,missing retained as an explicit model state,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+58,concussion,sensitive attribute,str,2,678,0.0013468013468013,3,1,1.0,0,0,0,False,False,missing retained as an explicit model state,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+59,unspecifiedHeadInjury,sensitive attribute,str,2,678,0.0013468013468013,3,1,1.0,0,0,0,False,False,missing retained as an explicit model state,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+60,othersSpecifyHeadInjury,sensitive attribute,str,92,0,0.0619528619528619,159,28,0.3865319865319865,0,0,0,False,True,potential free text; high-cardinality SA may dominate entropy review,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+61,abbreviatedInjuryScaleAis,sensitive attribute,str,63,0,0.0424242424242424,64,8,1.164983164983165,0,0,0,False,True,potential free text; high-cardinality SA may dominate entropy review,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+62,aisHeadNeckOrSpine,sensitive attribute,float64,6,704,0.004040404040404,0,0,0.0,0,0,0,False,False,missing retained as an explicit model state,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+63,aisFace,sensitive attribute,int64,4,0,0.0026936026936026,0,0,0.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+64,aisChest,sensitive attribute,int64,5,0,0.0033670033670033,0,0,0.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+65,aisAbdomenAndPelvic,sensitive attribute,int64,4,0,0.0026936026936026,0,0,0.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+66,aisExtremities,sensitive attribute,float64,6,674,0.004040404040404,0,0,0.0,0,0,0,False,False,missing retained as an explicit model state,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+67,aisExternalOrSuperficial,sensitive attribute,int64,5,0,0.0033670033670033,0,0,0.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+68,iss,sensitive attribute,int64,37,0,0.0249158249158249,0,0,0.0,0,0,0,False,False,numeric SA is treated as observed discrete states,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+69,catIss,sensitive attribute,str,4,0,0.0026936026936026,14,2,1.5771043771043771,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+70,binaryIss,sensitive attribute,str,2,0,0.0013468013468013,10,2,1.7952861952861954,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+71,gcs,sensitive attribute,str,9,0,0.006060606060606,71,9,2.9272727272727272,0,0,0,False,True,potential free text,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+72,totalGcs,sensitive attribute,int64,13,0,0.0087542087542087,0,0,0.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+73,triageAndMonitoring,sensitive attribute,str,6,0,0.004040404040404,6,1,0.32592592592592595,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+74,heartRateBpm,sensitive attribute,int64,133,0,0.0895622895622895,0,0,0.0,0,0,0,False,False,high-cardinality SA may dominate entropy review; numeric SA is treated as observed discrete states,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+75,systolicRange,sensitive attribute,int64,95,0,0.0639730639730639,0,0,0.0,0,0,0,False,False,high-cardinality SA may dominate entropy review; numeric SA is treated as observed discrete states,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+76,diastolicRange,sensitive attribute,int64,78,0,0.0525252525252525,0,0,0.0,0,0,0,False,False,high-cardinality SA may dominate entropy review; numeric SA is treated as observed discrete states,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+77,temperatureDegreeCelsius,sensitive attribute,float64,57,0,0.0383838383838383,0,0,0.0,0,0,0,False,False,high-cardinality SA may dominate entropy review; numeric SA is treated as observed discrete states,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+78,oxygenSaturation,sensitive attribute,int64,34,0,0.0228956228956228,0,0,0.0,0,0,0,False,False,numeric SA is treated as observed discrete states,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+79,intensiveCareUnitIcuAdmission,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+80,mortality,sensitive attribute,str,2,0,0.0013468013468013,8,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+81,majorTreatmentManagement,sensitive attribute,str,36,0,0.0242424242424242,42,6,1.5737373737373737,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+82,majorSurgical,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+83,minorSurgical,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+84,nonSurgical,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+85,nonSurgicalTreatment,sensitive attribute,str,153,0,0.103030303030303,89,10,2.44983164983165,0,0,0,False,True,potential free text; high-cardinality SA may dominate entropy review,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+86,tetanusInjection,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+87,catheterization,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+88,bloodTransfusion,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+89,ivFluids,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+90,antibiotics,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+91,analgesia,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+92,pop,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+93,admittingService,sensitive attribute,str,89,0,0.0599326599326599,51,8,1.2875420875420875,0,0,0,False,True,potential free text; high-cardinality SA may dominate entropy review,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+94,internalMedicine,sensitive attribute,str,2,22,0.0013468013468013,3,1,1.0,0,0,0,False,False,missing retained as an explicit model state,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+95,generalSurgery,sensitive attribute,str,2,22,0.0013468013468013,3,1,1.0,0,0,0,False,False,missing retained as an explicit model state,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+96,orthopaedics,sensitive attribute,str,2,22,0.0013468013468013,3,1,1.0,0,0,0,False,False,missing retained as an explicit model state,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+97,ophthalmology,sensitive attribute,str,2,22,0.0013468013468013,3,1,1.0,0,0,0,False,False,missing retained as an explicit model state,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+98,neurosurgery,sensitive attribute,str,2,22,0.0013468013468013,3,1,1.0,0,0,0,False,False,missing retained as an explicit model state,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+99,emergencyServiceOnly,sensitive attribute,str,2,22,0.0013468013468013,3,1,1.0,0,0,0,False,False,missing retained as an explicit model state,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+100,plastics,sensitive attribute,str,2,22,0.0013468013468013,3,1,1.0,0,0,0,False,False,missing retained as an explicit model state,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+101,cardio,sensitive attribute,str,2,22,0.0013468013468013,3,1,1.0,0,0,0,False,False,missing retained as an explicit model state,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+102,treatmentOutcome,sensitive attribute,str,4,0,0.0026936026936026,16,2,1.8821548821548821,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+103,lohDays,sensitive attribute,int64,69,0,0.0464646464646464,0,0,0.0,0,0,0,False,False,high-cardinality SA may dominate entropy review; numeric SA is treated as observed discrete states,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+104,amputation2,sensitive attribute,str,2,0,0.0013468013468013,3,1,1.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+105,catGlasgowOutcomeScale,sensitive attribute,str,4,0,0.0026936026936026,19,2,1.9636363636363636,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING
+106,ordinalGlasgowOutcomeScale,sensitive attribute,int64,4,0,0.0026936026936026,0,0,0.0,0,0,0,False,False,,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING,PENDING

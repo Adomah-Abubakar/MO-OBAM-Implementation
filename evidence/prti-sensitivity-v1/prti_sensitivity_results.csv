@@ -1,0 +1,40 @@
+run_id,k,configured_clusters,lambda,population,iterations,seed,status,issue,information_loss,entropy_sum,objective,equivalence_classes,minimum_cluster_size,maximum_cluster_size,linkage_records_tau_0_05,linkage_records_tau_0_075,linkage_records_tau_0_1,homogeneity_records_any_sa,zero_minimum_entropy_sensitive_attributes,best_iteration_zero_based,feasible_evaluations,infeasible_evaluations,runtime_seconds
+k05_c004_lambda0p0001,5,4,0.0001,100,100,9,completed,,0.4693709503946481,96.65913115991385,0.4597050372786567,4.0,111.0,591.0,0.0,0.0,0.0,111.0,2.0,77.0,9997.0,3.0,101.4456279760052
+k05_c030_lambda1,5,30,1.0,100,100,9,completed,,0.4314417291773185,53.882236250704416,-53.4507945215271,30.0,16.0,165.0,16.0,0.0,0.0,1485.0,30.0,32.0,2117.0,7883.0,267.4445216669992
+k10_c004_lambda1,10,4,1.0,100,100,9,completed,,0.5884643567978852,101.28749015005572,-100.69902579325783,4.0,287.0,463.0,0.0,0.0,0.0,0.0,0.0,92.0,9982.0,18.0,88.37496301298961
+k10_c010_lambda1,10,10,1.0,100,100,9,completed,,0.48152014238627633,87.15048455306687,-86.6689644106806,10.0,96.0,209.0,0.0,0.0,0.0,736.0,6.0,87.0,9038.0,962.0,127.11312255400117
+k10_c020_lambda1,10,20,1.0,100,100,9,completed,,0.4509613441288454,71.09241505192499,-70.64145370779615,20.0,26.0,171.0,0.0,0.0,0.0,1485.0,21.0,99.0,2541.0,7459.0,127.54481765099627
+k10_c030_lambda0p0001,10,30,0.0001,100,100,9,completed,,0.42261267979956263,46.924318080650224,0.41792024799149763,30.0,11.0,194.0,49.0,34.0,0.0,1485.0,37.0,57.0,150.0,9850.0,145.88406046200544
+k10_c030_lambda0p001,10,30,0.001,100,100,9,completed,,0.41689196176515725,45.41464901961396,0.3714773127455433,30.0,10.0,131.0,106.0,22.0,0.0,1485.0,35.0,74.0,169.0,9831.0,130.65927750599803
+k10_c030_lambda0p01,10,30,0.01,100,100,9,completed,,0.41925992425519243,52.40585830864813,-0.1047986588312888,30.0,10.0,123.0,88.0,22.0,0.0,1485.0,31.0,95.0,176.0,9824.0,134.57799294500728
+k10_c030_lambda0p1,10,30,0.1,100,100,9,completed,,0.4366537386166644,52.31126541274985,-4.794472802658321,30.0,16.0,148.0,67.0,0.0,0.0,1249.0,30.0,34.0,160.0,9840.0,136.06861451400619
+k10_c030_lambda1,10,30,1.0,100,100,9,completed,,0.4366537386166644,52.31126541274985,-51.874611674133185,30.0,16.0,148.0,67.0,0.0,0.0,1249.0,30.0,34.0,160.0,9840.0,132.77047600700462
+k10_c040_lambda1,10,40,1.0,100,100,9,no_feasible_particle,"The paper_objective stage found no particle satisfying hard k-anonymity. The run is recorded without inventing a k-penalty, repair rule, or result value.",,,,,,,,,,,,,,,2.5070457279944094
+k10_c050_lambda1,10,50,1.0,100,100,9,no_feasible_particle,"The paper_objective stage found no particle satisfying hard k-anonymity. The run is recorded without inventing a k-penalty, repair rule, or result value.",,,,,,,,,,,,,,,3.7309026989969425
+k10_c060_lambda1,10,60,1.0,100,100,9,no_feasible_particle,"The paper_objective stage found no particle satisfying hard k-anonymity. The run is recorded without inventing a k-penalty, repair rule, or result value.",,,,,,,,,,,,,,,4.357855694994214
+k10_c070_lambda1,10,70,1.0,100,100,9,no_feasible_particle,"The paper_objective stage found no particle satisfying hard k-anonymity. The run is recorded without inventing a k-penalty, repair rule, or result value.",,,,,,,,,,,,,,,3.0337631490110653
+k10_c080_lambda1,10,80,1.0,100,100,9,no_feasible_particle,"The paper_objective stage found no particle satisfying hard k-anonymity. The run is recorded without inventing a k-penalty, repair rule, or result value.",,,,,,,,,,,,,,,4.088960523993592
+k10_c090_lambda1,10,90,1.0,100,100,9,no_feasible_particle,"The paper_objective stage found no particle satisfying hard k-anonymity. The run is recorded without inventing a k-penalty, repair rule, or result value.",,,,,,,,,,,,,,,3.6730754080053885
+k10_c100_lambda1,10,100,1.0,100,100,9,no_feasible_particle,"The paper_objective stage found no particle satisfying hard k-anonymity. The run is recorded without inventing a k-penalty, repair rule, or result value.",,,,,,,,,,,,,,,4.907720528994105
+k15_c030_lambda1,15,30,1.0,100,100,9,no_feasible_particle,"The paper_objective stage found no particle satisfying hard k-anonymity. The run is recorded without inventing a k-penalty, repair rule, or result value.",,,,,,,,,,,,,,,1.1910801979975076
+k15_c100_lambda0p0001,15,100,0.0001,100,100,9,mathematically_infeasible,Equation (20) cannot hold because k * configured_clusters = 1500 exceeds n = 1485.,,,,,,,,,,,,,,,
+k15_c100_lambda0p001,15,100,0.001,100,100,9,mathematically_infeasible,Equation (20) cannot hold because k * configured_clusters = 1500 exceeds n = 1485.,,,,,,,,,,,,,,,
+k15_c100_lambda0p01,15,100,0.01,100,100,9,mathematically_infeasible,Equation (20) cannot hold because k * configured_clusters = 1500 exceeds n = 1485.,,,,,,,,,,,,,,,
+k15_c100_lambda0p1,15,100,0.1,100,100,9,mathematically_infeasible,Equation (20) cannot hold because k * configured_clusters = 1500 exceeds n = 1485.,,,,,,,,,,,,,,,
+k15_c100_lambda1,15,100,1.0,100,100,9,mathematically_infeasible,Equation (20) cannot hold because k * configured_clusters = 1500 exceeds n = 1485.,,,,,,,,,,,,,,,
+k20_c030_lambda1,20,30,1.0,100,100,9,no_feasible_particle,"The paper_objective stage found no particle satisfying hard k-anonymity. The run is recorded without inventing a k-penalty, repair rule, or result value.",,,,,,,,,,,,,,,1.2287308010127163
+k20_c080_lambda0p0001,20,80,0.0001,100,100,9,mathematically_infeasible,Equation (20) cannot hold because k * configured_clusters = 1600 exceeds n = 1485.,,,,,,,,,,,,,,,
+k20_c080_lambda0p001,20,80,0.001,100,100,9,mathematically_infeasible,Equation (20) cannot hold because k * configured_clusters = 1600 exceeds n = 1485.,,,,,,,,,,,,,,,
+k20_c080_lambda0p01,20,80,0.01,100,100,9,mathematically_infeasible,Equation (20) cannot hold because k * configured_clusters = 1600 exceeds n = 1485.,,,,,,,,,,,,,,,
+k20_c080_lambda0p1,20,80,0.1,100,100,9,mathematically_infeasible,Equation (20) cannot hold because k * configured_clusters = 1600 exceeds n = 1485.,,,,,,,,,,,,,,,
+k20_c080_lambda1,20,80,1.0,100,100,9,mathematically_infeasible,Equation (20) cannot hold because k * configured_clusters = 1600 exceeds n = 1485.,,,,,,,,,,,,,,,
+k20_c090_lambda0p0001,20,90,0.0001,100,100,9,mathematically_infeasible,Equation (20) cannot hold because k * configured_clusters = 1800 exceeds n = 1485.,,,,,,,,,,,,,,,
+k20_c090_lambda0p001,20,90,0.001,100,100,9,mathematically_infeasible,Equation (20) cannot hold because k * configured_clusters = 1800 exceeds n = 1485.,,,,,,,,,,,,,,,
+k20_c090_lambda0p01,20,90,0.01,100,100,9,mathematically_infeasible,Equation (20) cannot hold because k * configured_clusters = 1800 exceeds n = 1485.,,,,,,,,,,,,,,,
+k20_c090_lambda0p1,20,90,0.1,100,100,9,mathematically_infeasible,Equation (20) cannot hold because k * configured_clusters = 1800 exceeds n = 1485.,,,,,,,,,,,,,,,
+k20_c090_lambda1,20,90,1.0,100,100,9,mathematically_infeasible,Equation (20) cannot hold because k * configured_clusters = 1800 exceeds n = 1485.,,,,,,,,,,,,,,,
+k20_c100_lambda0p0001,20,100,0.0001,100,100,9,mathematically_infeasible,Equation (20) cannot hold because k * configured_clusters = 2000 exceeds n = 1485.,,,,,,,,,,,,,,,
+k20_c100_lambda0p001,20,100,0.001,100,100,9,mathematically_infeasible,Equation (20) cannot hold because k * configured_clusters = 2000 exceeds n = 1485.,,,,,,,,,,,,,,,
+k20_c100_lambda0p01,20,100,0.01,100,100,9,mathematically_infeasible,Equation (20) cannot hold because k * configured_clusters = 2000 exceeds n = 1485.,,,,,,,,,,,,,,,
+k20_c100_lambda0p1,20,100,0.1,100,100,9,mathematically_infeasible,Equation (20) cannot hold because k * configured_clusters = 2000 exceeds n = 1485.,,,,,,,,,,,,,,,
+k20_c100_lambda1,20,100,1.0,100,100,9,mathematically_infeasible,Equation (20) cannot hold because k * configured_clusters = 2000 exceeds n = 1485.,,,,,,,,,,,,,,,

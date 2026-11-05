@@ -1,0 +1,229 @@
+{
+  "manifest_version": 1,
+  "generated_at_utc": "2026-11-03T17:58:27+00:00",
+  "scope": "Aggregate PRTI-GH MO-OBAM results package; ML excluded",
+  "paper_identifier": "arXiv:2501.01002v2",
+  "paper_revision": "15 May 2025",
+  "patient_level_rows_in_package": false,
+  "centroids_in_package": false,
+  "source_sha256": "0deb1fc54a3dccba3a4c0339696ed1fb4f124a0349afde9f06e4b79dbf89a37e",
+  "final_run_id": "prti-20261102T200626Z-privacy-candidate-heldout-seed10-k10-c4-lambda1p0-seed10",
+  "final_screening_status": "passes_predeclared_project_screening_pending_independent_review",
+  "release_boundary": "Passing these project screening checks does not approve public or unrestricted release. Formal role review and independent disclosure-control review remain required.",
+  "canonical_command": ".venv/bin/python generate_prti_results_package.py",
+  "figure_renderer": "gnuplot 6.0 patchlevel 0",
+  "inputs": [
+    {
+      "path": "data/PRTI-GH-study/PRTI-GH-study.xls",
+      "bytes": 2835456,
+      "sha256": "0deb1fc54a3dccba3a4c0339696ed1fb4f124a0349afde9f06e4b79dbf89a37e"
+    },
+    {
+      "path": "outputs/prti/baseline-v1-seed9/prti_run_summary.json",
+      "bytes": 32480,
+      "sha256": "ed2c4f551d14d825dc3794686ae7c7cef99a4d8e23a6216774eb78e3eeddafc6"
+    },
+    {
+      "path": "outputs/prti/privacy-candidate-heldout-seed10/prti_run_summary.json",
+      "bytes": 34003,
+      "sha256": "b2f9fa596acd3f007869a7b345390ce0db72367ed100ab81cc293c1bc7692fed"
+    },
+    {
+      "path": "outputs/prti/privacy-candidate-heldout-seed10/prti_input_audit.csv",
+      "bytes": 16489,
+      "sha256": "948bcbebf694d76afc036e6df560a5810a691783559b736d0083f7f14c14bf97"
+    },
+    {
+      "path": "outputs/prti/privacy-candidate-heldout-seed10/prti_before_after_anonymization.csv",
+      "bytes": 1510030,
+      "sha256": "d85d15f2f8ab0f5c86a91c42bdd4dbf9001eeacaf366f548214ff991a7764c8c"
+    },
+    {
+      "path": "outputs/prti/baseline-v1-seed9/prti_sensitive_entropy.csv",
+      "bytes": 96394,
+      "sha256": "f7e3393be936c245379c6b6528e418cdb73d6836a9c25dd31f15ab60f3dfcd18"
+    },
+    {
+      "path": "outputs/prti/privacy-candidate-heldout-seed10/prti_sensitive_entropy.csv",
+      "bytes": 13587,
+      "sha256": "29f442c3f06946c119a6f42402b12529503c4eafa2f67082c6034c1d5e2ada55"
+    },
+    {
+      "path": "outputs/prti/privacy-candidate-heldout-seed10/prti_cluster_details.csv",
+      "bytes": 2544,
+      "sha256": "fdf1a00ae26082a83ab70423c8d2bd530015959fdc3a5fcbacc28b9c36cca25e"
+    },
+    {
+      "path": "evidence/prti-final-selection-v1/prti_final_candidate_acceptance.json",
+      "bytes": 3985,
+      "sha256": "f614b265dbab84b260e2dbbe555d38bc47b3169f0fe94add473f5e16ed9d4d4b"
+    },
+    {
+      "path": "evidence/prti-sensitivity-v1/prti_sensitivity_plan.json",
+      "bytes": 26951,
+      "sha256": "ac17f33476423d55847bc4493d8c57b79bebe0eaebac5559ab0a0501ca55695c"
+    },
+    {
+      "path": "evidence/prti-sensitivity-v1/prti_sensitivity_results.csv",
+      "bytes": 7779,
+      "sha256": "8b35463a71a8ebb4d8def6566d1fc379c8e07f46a31100cd58a0b0a4cf71816b"
+    },
+    {
+      "path": "evidence/prti-robustness-v1/prti_robustness_summary.json",
+      "bytes": 17127,
+      "sha256": "00aa00412aaf36d5f8f66690caa53c1d22ac931276afc85950b78d9ccbb91615"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "evidence/prti-results-v2/tables/table_01_dataset_and_roles.csv",
+      "bytes": 875,
+      "sha256": "5016e863853374187a5c5ae3a67e770a68859069dc8e568c64d3f8b618b997a1"
+    },
+    {
+      "path": "evidence/prti-results-v2/tables/table_02_baseline_vs_final_candidate.csv",
+      "bytes": 1354,
+      "sha256": "0ecb38d3e33edcaa00fe5d9e9891fbf770a1458b3dd1bc8a26480a1d6c3dc275"
+    },
+    {
+      "path": "evidence/prti-results-v2/tables/table_03_qid_transformation.csv",
+      "bytes": 1907,
+      "sha256": "cf414ddcfe6bcb8202d2c4fa088223600179abd02c8c480a6ecfa08a32201700"
+    },
+    {
+      "path": "evidence/prti-results-v2/tables/table_04_sensitive_attribute_results.csv",
+      "bytes": 11409,
+      "sha256": "698d3fff143a4bb571dea34bdc4d335617ce195c33591f4578c06e82584e6dbe"
+    },
+    {
+      "path": "evidence/prti-results-v2/tables/table_05_final_cluster_summary.csv",
+      "bytes": 798,
+      "sha256": "d03690dd6e0c424048252e7215b8cbadb9dbf9040312217148791dd3ec0321e8"
+    },
+    {
+      "path": "evidence/prti-results-v2/tables/table_06_robustness_summary.csv",
+      "bytes": 1999,
+      "sha256": "2422ac3e2e5109408e1247820ef406946902967b72bd43362966aacc76809bfb"
+    },
+    {
+      "path": "evidence/prti-results-v2/tables/table_07_final_screening_checks.csv",
+      "bytes": 1053,
+      "sha256": "281a40342822da867ff32e9309cc6dd95f749762d6bd7faa873d73b83661d998"
+    },
+    {
+      "path": "evidence/prti-results-v2/tables/table_08_experiment_coverage.csv",
+      "bytes": 484,
+      "sha256": "bdd24c6153c0537f414bef8544b8c24e58f498b2a8e50695e331ce98f8719559"
+    },
+    {
+      "path": "evidence/prti-results-v2/figures/figure_01_information_loss.png",
+      "bytes": 38549,
+      "sha256": "e676f4a20c2416d5912256ed95184a0f47636a281d3150e58fdde1e3b52c0b77"
+    },
+    {
+      "path": "evidence/prti-results-v2/figures/figure_01_information_loss.svg",
+      "bytes": 11970,
+      "sha256": "ccd2537097ca3b1bf9d1fc690008f4cc5ef92fe6ae50280e6ed8ed649471ad63"
+    },
+    {
+      "path": "evidence/prti-results-v2/figures/figure_02_linkage_exposure.png",
+      "bytes": 36155,
+      "sha256": "98b69b935d025298b65824c2ceea077095f80380f9b99b6a448f272278a943db"
+    },
+    {
+      "path": "evidence/prti-results-v2/figures/figure_02_linkage_exposure.svg",
+      "bytes": 17476,
+      "sha256": "3d967ce3f260f019d83d2be064db435107ddb5afae3ead7e33677e993bd6c47f"
+    },
+    {
+      "path": "evidence/prti-results-v2/figures/figure_03_homogeneity_exposure.png",
+      "bytes": 36280,
+      "sha256": "4bfb2d5f01c1a68c1f92c2d5d29ed20ccf45b935c8226e0c1b62c8535cb9fcc9"
+    },
+    {
+      "path": "evidence/prti-results-v2/figures/figure_03_homogeneity_exposure.svg",
+      "bytes": 14076,
+      "sha256": "747c0ff7eb24af7df006af17cc6777c8f4a5ec3fda63e37cd8224d2c161c6c31"
+    },
+    {
+      "path": "evidence/prti-results-v2/figures/figure_04_robustness_tradeoff.png",
+      "bytes": 51805,
+      "sha256": "ce2abf4268056c3ef1989b60cc5e29071343ac495e9964e9d945465560a6cdaa"
+    },
+    {
+      "path": "evidence/prti-results-v2/figures/figure_04_robustness_tradeoff.svg",
+      "bytes": 14577,
+      "sha256": "e7060f9eacfb36b355a388daa81039cd2dbb1dfbd4a94d5728a261d0f22d0bdd"
+    },
+    {
+      "path": "evidence/prti-results-v2/figures/figure_05_final_cluster_sizes.png",
+      "bytes": 27987,
+      "sha256": "1f32e27ee512522fa6a13e95827663dfd258d6d589e63d6d493269c37df9142c"
+    },
+    {
+      "path": "evidence/prti-results-v2/figures/figure_05_final_cluster_sizes.svg",
+      "bytes": 13271,
+      "sha256": "b67fd9eae61b8a1f2982a448446bec468ac61247dbd3e35f07e101f5896d6747"
+    },
+    {
+      "path": "evidence/prti-results-v2/README.md",
+      "bytes": 4230,
+      "sha256": "fff57fd5aa5e77f5b976ff29898a7a0ced406772451f4a639c92b6cabcd4d6ef"
+    }
+  ],
+  "manifest_policy": "The manifest does not hash itself.",
+  "generation_snapshot": {
+    "snapshot_status": "captured_when_results_v2_package_was_generated",
+    "git": {
+      "commit": "26add1d9dc51bafd50a8311cb484f4497e2bd0f5",
+      "working_tree_clean": false,
+      "changed_path_count": 25
+    },
+    "generation_files": {
+      "mo_obam/__init__.py": "f18512bd16e0537e830e8f5426dfa700159a5eb873931f73d9242f4dee39eb05",
+      "mo_obam/adult_data.py": "dfbaf4644b423160ebbc75ddf724219b5cb246c496afc9599ad418e520496160",
+      "mo_obam/adult_experiments.py": "4058a6b8a7008b598dc5ff97c7408fd65fbf6dd7b9d19f383a31830899615a0c",
+      "mo_obam/adult_reporting.py": "9324219eb302a4431c7bc947d94e3e2a82ab13bb889d1417f9dcc1e898044300",
+      "mo_obam/adult_runner.py": "a784ff003a8f987f537670659024149bcd9705289323267275250a2a994a0d49",
+      "mo_obam/exact_solver.py": "eaf0b7837a948dd1387595d9fb297cf315aae7d753f7447099d8ab058b7c9059",
+      "mo_obam/formulation.py": "4e961893f962d22c5b76f775996e556608066c8b66d7aa04ffec2c7b4281a9ac",
+      "mo_obam/privacy_metrics.py": "2f038b599e7ac5ab012cddc6ccd5687c680f89e2b6319f4ebcb8dad911d0621a",
+      "mo_obam/provenance.py": "b985bb44e6952babb90018aeec268c9ff7f845762fde2368da9b329010030c5c",
+      "mo_obam/prti_data.py": "cc5026fad2d0dc1946b1f85974d8e458f87d33038b398af712ed6e749576ae5b",
+      "mo_obam/prti_experiments.py": "ac584f574dafc6ecbaf08bd12fc6ef2a7f2dc4a0a5c81992ffd6037e6b406f2e",
+      "mo_obam/prti_release.py": "2f007fd74f863b8de2b3dfd94398b96538831af871cfbc6cfd5a067d85da98a0",
+      "mo_obam/prti_results.py": "0c4c4148264a56dd1f4fc995f10de4105520676ccb15766c088c2a819a5e9d03",
+      "mo_obam/prti_results_package.py": "35e1278331109d3f19d67666d0a8816bef8103ab92a6c4e33b8b4460e469994d",
+      "mo_obam/prti_robustness.py": "f303926a1b03adea4ecf4a1d4b6996cfb8e67909b123c012fd4aa2591820d1b3",
+      "mo_obam/prti_runner.py": "8613a008f2ae61e6a4cded5f668921231a870bc1f5917548d79eed0473de26f9",
+      "mo_obam/pso_solver.py": "d31c94cf3b6a454a3e5242ca16f3d032f16660d5dfa232a8a5594e922775b9a9",
+      "mo_obam/schema.py": "04962804ee7bbd7186229ed1492bedf03ed8318cd1de6ba31a585d6771882310",
+      "generate_prti_results.py": "cbb3e52c93056a7cd66076d76cd4f41d42d113b06bab219fae6698461f6e883d",
+      "generate_prti_results_package.py": "eb7733dcb8f3fa9b47b8fee08730f13420d935232ee92f31d54a5fb85503e795",
+      "run_prti.py": "22c8c68d2788a903dde170a2fab629351b31fa4c7c3eac429ae5c2dea24a3acd",
+      "run_prti_experiments.py": "42ba2c12303d6b8cac9fb329373932e808bda03012e65109caf15fa4ae8081b1",
+      "run_prti_release.py": "60b18a52d8adc11fd4f531fd00b76f2e3b6c3e83f8456d204368fc2b9e7bcfec",
+      "requirements.txt": "547730a8d46abd83d4e1fe0a33a3ac6a4bf98e98ba58e7435ff79797caf9451b"
+    },
+    "validation_files": {
+      "tests/test_adult_data.py": "2b96e62fb37bfec5065e184f26f57424900031dd6bccf568f67bc9216aeedf5d",
+      "tests/test_adult_experiments.py": "435b6ce9a9fcb99c22e965ebf1dec924e6569324e809db16a0f3286b39f24e78",
+      "tests/test_adult_reporting.py": "5c4119989cc6577029520c6411707c31d33028b8c049e4a877ce76d17ed8a3d6",
+      "tests/test_exact_solver.py": "11092865731ebf4fffb924811706cc8ab50b0d3d0343a94bb1895e68693add37",
+      "tests/test_formulation.py": "05b5f044e328ed1daa853283d134e8588603098a68afc6433e9e6b379affe983",
+      "tests/test_privacy_metrics.py": "a3e92c25ca6de1e7ba580efac90dc48c29a0e208986bed6f1c47da5b3ca57b7f",
+      "tests/test_prti_data.py": "c6a3fa5e34896176af2c1144858017692f01756f0d96096cb107c75b9af136b4",
+      "tests/test_prti_experiments.py": "4a0190d7593ffb25c07d57bd4828539d6da7aab944ad5c3b1352b7bc4beb9c96",
+      "tests/test_prti_release.py": "32cd823d9126f4d37b579401c44ae59bd9536cc99d552a4cae17f152e4359083",
+      "tests/test_prti_results_package.py": "d80a5f0a9a0e79c128fec712334031d53deb23183db106a0b8f5c746eab080c1",
+      "tests/test_prti_robustness.py": "b2f8c4a6ebfd7013ebf53daea5f195294bf18f0c14ca8b800e096fe536011796",
+      "tests/test_pso_solver.py": "725d778ff4ffe45db7df8d09a2c56bc969db28fc7b9424ef47d65c59f9487d69"
+    },
+    "documentation_files": {
+      "README.md": "f5c3cb611188677254958abb8e6a066153abc23f256fff3f404f6d59d39daf0d",
+      "PAPER_REVIEW_V2.md": "f1aa75269f996c6ef0cdb10a38bae808e86bfc7020139f9e01d006a873569769",
+      "PRTI_MO_OBAM_DOCUMENTATION.md": "ac6a30a8f2f49c186606aee0dcc1d08b9a6ea0964955883ac36db8660fb971b1",
+      "PRTI_MO_OBAM_RESULTS.md": "1c05a795cb4d2aed59c897008d491dc1a73143b8e4c94cfab95be6b68e5891c7"
+    }
+  }
+}

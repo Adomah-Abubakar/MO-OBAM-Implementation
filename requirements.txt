@@ -1,0 +1,5 @@
+# Tested with Python 3.12. Exact pins preserve the verified PSO/CSV environment.
+numpy==2.5.2
+pandas==3.0.5
+scipy==1.18.1
+xlrd==2.0.2

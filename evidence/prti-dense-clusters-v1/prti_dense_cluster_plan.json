@@ -1,0 +1,82 @@
+{
+  "declared_at_utc": "2026-11-04T15:06:52+00:00",
+  "paper_identifier": "arXiv:2501.01002v2",
+  "paper_revision": "15 May 2025",
+  "scope": "Aggregate-only PRTI-GH dense cluster-count study; ML excluded",
+  "status": "prospective project protocol, not a paper-reported experiment",
+  "source_sha256": "0deb1fc54a3dccba3a4c0339696ed1fb4f124a0349afde9f06e4b79dbf89a37e",
+  "cluster_values": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+  ],
+  "number_of_configurations": 27,
+  "number_of_seeds": 10,
+  "number_of_planned_runs": 270,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "fixed_model_configuration": {
+    "k": 10,
+    "lambda_weight": 1.0
+  },
+  "pso_configuration_except_seed": {
+    "population_size": 100,
+    "iterations": 100,
+    "random_coefficient_max": 0.01
+  },
+  "patient_level_outputs": false,
+  "exact_checkpoint_reuse": {
+    "permitted": true,
+    "source_directory": "evidence/prti-robustness-v1",
+    "requirements": [
+      "same source SHA-256",
+      "same paper revision",
+      "same k, C, lambda, population, iterations, seed and PSO coefficient",
+      "aggregate-only checkpoint"
+    ]
+  },
+  "privacy_pass_rule": {
+    "all_planned_seeds_must_complete": true,
+    "minimum_cluster_size_at_least_k_for_every_seed": true,
+    "maximum_linkage_records_at_each_tau": 0,
+    "maximum_homogeneity_fraction_any_sa": 0.2,
+    "maximum_zero_minimum_entropy_sensitive_attributes": 1,
+    "maximum_information_loss_for_every_seed": 0.6
+  },
+  "selection_rule": "Among configurations passing every privacy and feasibility rule across every comparison seed, select the lowest mean information loss. Break exact ties by lower maximum homogeneity fraction, then by the smaller cluster count.",
+  "release_boundary": "Selection produces an aggregate research candidate only. It does not approve patient-level or unrestricted release; direct-identifier, free-text, custodian, and independent disclosure-control review remain."
+}

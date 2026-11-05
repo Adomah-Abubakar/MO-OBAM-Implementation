@@ -1,0 +1,5 @@
+study_component,scope_note,planned_runs,recorded_runs,completed_runs,no_feasible_particle_runs,mathematically_infeasible_runs,not_yet_evaluated_runs
+full_sensitivity_grid,Declared Appendix A grid; recorded rows are a partial execution,220,39,10,9,20,181
+one_factor_subset,Overlapping subset of the sensitivity grid,18,18,9,9,0,0
+multi_seed_robustness,Four configurations across seeds 0-9,40,40,34,6,0,0
+heldout_final_candidate,Prospectively declared seed-10 screening run,1,1,1,0,0,0

@@ -1,0 +1,65 @@
+{
+  "attributes": 106,
+  "automated_attribute_screen": {
+    "attributes_reviewed": 106,
+    "attributes_with_any_automated_flag": 35,
+    "boundary": "Name, pattern, length, missingness, cardinality, and current-role screening cannot replace contextual human review.",
+    "patient_values_exported": false,
+    "potential_direct_identifier_attributes": 0,
+    "potential_free_text_attributes": 9,
+    "status": "COMPLETE_TRIAGE_ONLY"
+  },
+  "dataset": "PRTI-GH",
+  "downstream_utility_decision": {
+    "decision": "NOT_RUN_FOR_CURRENT_CLAIMS",
+    "rationale": "The current result is an anonymization and disclosure-metric study. It explicitly makes no claim that predictive or clinical task utility is preserved. A utility experiment needs a named downstream outcome, task, split protocol, metrics, and acceptable degradation threshold.",
+    "reopen_if": [
+      "the release is proposed for a defined predictive or clinical task",
+      "the project claims downstream machine-learning utility preservation",
+      "the data custodian specifies a task-specific utility requirement"
+    ],
+    "required_for_current_claims": false
+  },
+  "experiment_scope_decision": {
+    "decision": "DO_NOT_RUN_FOR_CURRENT_CLAIMS",
+    "rationale": "The current claims are bounded to the predeclared one-factor study, the four-candidate multi-seed robustness study, and the held-out candidate. They do not claim an exhaustive grid search or a global parameter optimum. Running the remaining 181 points would be a new exploratory study, not validation required by the current claims.",
+    "remaining_full_grid_points": 181,
+    "reopen_if": [
+      "a claim of exhaustive Appendix A grid coverage is proposed",
+      "a claim of globally best PRTI-GH hyperparameters is proposed",
+      "a reviewer or preregistered follow-up protocol requires the full grid"
+    ],
+    "required_for_current_claims": false
+  },
+  "external_release_status": "BLOCKED_PENDING_HUMAN_AND_CUSTODIAN_APPROVALS",
+  "record_date": "2026-11-04",
+  "record_version": "1.0.0",
+  "release_gates": [
+    {
+      "gate": "data custodian threat model and intended recipient",
+      "status": "PENDING_EXTERNAL"
+    },
+    {
+      "gate": "clinical review of all 106 attribute roles",
+      "status": "PENDING_EXTERNAL"
+    },
+    {
+      "gate": "privacy and data-governance review of all 106 roles",
+      "status": "PENDING_EXTERNAL"
+    },
+    {
+      "gate": "human direct-identifier and free-text inspection",
+      "status": "PENDING_EXTERNAL"
+    },
+    {
+      "gate": "independent disclosure-control review",
+      "status": "PENDING_EXTERNAL"
+    },
+    {
+      "gate": "publication author identity and licence",
+      "status": "PENDING_OWNER_DECISION"
+    }
+  ],
+  "rows": 1485,
+  "source_sha256": "0deb1fc54a3dccba3a4c0339696ed1fb4f124a0349afde9f06e4b79dbf89a37e"
+}

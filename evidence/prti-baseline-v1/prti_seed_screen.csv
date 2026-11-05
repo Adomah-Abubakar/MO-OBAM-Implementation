@@ -1,0 +1,11 @@
+seed,status,information_loss,entropy_sum,objective,minimum_cluster_size,maximum_cluster_size,linkage_records_tau_0_05,linkage_records_tau_0_075,linkage_records_tau_0_1,homogeneity_records_any_sa,zero_minimum_entropy_sensitive_attributes,best_iteration_zero_based,feasible_evaluations,infeasible_evaluations,runtime_seconds,error
+0,completed,0.4513923999816299,48.63427225128743,-48.1828798513058,11.0,233.0,61.0,11.0,0.0,1252.0,35.0,0.0,33.0,1967.0,27.875601634004852,
+1,no_feasible_particle,,,,,,,,,,,,,,1.3637268059828784,The paper_objective stage found no particle satisfying hard k-anonymity.
+2,completed,0.45530954465025764,48.211378176922366,-47.75606863227211,11.0,126.0,132.0,11.0,0.0,1485.0,33.0,0.0,24.0,1976.0,29.160818003991153,
+3,completed,0.4375497413319374,47.866518532031115,-47.42896879069918,11.0,197.0,58.0,23.0,0.0,1405.0,36.0,0.0,22.0,1978.0,29.4412550329871,
+4,completed,0.44619214860288037,47.71790283300344,-47.27171068440056,11.0,286.0,169.0,36.0,0.0,1199.0,34.0,6.0,8.0,1992.0,28.143385998002486,
+5,completed,0.4361451874666924,44.70027776193028,-44.26413257446359,10.0,146.0,69.0,22.0,0.0,1418.0,36.0,0.0,23.0,1977.0,26.951935142016737,
+6,no_feasible_particle,,,,,,,,,,,,,,1.9098647579958197,The paper_objective stage found no particle satisfying hard k-anonymity.
+7,completed,0.4508129484157127,48.75241868451414,-48.30160573609843,10.0,182.0,74.0,21.0,0.0,1485.0,34.0,7.0,21.0,1979.0,27.79011999402428,
+8,no_feasible_particle,,,,,,,,,,,,,,1.111560115008615,The paper_objective stage found no particle satisfying hard k-anonymity.
+9,completed,0.4315413720195004,50.63879559492963,-50.20725422291013,14.0,146.0,31.0,0.0,0.0,1485.0,33.0,0.0,30.0,1970.0,27.7919743770035,

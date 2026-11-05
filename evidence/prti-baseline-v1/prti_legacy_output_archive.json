@@ -1,0 +1,24 @@
+{
+  "record_version": "1.0.0",
+  "migration_date": "2026-11-04",
+  "status": "archived_without_content_change",
+  "scientific_result_changed": false,
+  "source_directory": "outputs/prti",
+  "archive_directory": "outputs/prti/archive/legacy-seed9",
+  "active_baseline_directory": "outputs/prti/baseline-v1-seed9",
+  "reason": "Remove ambiguity between the unlabeled legacy seed-9 output and the labelled baseline without deleting historical reproduction evidence.",
+  "boundary": "The archive is retained only for the recorded fresh-versus-legacy comparison. It is not a third anonymization result.",
+  "files": {
+    "prti_anonymized_final.csv": "b280d503211ee9cb344c4950430962f8e1734f37d9ea9244268029931c6a2e1e",
+    "prti_artifact_manifest.json": "0d0ae56bb3ef7641445e34cfc9fbca62e8dabad7cc2d409a514e822918be3564",
+    "prti_before_after_anonymization.csv": "fcde7971d36398912f6970146484ebb71df75ed09509387e922d1553ff9507a1",
+    "prti_category_mappings.csv": "1ee7e525091217affc37b525963193c06a02f888d71ca5cbc3b397f2dc3ea178",
+    "prti_cluster_details.csv": "1cc30a95d0493a05ea00cb8c26e8fbba1488e7ea1dd33c2a74a8b4fb98ffd0da",
+    "prti_input_audit.csv": "948bcbebf694d76afc036e6df560a5810a691783559b736d0083f7f14c14bf97",
+    "prti_model_evaluation.csv": "2bfd4cc73dc8237c9eb248af0e845be86d48d70a03edc76510995b78e5e948e6",
+    "prti_preparation_summary.json": "d609cfd89441b70efedc128b8bed600aee18ab1d1d226f0ea2ae7dbd4dbfff01",
+    "prti_prepared_input.csv": "fe5cb471d4edc9503fe36318338f47c7a2e9f49a6c028bb98f788c3fac21152a",
+    "prti_run_summary.json": "12088c52d244c70ea98f6274dd556e896ca4e1a5363ea270dd23fa522bc75b33",
+    "prti_sensitive_entropy.csv": "f7e3393be936c245379c6b6528e418cdb73d6836a9c25dd31f15ab60f3dfcd18"
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "assessed_at_utc": "2026-11-02T20:08:18+00:00",
+  "status": "passes_predeclared_project_screening_pending_independent_review",
+  "all_checks_passed": true,
+  "release_boundary": "Passing these project screening checks does not approve public or unrestricted release. Formal role review and independent disclosure-control review remain required.",
+  "run_id": "prti-20261102T200626Z-privacy-candidate-heldout-seed10-k10-c4-lambda1p0-seed10",
+  "run_summary_sha256": "b2f9fa596acd3f007869a7b345390ce0db72367ed100ab81cc293c1bc7692fed",
+  "artifact_manifest_sha256": "e67ff22e217e824dfe8676945332d6c8f25f7e4ba5e9e287ceb84c7e2fd521d4",
+  "observed": {
+    "information_loss": 0.5342360914448178,
+    "entropy_sum": 101.07627722444862,
+    "objective": -100.5420411330038,
+    "equivalence_classes": 4,
+    "minimum_equivalence_class_size": 238,
+    "maximum_equivalence_class_size": 471,
+    "linkage_attack_records": {
+      "0.05": 0,
+      "0.075": 0,
+      "0.1": 0
+    },
+    "homogeneity_attack_records_any_sa": 0,
+    "homogeneity_attack_fraction_any_sa": 0.0,
+    "zero_minimum_entropy_sensitive_attributes": 0
+  },
+  "checks": [
+    {
+      "category": "technical",
+      "criterion": "source workbook unchanged",
+      "operator": "=",
+      "threshold": true,
+      "observed": true,
+      "passed": true,
+      "authority": "project invariant"
+    },
+    {
+      "category": "technical",
+      "criterion": "all sensitive attributes unchanged",
+      "operator": "=",
+      "threshold": true,
+      "observed": true,
+      "passed": true,
+      "authority": "project invariant"
+    },
+    {
+      "category": "technical",
+      "criterion": "all clusters satisfy hard k",
+      "operator": "=",
+      "threshold": true,
+      "observed": true,
+      "passed": true,
+      "authority": "Wei Equation (20)"
+    },
+    {
+      "category": "technical",
+      "criterion": "final release shape",
+      "operator": "=",
+      "threshold": "1485 x 106",
+      "observed": "1485 x 106",
+      "passed": true,
+      "authority": "project invariant"
+    },
+    {
+      "category": "privacy screening",
+      "criterion": "linkage-risk records above tau=0.05",
+      "operator": "=",
+      "threshold": 0,
+      "observed": 0,
+      "passed": true,
+      "authority": "project threshold using Wei Section V-C metric"
+    },
+    {
+      "category": "privacy screening",
+      "criterion": "linkage-risk records above tau=0.075",
+      "operator": "=",
+      "threshold": 0,
+      "observed": 0,
+      "passed": true,
+      "authority": "project threshold using Wei Section V-C metric"
+    },
+    {
+      "category": "privacy screening",
+      "criterion": "linkage-risk records above tau=0.1",
+      "operator": "=",
+      "threshold": 0,
+      "observed": 0,
+      "passed": true,
+      "authority": "project threshold using Wei Section V-C metric"
+    },
+    {
+      "category": "privacy screening",
+      "criterion": "homogeneity-risk record fraction for any SA",
+      "operator": "<=",
+      "threshold": 0.2,
+      "observed": 0.0,
+      "passed": true,
+      "authority": "project threshold using Wei Section V-C metric"
+    },
+    {
+      "category": "privacy screening",
+      "criterion": "SAs with zero minimum cluster entropy",
+      "operator": "<=",
+      "threshold": 1,
+      "observed": 0,
+      "passed": true,
+      "authority": "project threshold derived from Equations (15)-(19)"
+    },
+    {
+      "category": "utility screening",
+      "criterion": "information loss",
+      "operator": "<=",
+      "threshold": 0.6,
+      "observed": 0.5342360914448178,
+      "passed": true,
+      "authority": "project threshold using Wei Equation (14)"
+    }
+  ],
+  "selection_plan": "evidence/prti-final-selection-v1/prti_final_selection_plan.json",
+  "candidate_output_directory": "outputs/prti/privacy-candidate-heldout-seed10",
+  "outputs": {
+    "acceptance_csv": "prti_final_candidate_acceptance.csv",
+    "acceptance_json": "prti_final_candidate_acceptance.json"
+  }
+}

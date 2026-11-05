@@ -1,0 +1,29 @@
+{
+  "paper_identifier": "arXiv:2501.01002v2",
+  "paper_revision": "15 May 2025",
+  "source_sha256": "0deb1fc54a3dccba3a4c0339696ed1fb4f124a0349afde9f06e4b79dbf89a37e",
+  "model_configuration": {
+    "k": 10,
+    "n_clusters": 60,
+    "lambda_weight": 1.0
+  },
+  "pso_configuration": {
+    "population_size": 100,
+    "iterations": 100,
+    "seed": 9,
+    "random_coefficient_max": 0.01
+  },
+  "patient_level_outputs": false,
+  "result_row": {
+    "run_id": "k10_c060_lambda1",
+    "k": 10,
+    "configured_clusters": 60,
+    "lambda": 1.0,
+    "population": 100,
+    "iterations": 100,
+    "seed": 9,
+    "status": "no_feasible_particle",
+    "issue": "The paper_objective stage found no particle satisfying hard k-anonymity. The run is recorded without inventing a k-penalty, repair rule, or result value.",
+    "runtime_seconds": 4.357855694994214
+  }
+}

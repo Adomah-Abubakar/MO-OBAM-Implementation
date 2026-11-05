@@ -1,0 +1,157 @@
+{
+  "comparison": "fresh labelled PRTI-GH run versus legacy seed-9 run",
+  "legacy_run": {
+    "run_id": null,
+    "run_label": "full",
+    "timestamps": "not recorded"
+  },
+  "fresh_run": {
+    "run_id": "prti-20261027T173235Z-baseline-v1-seed9-k10-c30-lambda1p0-seed9",
+    "run_label": "baseline-v1-seed9",
+    "started_at_utc": "2026-10-27T17:32:35+00:00",
+    "completed_at_utc": "2026-10-27T17:34:57+00:00",
+    "canonical_command": [
+      ".venv/bin/python",
+      "run_prti.py",
+      "--source",
+      "data/PRTI-GH-study/PRTI-GH-study.xls",
+      "--output-directory",
+      "outputs/prti/baseline-v1-seed9",
+      "--run-label",
+      "baseline-v1-seed9",
+      "--k",
+      "10",
+      "--clusters",
+      "30",
+      "--lambda-weight",
+      "1.0",
+      "--population",
+      "100",
+      "--iterations",
+      "100",
+      "--seed",
+      "9"
+    ],
+    "generation_git": {
+      "commit": "e8d86597d2915d7f0977884aeeb18a12935a9d0e",
+      "working_tree_clean": true,
+      "changed_path_count": 0
+    }
+  },
+  "configuration_match": true,
+  "cluster_sizes_exact_match": true,
+  "source_hash_match": true,
+  "all_selected_metrics_exact_match": true,
+  "reproduced_exactly": true,
+  "metrics": [
+    {
+      "metric": "information_loss",
+      "legacy_value": 0.4366537386166644,
+      "fresh_value": 0.4366537386166644,
+      "difference": 0.0,
+      "exact_match": true,
+      "numerically_close": true
+    },
+    {
+      "metric": "entropy_sum",
+      "legacy_value": 52.31126541274985,
+      "fresh_value": 52.31126541274985,
+      "difference": 0.0,
+      "exact_match": true,
+      "numerically_close": true
+    },
+    {
+      "metric": "objective",
+      "legacy_value": -51.874611674133185,
+      "fresh_value": -51.874611674133185,
+      "difference": 0.0,
+      "exact_match": true,
+      "numerically_close": true
+    },
+    {
+      "metric": "minimum_cluster_size",
+      "legacy_value": 16,
+      "fresh_value": 16,
+      "difference": 0.0,
+      "exact_match": true,
+      "numerically_close": true
+    },
+    {
+      "metric": "maximum_cluster_size",
+      "legacy_value": 148,
+      "fresh_value": 148,
+      "difference": 0.0,
+      "exact_match": true,
+      "numerically_close": true
+    },
+    {
+      "metric": "linkage_records_tau_0_05",
+      "legacy_value": 67,
+      "fresh_value": 67,
+      "difference": 0.0,
+      "exact_match": true,
+      "numerically_close": true
+    },
+    {
+      "metric": "linkage_records_tau_0_075",
+      "legacy_value": 0,
+      "fresh_value": 0,
+      "difference": 0.0,
+      "exact_match": true,
+      "numerically_close": true
+    },
+    {
+      "metric": "linkage_records_tau_0_1",
+      "legacy_value": 0,
+      "fresh_value": 0,
+      "difference": 0.0,
+      "exact_match": true,
+      "numerically_close": true
+    },
+    {
+      "metric": "homogeneity_records_any_sa",
+      "legacy_value": 1249,
+      "fresh_value": 1249,
+      "difference": 0.0,
+      "exact_match": true,
+      "numerically_close": true
+    },
+    {
+      "metric": "zero_minimum_entropy_sensitive_attributes",
+      "legacy_value": 30,
+      "fresh_value": 30,
+      "difference": 0.0,
+      "exact_match": true,
+      "numerically_close": true
+    },
+    {
+      "metric": "feasible_evaluations",
+      "legacy_value": 160,
+      "fresh_value": 160,
+      "difference": 0.0,
+      "exact_match": true,
+      "numerically_close": true
+    },
+    {
+      "metric": "infeasible_evaluations",
+      "legacy_value": 9840,
+      "fresh_value": 9840,
+      "difference": 0.0,
+      "exact_match": true,
+      "numerically_close": true
+    },
+    {
+      "metric": "best_iteration_zero_based",
+      "legacy_value": 34,
+      "fresh_value": 34,
+      "difference": 0.0,
+      "exact_match": true,
+      "numerically_close": true
+    }
+  ],
+  "outputs": {
+    "comparison_csv": "prti_fresh_vs_legacy_comparison.csv",
+    "comparison_json": "prti_fresh_vs_legacy_comparison.json",
+    "fresh_artifact_manifest": "prti_fresh_artifact_manifest.json"
+  }
+}

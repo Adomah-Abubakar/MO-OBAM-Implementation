@@ -1,0 +1,11 @@
+category,criterion,operator,threshold,observed,passed,authority
+technical,source workbook unchanged,=,True,True,True,project invariant
+technical,all sensitive attributes unchanged,=,True,True,True,project invariant
+technical,all clusters satisfy hard k,=,True,True,True,Wei Equation (20)
+technical,final release shape,=,1485 x 106,1485 x 106,True,project invariant
+privacy screening,linkage-risk records above tau=0.05,=,0,0,True,project threshold using Wei Section V-C metric
+privacy screening,linkage-risk records above tau=0.075,=,0,0,True,project threshold using Wei Section V-C metric
+privacy screening,linkage-risk records above tau=0.1,=,0,0,True,project threshold using Wei Section V-C metric
+privacy screening,homogeneity-risk record fraction for any SA,<=,0.2,0.0,True,project threshold using Wei Section V-C metric
+privacy screening,SAs with zero minimum cluster entropy,<=,1,0,True,project threshold derived from Equations (15)-(19)
+utility screening,information loss,<=,0.6,0.5342360914448178,True,project threshold using Wei Equation (14)
