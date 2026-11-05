@@ -95,8 +95,10 @@ The additive multi-objective workflow writes a new versioned directory such as
 are an immutable JSON plan, a selection JSON, one human-readable Excel report,
 and an internal SQLite checkpoint database. SQLite stores aggregate run and
 Pareto-candidate metrics only; it contains no patient rows, assignments,
-centroids, prepared records, or anonymized records. No multi-objective result is
-reported until all 1,500 declared comparison runs are recorded.
+centroids, prepared records, or anonymized records. The reviewed v1 server
+study recorded all 1,500 outcomes and selected k=20, C=5, but those external
+aggregate files are not tracked in this checkout. A separate refinement must
+use a new versioned evidence directory.
 
-The repository verification snapshot on 5 November 2026 contains 94 passing
+The repository verification snapshot on 5 November 2026 contains 95 passing
 tests.

@@ -12,12 +12,12 @@ and release-readiness evidence.
 |---|---|
 | Range-study code | Complete and tested |
 | Joint k/C/lambda grid code | Complete and tested separately from the range study |
-| Verified repository tests | 94 passing tests |
+| Verified repository tests | 95 passing tests |
 | Selection-stage patient rows | Disabled |
 | Mathematical bound | `C <= floor(1485/k)` enforced in shell and Python |
 | Automatic selection | Privacy and feasibility first, then lowest mean information loss |
 | Held-out seed | Declared before selection and prohibited from comparison seeds |
-| Additive multi-objective protocol | Implemented separately for C=1 through C=30; no result recorded yet |
+| Additive multi-objective protocol | The 1,500-outcome v1 server study completed and selected k=20, C=5; held-out execution remains prohibited while exploratory refinement continues |
 | External release approval | Not granted by this workflow |
 
 This is a project protocol rather than an experiment reported in the source
@@ -545,5 +545,18 @@ The SQLite file is an internal aggregate checkpoint store that prevents
 duplicate k/C/seed runs and supports safe resume. It stores no patient rows,
 assignments, centroids, prepared records, or anonymized records. The JSON and
 Excel reports cannot select a configuration until every declared comparison
-run is recorded. This workflow currently stops at aggregate selection; it does
-not generate a held-out anonymized dataset and has no recorded result yet.
+run is recorded. This workflow currently stops at aggregate selection and does
+not generate a held-out anonymized dataset.
+
+The reviewed v1 server evidence subsequently recorded all 1,500 outcomes:
+1,279 successful optimizer runs and 221 `no_feasible_particle` outcomes.
+Twenty k/C configurations passed all ten comparison seeds, and the declared
+lowest-mean-IL rule selected k=20, C=5 with mean IL 0.4681464343. This remains
+aggregate comparison evidence and does not authorize held-out seed 12.
+
+The next comparison is a separate adaptive refinement over every integer k
+from 5 through 30 and C=2 through C=10. It contains 234 configurations and
+2,340 runs, preserves the v1 optimizer budget and privacy rules, and keeps seed
+12 unseen. Its complete command is in README Section 7.2. It must use
+`evidence/prti-multiobjective-refinement-k5-30-c2-10-v2` and must not alter the
+v1 directory.

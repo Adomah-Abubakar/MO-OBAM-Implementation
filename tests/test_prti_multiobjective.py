@@ -94,6 +94,41 @@ class PRTIMultiObjectiveTests(unittest.TestCase):
         self.assertEqual(float(intervals.iloc[-1]["lambda_end"]), 1.0)
         self.assertAlmostEqual(float(intervals.iloc[0]["lambda_end"]), 0.01)
 
+    def test_merged_lambda_intervals_recalculate_their_midpoint_objective(self) -> None:
+        candidates = pd.DataFrame(
+            [
+                {
+                    "k": 20,
+                    "clusters": 5,
+                    "seed": seed,
+                    "candidate_index": candidate_index,
+                    "information_loss": information_loss,
+                    "entropy_sum": entropy_sum,
+                    "privacy_eligible": True,
+                }
+                for seed in (0, 1)
+                for candidate_index, information_loss, entropy_sum in (
+                    (0, 0.40, 10.0),
+                    (1, 0.50, 20.0),
+                    # This point creates extra crossover boundaries without ever
+                    # becoming optimal. Adjacent equal-signature ranges are merged.
+                    (2, 0.45, 11.0),
+                )
+            ]
+        )
+        intervals = PRTIMultiObjectiveStudy._lambda_intervals(
+            candidates, {"k": 20, "clusters": 5}
+        )
+
+        self.assertEqual(len(intervals), 2)
+        for row in intervals.to_dict(orient="records"):
+            midpoint = (row["lambda_start"] + row["lambda_end"]) / 2.0
+            expected = (
+                row["information_loss_mean"]
+                - midpoint * row["entropy_sum_mean"]
+            )
+            self.assertAlmostEqual(row["objective_mean_at_midpoint"], expected)
+
     def test_plan_is_immutable_and_records_no_lambda_run_dimension(self) -> None:
         with TemporaryDirectory() as directory:
             output = Path(directory)
@@ -155,6 +190,16 @@ class PRTIMultiObjectiveTests(unittest.TestCase):
                 "recorded_runs": 1,
                 "completed_runs": 1,
                 "patient_level_outputs": False,
+                "selected_configuration": {
+                    "k": 20,
+                    "clusters": 5,
+                    "privacy_eligible_seeds": 10,
+                    "information_loss_mean": 0.468,
+                    "information_loss_max": 0.485,
+                    "entropy_sum_mean": 96.36,
+                    "homogeneity_fraction_max": 0.17,
+                    "minimum_cluster_size_min": 130,
+                },
             }
             PRTIMultiObjectiveStudy._write_excel(
                 report,
@@ -171,6 +216,14 @@ class PRTIMultiObjectiveTests(unittest.TestCase):
                     workbook.sheetnames,
                     ["Summary", "Configurations", "Lambda intervals"],
                 )
+                summary = workbook["Summary"]
+                summary_values = {
+                    summary.cell(row, 1).value: summary.cell(row, 2).value
+                    for row in range(1, summary.max_row + 1)
+                }
+                self.assertEqual(summary_values["Patient-level outputs"], "No")
+                self.assertEqual(summary_values["Selected k"], 20)
+                self.assertEqual(summary_values["Selected clusters"], 5)
             finally:
                 workbook.close()
 

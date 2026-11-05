@@ -571,6 +571,16 @@ class PRTIMultiObjectiveStudy:
             "planned_runs": self.config.planned_runs,
             "recorded_runs": len(runs),
             "completed_runs": int(runs.get("status", pd.Series(dtype=str)).eq("completed").sum()),
+            "privacy_thresholds": {
+                "maximum_information_loss": self.config.maximum_information_loss,
+                "maximum_homogeneity_fraction_any_sa": (
+                    self.config.maximum_homogeneity_fraction
+                ),
+                "maximum_zero_minimum_entropy_sensitive_attributes": (
+                    self.config.maximum_zero_minimum_entropy_sensitive_attributes
+                ),
+                "maximum_linkage_records_at_each_tau": 0,
+            },
             "selected_configuration": selected,
             "lambda_intervals_for_selected_configuration": lambda_intervals.to_dict(
                 orient="records"
@@ -717,6 +727,12 @@ class PRTIMultiObjectiveStudy:
                 merged[-1]["lambda_end"] = row["lambda_end"]
             else:
                 merged.append(dict(row))
+        for row in merged:
+            midpoint = (float(row["lambda_start"]) + float(row["lambda_end"])) / 2.0
+            row["objective_mean_at_midpoint"] = (
+                float(row["information_loss_mean"])
+                - midpoint * float(row["entropy_sum_mean"])
+            )
         return pd.DataFrame(merged, columns=columns)
 
     @staticmethod
@@ -740,25 +756,74 @@ class PRTIMultiObjectiveStudy:
         os.close(descriptor)
         temporary = Path(temporary_name)
         try:
-            overview = pd.DataFrame(
-                [
-                    ("Status", payload["status"]),
-                    ("Method", payload["method"]),
-                    ("Planned runs", payload["planned_runs"]),
-                    ("Recorded runs", payload["recorded_runs"]),
-                    ("Completed runs", payload["completed_runs"]),
-                    ("Patient-level outputs", payload["patient_level_outputs"]),
-                ],
-                columns=["Measure", "Value"],
-            )
+            overview_rows: list[tuple[str, object]] = [
+                ("Status", payload["status"]),
+                ("Method", payload["method"]),
+                ("Planned outcomes", payload["planned_runs"]),
+                ("Recorded outcomes", payload["recorded_runs"]),
+                ("Successful optimizer runs", payload["completed_runs"]),
+                (
+                    "Patient-level outputs",
+                    "Yes" if payload["patient_level_outputs"] else "No",
+                ),
+            ]
+            selected = payload.get("selected_configuration")
+            if isinstance(selected, dict):
+                overview_rows.extend(
+                    [
+                        ("Selected k", selected["k"]),
+                        ("Selected clusters", selected["clusters"]),
+                        ("Seeds passing every rule", selected["privacy_eligible_seeds"]),
+                        ("Mean information loss", selected["information_loss_mean"]),
+                        ("Maximum information loss", selected["information_loss_max"]),
+                        ("Mean entropy sum", selected["entropy_sum_mean"]),
+                        (
+                            "Maximum homogeneity fraction",
+                            selected["homogeneity_fraction_max"],
+                        ),
+                        ("Minimum cluster size", selected["minimum_cluster_size_min"]),
+                        ("Lambda intervals", len(lambda_intervals)),
+                    ]
+                )
+            thresholds = payload.get("privacy_thresholds")
+            if isinstance(thresholds, dict):
+                overview_rows.extend(
+                    [
+                        (
+                            "Maximum permitted information loss",
+                            thresholds["maximum_information_loss"],
+                        ),
+                        (
+                            "Maximum permitted homogeneity fraction",
+                            thresholds["maximum_homogeneity_fraction_any_sa"],
+                        ),
+                        (
+                            "Maximum zero-entropy sensitive attributes",
+                            thresholds[
+                                "maximum_zero_minimum_entropy_sensitive_attributes"
+                            ],
+                        ),
+                        (
+                            "Maximum linkage records at each tau",
+                            thresholds["maximum_linkage_records_at_each_tau"],
+                        ),
+                    ]
+                )
+            overview = pd.DataFrame(overview_rows, columns=["Measure", "Value"])
             run_status = (
                 runs.groupby("status", as_index=False).size()
                 if not runs.empty
                 else pd.DataFrame(columns=["status", "size"])
             )
+            run_status_title_row = len(overview) + 6
             with pd.ExcelWriter(temporary, engine="openpyxl") as writer:
                 overview.to_excel(writer, sheet_name="Summary", index=False, startrow=2)
-                run_status.to_excel(writer, sheet_name="Summary", index=False, startrow=12)
+                run_status.to_excel(
+                    writer,
+                    sheet_name="Summary",
+                    index=False,
+                    startrow=run_status_title_row,
+                )
                 summary.to_excel(writer, sheet_name="Configurations", index=False)
                 lambda_intervals.to_excel(writer, sheet_name="Lambda intervals", index=False)
                 workbook = writer.book
@@ -784,7 +849,7 @@ class PRTIMultiObjectiveStudy:
                 summary_sheet["A1"] = "PRTI-GH multi-objective study"
                 summary_sheet["A1"].font = Font(name="Arial", size=14, bold=True, color="1F1F1F")
                 header_rows = {
-                    "Summary": (3, 13),
+                    "Summary": (3, run_status_title_row + 1),
                     "Configurations": (1,),
                     "Lambda intervals": (1,),
                 }
@@ -797,9 +862,52 @@ class PRTIMultiObjectiveStudy:
                             cell.font = Font(name="Arial", size=10, bold=True, color="FFFFFF")
                             cell.fill = PatternFill("solid", fgColor=dark)
                             cell.alignment = Alignment(horizontal="center", vertical="center")
-                summary_sheet["A12"] = "Run status"
-                summary_sheet["A12"].font = Font(name="Arial", size=10, bold=True)
-                summary_sheet["A12"].fill = PatternFill("solid", fgColor=light)
+                summary_sheet[f"A{run_status_title_row}"] = "Run status"
+                summary_sheet[f"A{run_status_title_row}"].font = Font(
+                    name="Arial", size=10, bold=True
+                )
+                summary_sheet[f"A{run_status_title_row}"].fill = PatternFill(
+                    "solid", fgColor=light
+                )
+                summary_formats = {
+                    "Mean information loss": "0.000000",
+                    "Maximum information loss": "0.000000",
+                    "Mean entropy sum": "0.000000",
+                    "Maximum homogeneity fraction": "0.00%",
+                    "Maximum permitted information loss": "0.00",
+                    "Maximum permitted homogeneity fraction": "0.00%",
+                }
+                for row_number in range(4, 4 + len(overview)):
+                    label = summary_sheet.cell(row_number, 1).value
+                    if label in summary_formats:
+                        summary_sheet.cell(row_number, 2).number_format = (
+                            summary_formats[label]
+                        )
+                if isinstance(selected, dict):
+                    configuration_sheet = workbook["Configurations"]
+                    for row_number in range(2, configuration_sheet.max_row + 1):
+                        if (
+                            configuration_sheet.cell(row_number, 1).value == selected["k"]
+                            and configuration_sheet.cell(row_number, 2).value
+                            == selected["clusters"]
+                        ):
+                            for cell in configuration_sheet[row_number]:
+                                cell.fill = PatternFill("solid", fgColor=light)
+                                cell.font = Font(name="Arial", size=10, bold=True)
+                            break
+                configurations = workbook["Configurations"]
+                for column in ("H", "I", "J"):
+                    for cell in configurations[column][1:]:
+                        cell.number_format = "0.000000"
+                for cell in configurations["K"][1:]:
+                    cell.number_format = "0.00%"
+                lambda_sheet = workbook["Lambda intervals"]
+                for column in ("A", "B"):
+                    for cell in lambda_sheet[column][1:]:
+                        cell.number_format = "0.000000000"
+                for column in ("C", "D", "E"):
+                    for cell in lambda_sheet[column][1:]:
+                        cell.number_format = "0.000000"
                 for worksheet in (workbook["Configurations"], workbook["Lambda intervals"]):
                     worksheet.auto_filter.ref = worksheet.dimensions
             os.replace(temporary, path)

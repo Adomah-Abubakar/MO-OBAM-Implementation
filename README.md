@@ -667,6 +667,77 @@ The PSO random-coefficient bound is also a required argument. Use `0.01` to
 match the authors' implementation. It is written into the immutable plan and
 SQLite metadata, so changing it requires a new versioned output directory.
 
+#### 7.1 Correct and regenerate an existing report
+
+Earlier versions did not recompute `objective_mean_at_midpoint` after adjacent
+lambda intervals with the same candidate signature were merged. The interval
+boundaries, candidate signatures, IL, entropy, k/C selection, and SQLite
+checkpoints were unaffected. After pulling the corrected code, regenerate the
+v1 JSON and Excel report without rerunning PSO by repeating the exact v1
+scientific configuration with `--report-only`:
+
+```bash
+.venv/bin/python run_prti_multiobjective.py \
+  --source data/PRTI-GH-study/PRTI-GH-study.xls \
+  --output-directory evidence/prti-multiobjective-v1 \
+  --minimum-clusters 1 \
+  --maximum-clusters 30 \
+  --k-values 10 15 20 25 30 \
+  --population 100 \
+  --iterations 100 \
+  --archive-size 100 \
+  --initialization-attempts 20 \
+  --random-coefficient-max 0.01 \
+  --seeds 0 1 2 3 4 5 6 7 8 9 \
+  --held-out-seed 12 \
+  --maximum-information-loss 0.60 \
+  --maximum-homogeneity-fraction 0.20 \
+  --maximum-zero-entropy-sensitive-attributes 1 \
+  --workers 32 \
+  --report-only
+```
+
+#### 7.2 Exploratory refinement before any held-out run
+
+The completed v1 comparison selected `k=20`, `C=5` under its declared
+privacy-first, lowest-mean-IL rule. No held-out run is authorized while
+refinement continues. A separate exploratory v2 study expands k to every
+integer from 5 through 30 and concentrates C on 2 through 10. The v1 evidence
+showed no privacy-eligible configuration at C=1 and none beyond C=7; including
+C=8 through C=10 retains a short boundary check without repeating the
+unproductive C=11 through C=30 region.
+
+This follow-up contains 234 k/C configurations and 2,340 comparison runs. It
+uses the same population, iterations, archive size, initialization attempts,
+random-coefficient bound, seeds, and privacy rules as v1. Use a new output
+directory; never overwrite or relabel v1. First run this command with
+`--dry-run`, then remove only `--dry-run` after inspecting the plan:
+
+```bash
+.venv/bin/python run_prti_multiobjective.py \
+  --source data/PRTI-GH-study/PRTI-GH-study.xls \
+  --output-directory evidence/prti-multiobjective-refinement-k5-30-c2-10-v2 \
+  --minimum-clusters 2 \
+  --maximum-clusters 10 \
+  --k-values 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 \
+  --population 100 \
+  --iterations 100 \
+  --archive-size 100 \
+  --initialization-attempts 20 \
+  --random-coefficient-max 0.01 \
+  --seeds 0 1 2 3 4 5 6 7 8 9 \
+  --held-out-seed 12 \
+  --maximum-information-loss 0.60 \
+  --maximum-homogeneity-fraction 0.20 \
+  --maximum-zero-entropy-sensitive-attributes 1 \
+  --workers 32 \
+  --dry-run
+```
+
+This is an adaptive exploratory refinement informed by v1, not a
+paper-reported experiment or an independent confirmation. Seed 12 remains
+unseen. Selection remains withheld until all 2,340 outcomes are recorded.
+
 ### 8. Generate one held-out candidate after selection
 
 This section applies to the existing scalar `dense-clusters` and
@@ -927,7 +998,7 @@ Run the tests with the project virtual environment:
 .venv/bin/python -m unittest discover -v
 ```
 
-Verification on 5 November 2026 completed with 94 passing tests.
+Verification on 5 November 2026 completed with 95 passing tests.
 
 The tests cover the paper's nine-record example, multiple sensitive attributes
 with `sum(min(entropy))`, the direct v2 objective, hard membership and k

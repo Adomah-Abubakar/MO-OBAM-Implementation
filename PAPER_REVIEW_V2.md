@@ -124,7 +124,7 @@ results under a fixed seed, feasibility, metric agreement with the formulation,
 and proximity to the exact small-data optimum. Adult preparation and baseline
 privacy counts are also regression-tested against Table 6.
 
-The current repository verification snapshot contains 94 passing tests,
+The current repository verification snapshot contains 95 passing tests,
 including the held-out PRTI-GH policy, joint-grid feasibility and recovery,
 aggregate results-package boundaries, and the additive multi-objective
 extension's Pareto, hard-k, immutable-plan, SQLite, and Excel-report checks.

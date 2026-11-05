@@ -40,9 +40,12 @@ tracked in this checkout and is therefore not incorporated into the tables in
 this document.
 
 The newer additive multi-objective C=1 through C=30 protocol contains 150 k/C
-configurations and 1,500 comparison runs. It analyses lambda after each Pareto
-search instead of repeating PSO for each lambda. It has no recorded result in
-this repository and does not change any table in this document.
+configurations and 1,500 comparison outcomes. The reviewed server evidence
+recorded 1,279 successful runs and 221 no-feasible-particle outcomes. Twenty
+configurations passed every comparison seed, and the declared rule selected
+k=20, C=5 with mean IL 0.4681464343. The aggregate files are not versioned in
+this checkout and do not change the historical tables below. A separate
+exploratory refinement is required before any held-out execution.
 
 ## 1. Analysis scope
 
@@ -404,8 +407,10 @@ This paragraph should be accompanied by the limitations in the next section.
 - The scalar joint-grid implementation compared declared k, C, and lambda
   values on the external server, but its v3 evidence is not tracked in this
   checkout and is therefore not integrated into these results.
-- The additive multi-objective protocol has no result until all 1,500 declared
-  comparison runs are recorded and its evidence is reviewed.
+- The additive multi-objective v1 result is aggregate comparison evidence only.
+  Its selected k=20, C=5 configuration is not a held-out result, does not
+  approve release, and remains subject to the documented exploratory
+  refinement.
 
 ## 8. Reproduction
 
@@ -475,7 +480,7 @@ Run validation:
 .venv/bin/python -m unittest discover -v
 ```
 
-The verification snapshot on 5 November 2026 contains 94 passing tests. The
+The verification snapshot on 5 November 2026 contains 95 passing tests. The
 results-v2 CSVs were also reloaded with the spreadsheet validation tooling,
 all output hashes were checked, and each PNG figure was visually inspected at
 1600 by 1000 pixels.

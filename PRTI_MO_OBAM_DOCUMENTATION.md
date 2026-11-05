@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Status | Living research document |
-| Document version | 1.3.0 |
+| Document version | 1.3.1 |
 | Last updated | 5 November 2026 |
 | Dataset | Pediatric Road Traffic Injury in Ghana (PRTI-GH) |
 | Methodological authority | Wei et al., MO-OBAM, arXiv:2501.01002v2, 15 May 2025 |
@@ -15,7 +15,7 @@
 | Held-out candidate | Four clusters, seed 10; passed all predeclared project screening checks; external release not approved |
 | Follow-up range protocol | Code ready and primary execution in progress for a mathematically feasible inclusive cluster sweep with explicit comparison seeds and a prospectively reserved held-out seed; selection not yet complete |
 | Scalar joint parameter protocol | Expanded v3 plan contains 2,145 configurations and 21,450 runs; server evidence is not tracked in this checkout and is not integrated into the recorded results |
-| Additive multi-objective protocol | C=1 through C=30 across five k values and ten comparison seeds; 1,500 aggregate runs planned, no result recorded yet |
+| Additive multi-objective protocol | The 1,500-outcome v1 server study recorded 1,279 successful runs and 221 no-feasible-particle outcomes; 20 k/C configurations passed all seeds and k=20, C=5 was selected. Held-out execution is deferred pending exploratory refinement |
 | Current reporting package | `evidence/prti-results-v2/`: 8 aggregate CSV tables, 5 PNG/SVG figure pairs, index, and provenance manifest; no patient rows or centroids |
 | Release readiness | Automated 106-attribute triage complete; external release remains blocked pending custodian, clinical, privacy/governance, and independent disclosure-control review |
 | Machine-learning phase | Paused; not evaluated in the current PRTI-GH result |
@@ -984,9 +984,18 @@ The workflow stores an immutable plan, aggregate selection JSON, an Excel
 report, and one SQLite checkpoint database. SQLite contains aggregate run and
 candidate metrics only and supports duplicate prevention and resumability. It
 contains no patient rows, assignments, centroids, prepared records or
-anonymized records. Selection is withheld until all declared comparison runs
-are recorded. The workflow has not yet produced a result and does not currently
-generate the final held-out anonymized dataset.
+anonymized records. Selection is withheld until all declared comparison
+outcomes are recorded. The reviewed v1 server evidence recorded all 1,500
+outcomes: 1,279 successful runs and 221 `no_feasible_particle` outcomes.
+Twenty configurations passed all ten comparison seeds, and the declared
+lowest-mean-IL rule selected k=20, C=5 with mean IL 0.4681464343. The result
+remains aggregate-only and does not authorize held-out seed 12.
+
+Before held-out execution, a separate adaptive refinement expands k to every
+integer from 5 through 30 and focuses C on 2 through 10. It preserves the v1
+optimizer budget and privacy rules, contains 234 configurations and 2,340
+runs, and writes a new v2 evidence directory. This follow-up is exploratory and
+must not be described as an independent confirmation.
 
 ## 9. Output artifacts
 
@@ -1306,6 +1315,7 @@ meaning, limitations, and provenance.
 
 | Version | Date | Change |
 |---|---|---|
+| 1.3.1 | 5 November 2026 | Recorded the reviewed 1,500-outcome multi-objective server result, fixed merged-interval midpoint reporting, declared the 2,340-run exploratory refinement, and updated verification to 95 tests |
 | 1.3.0 | 5 November 2026 | Documented the 1,500-run additive multi-objective protocol, aggregate SQLite boundary, scalar v3 evidence boundary, active-versus-reference code layout, expanded implementation map, and 94-test verification |
 | 1.2.0 | 5 November 2026 | Added compiled distance kernels, process-based configuration/seed parallelism, standalone repository paths, project-local environment support, portable aggregate provenance, and 85-test verification |
 | 1.1.0 | 4 November 2026 | Added the separate joint k/C/lambda server protocol, k-specific feasibility bounds, explicit no-reuse mode, atomic checkpoints, periodic aggregate refresh, single-writer locking, held-out handoff, and 83-test verification |
