@@ -218,7 +218,7 @@ Raw files in `data/adult/` are read-only inputs and are never overwritten.
 
 ## PRTI-GH experiment
 
-### Input and attribute roles
+### 1. Input and attribute roles
 
 By default, `run_prti.py` reads the unchanged source workbook from:
 
@@ -251,13 +251,69 @@ Preparation is deliberately lossless:
 - decoding must reproduce every original distribution with zero frequency
   difference before optimization is allowed to run.
 
-### Commands
+### 2. Choose the workflow before running commands
+
+The commands below are not one continuous sequence. Choose the workflow that
+matches the research task:
+
+| Workflow | Use it when | Recommended order |
+|---|---|---|
+| Fresh installation preflight | The repository or dataset is new on a machine | Section 3 audit, then smoke test |
+| Main fixed-parameter cluster study | `k` and lambda are already fixed and only `C` must be selected | Sections 3, 5, then 7 |
+| Main joint-parameter study | `k`, `C`, and lambda must all be compared | Sections 3, 6, then 7 |
+| Historical reproducibility | A recorded baseline or earlier experiment must be reproduced | Section 3, then the required command in Section 4 |
+
+Do not run the historical seed-9 baseline merely because the audit succeeded.
+It is optional reproduction evidence and does not select the best
+configuration.
+
+### 3. Fresh installation preflight
+
+Run this section after installing the project on a new machine, after
+installing a new copy of the workbook, or after changing data-preparation code.
+The audit is required. The smoke test is strongly recommended once per fresh
+installation before an expensive main study. Neither is a thesis experiment.
+
+#### 3.1 Audit the source and preparation
 
 Prepare and inspect the data without anonymizing it:
 
 ```bash
 .venv/bin/python run_prti.py --audit-only
 ```
+
+The audit writes private preparation artifacts under
+`outputs/prti/audit-only/`. In particular, `prti_prepared_input.csv` is coded
+patient-level input, not anonymized data. Keep the directory private and do not
+commit it.
+
+#### 3.2 Recommended small end-to-end smoke test
+
+After the audit passes, verify optimization, entropy, privacy metrics,
+checkpoint writing, and aggregate reporting with a deliberately small run:
+
+```bash
+./run_prti_cluster_range_study.sh 1 3 \
+  --k 10 \
+  --lambda-weight 1 \
+  --population 10 \
+  --iterations 5 \
+  --seeds 0,1 \
+  --held-out-seed 11 \
+  --workers 1 \
+  --output-directory evidence/prti-smoke-fresh-v1
+```
+
+Smoke-test results are installation evidence only. Never merge their
+checkpoints or metrics into a main study directory or thesis result.
+
+### 4. Historical reproducibility and diagnostic workflows
+
+Everything in this section is optional unless the research task is explicitly
+to reproduce a recorded result. These commands are not prerequisites for the
+fresh main workflows in Sections 5 and 6.
+
+#### 4.1 Reproduce the recorded seed-9 baseline
 
 Run the recorded PRTI result explicitly:
 
@@ -273,6 +329,12 @@ Run the recorded PRTI result explicitly:
   --seed 9
 ```
 
+This executes only `k=10`, `C=30`, `lambda=1`, and seed 9. It produces
+patient-level anonymization artifacts for internal validation, but it does not
+compare configurations or establish that this configuration is best.
+
+#### 4.2 Reproduce the exploratory seed screen
+
 Recreate and retain the exploratory 20-iteration seed screen as aggregate-only
 evidence:
 
@@ -287,6 +349,8 @@ evidence:
   --seeds 0 1 2 3 4 5 6 7 8 9
 ```
 
+#### 4.3 Compare the labelled and legacy baseline outputs
+
 Compare a fresh labelled result with the legacy result without exporting any
 patient rows:
 
@@ -296,6 +360,8 @@ patient rows:
   --fresh-directory outputs/prti/baseline-v1-seed9 \
   --evidence-directory evidence/prti-baseline-v1
 ```
+
+#### 4.4 Reproduce the paper-derived sensitivity plan
 
 Write the complete 220-point sensitivity plan without starting optimization:
 
@@ -316,6 +382,8 @@ experiment. Settings for which `k * clusters > 1,485` are recorded as
 mathematically infeasible without running PSO or inventing result values. The
 sensitivity workflow never writes assignments, centroids, or patient rows.
 
+#### 4.5 Reproduce the four-configuration robustness study
+
 Recreate or resume the predeclared 40-run robustness study for the baseline,
 privacy, lowest-IL, and compromise configurations:
 
@@ -331,6 +399,8 @@ privacy, lowest-IL, and compromise configurations:
 The ten-seed design is a labelled project robustness protocol, not a parameter
 specified by Wei et al. It retains one aggregate checkpoint per seed and no
 patient-level rows. Matching checkpoints are reused when the command resumes.
+
+#### 4.6 Diagnose one chosen cluster count
 
 Run or resume one chosen cluster count with explicit comparison seeds:
 
@@ -369,6 +439,12 @@ different configurations from overwriting or resuming one another. The
 wrapper is aggregate-only: it never writes patient rows, assignments,
 centroids, or QID representatives.
 
+### 5. Main workflow A: select C with fixed k and lambda
+
+Use this workflow only when the study has already fixed `k=10` and `lambda=1`
+and needs to select the best observed eligible cluster count. It cannot select
+the best joint `k`, `C`, and lambda combination.
+
 For the primary inclusive comparison, use the range wrapper. This example
 tests every mathematically possible cluster count for `k=10`, reserves seed 11,
 and writes no patient rows:
@@ -382,24 +458,91 @@ and writes no patient rows:
   --seeds 0,1,2,3,4,5,6,7,8,9 \
   --held-out-seed 11 \
   --workers 4 \
-  --output-directory evidence/prti-primary-range-k10-v1 \
+  --output-directory evidence/prti-primary-range-k10-fresh-v1 \
+  --no-reuse \
   --dry-run
 ```
 
-Remove `--dry-run` after inspecting the plan. Use `--max-new-runs N` for
-resumable batches. Selection is privacy-first: only configurations passing all
-seeds and thresholds are ranked by mean information loss. The self-contained
+After inspecting the plan, execute an initial resumable batch with the same
+scientific configuration:
+
+```bash
+./run_prti_cluster_range_study.sh 1 148 \
+  --k 10 \
+  --lambda-weight 1 \
+  --population 100 \
+  --iterations 100 \
+  --seeds 0,1,2,3,4,5,6,7,8,9 \
+  --held-out-seed 11 \
+  --workers 4 \
+  --output-directory evidence/prti-primary-range-k10-fresh-v1 \
+  --no-reuse \
+  --max-new-runs 20
+```
+
+Repeat that exact command to resume. After the server proves stable,
+`--max-new-runs 20` may be increased or omitted. Selection is privacy-first:
+only configurations passing all seeds and thresholds are ranked by mean
+information loss. The self-contained
 fresh-start instructions, including installation, a smoke test, guaranteed
 no-reuse execution, monitoring, held-out generation, outputs, and remaining
 reporting work, are in
 [`PRTI_CLUSTER_RANGE_STUDY.md`](PRTI_CLUSTER_RANGE_STUDY.md).
 
-The fixed range above selects C only while holding `k=10` and `lambda=1`.
-For a server-based joint comparison of multiple k, C, and lambda values, use:
+### 6. Main workflow B: jointly select k, C, and lambda
+
+Use this workflow when the research question requires comparison of all three
+model parameters. The fixed range in Section 5 is insufficient for this goal.
+First inspect the self-contained help:
 
 ```bash
 .venv/bin/python run_prti_experiments.py parameter-grid --help
 ```
+
+Write the proposed server plan without starting optimization:
+
+```bash
+.venv/bin/python run_prti_experiments.py parameter-grid \
+  --source data/PRTI-GH-study/PRTI-GH-study.xls \
+  --output-directory evidence/prti-parameter-grid-k10-15-20-v1 \
+  --minimum-clusters 1 \
+  --maximum-clusters 148 \
+  --k-values 10 15 20 \
+  --lambda-weights 0.0001 0.001 0.01 0.1 1 \
+  --population 100 \
+  --iterations 100 \
+  --seeds 0 1 2 3 4 5 6 7 8 9 \
+  --held-out-seed 11 \
+  --workers 32 \
+  --worker-backend process \
+  --no-reuse \
+  --dry-run
+```
+
+Inspect `prti_parameter_grid_plan.json`, including the source, parameter sets,
+seed separation, feasibility bounds, and `patient_level_outputs: false`. After
+approving that protocol, execute the first server batch:
+
+```bash
+.venv/bin/python run_prti_experiments.py parameter-grid \
+  --source data/PRTI-GH-study/PRTI-GH-study.xls \
+  --output-directory evidence/prti-parameter-grid-k10-15-20-v1 \
+  --minimum-clusters 1 \
+  --maximum-clusters 148 \
+  --k-values 10 15 20 \
+  --lambda-weights 0.0001 0.001 0.01 0.1 1 \
+  --population 100 \
+  --iterations 100 \
+  --seeds 0 1 2 3 4 5 6 7 8 9 \
+  --held-out-seed 11 \
+  --workers 32 \
+  --worker-backend process \
+  --no-reuse \
+  --max-new-runs 64
+```
+
+Repeat that exact command to resume. Worker count and batch size may be
+adjusted after a stable batch without changing the declared scientific grid.
 
 That mode bounds C separately for each k, writes aggregate-only resumable
 checkpoints, requires an unseen held-out seed and an explicit reuse policy,
@@ -414,20 +557,46 @@ SciPy's compiled distance kernel and compiled entropy counting retain every
 declared run while removing the dominant temporary-array and Python dispatch
 overhead.
 
+### 7. Generate one held-out candidate after selection
+
+Do not manually choose a configuration after looking at the comparison
+results. Wait until the selected study reports completion, then let the
+candidate runner read `k`, `C`, lambda, population, iterations, and held-out
+seed from the saved selection evidence.
+
 After the range is complete, generate the recorded selected configuration with
 the prospectively reserved held-out seed:
 
 ```bash
 .venv/bin/python run_prti_selected_candidate.py \
-  --study-directory evidence/prti-primary-range-k10-v1 \
-  --output-directory outputs/prti/range-selected-heldout-seed11 \
-  --evidence-directory evidence/prti-range-final-selection-v1 \
+  --study-directory evidence/prti-primary-range-k10-fresh-v1 \
+  --output-directory outputs/prti/range-selected-heldout-seed11-fresh-v1 \
+  --evidence-directory evidence/prti-range-final-selection-fresh-v1 \
   --plan-only
 ```
 
 Remove `--plan-only` only after checking the final plan. The final command does
 not accept k, C, lambda, population, iterations, or seed overrides; it derives
 them from the completed selection evidence and refuses seed substitution.
+
+For a completed joint workflow, use:
+
+```bash
+.venv/bin/python run_prti_selected_candidate.py \
+  --study-directory evidence/prti-parameter-grid-k10-15-20-v1 \
+  --output-directory outputs/prti/parameter-grid-selected-heldout-seed11-v1 \
+  --evidence-directory evidence/prti-parameter-grid-final-selection-v1 \
+  --plan-only
+```
+
+For either workflow, inspect the generated plan and then repeat its exact
+command without `--plan-only`. The same candidate runner supports both
+completed study types.
+
+### 8. Maintain previously recorded results
+
+The commands in this section operate on existing recorded candidates and
+reports. They are not steps in a new main study.
 
 Generate the prospectively declared four-cluster held-out candidate. The
 default command records the plan before running seed 10 and refuses to
@@ -498,7 +667,7 @@ rerunning PSO or modifying any research-data CSV:
 .venv/bin/python run_prti.py --refresh-manifest
 ```
 
-### Saved outputs
+### 9. Saved outputs and privacy boundary
 
 Full baseline runs, saved-table display, and manifest refresh use
 `outputs/prti/baseline-v1-seed9/` by default. Audit-only and smoke-test modes
@@ -537,7 +706,7 @@ cross-checked for row alignment, column order, complete mappings, unchanged
 SAs, matching QID after-values, cluster totals, hard k-anonymity, and complete
 entropy rows.
 
-### Interpretation boundary
+### 10. Interpretation boundary
 
 `C=30`, `k=10`, and `lambda=1` define the first PRTI model configuration. Seed
 0 remains the historical first baseline. A deterministic 20-iteration screen
