@@ -27,6 +27,65 @@ The terminal wrappers use `.venv/bin/python` by default. To use an activated
 environment or a server-managed interpreter instead, set `PRTI_PYTHON` to its
 executable path before running a wrapper.
 
+### Shared server: `python3.12` is not available
+
+The pinned NumPy and SciPy versions require Python 3.12. If a shared server
+provides only Python 3.10 or 3.11, do not replace its system Python and do not
+run `sudo` or `apt` commands for this project. The following fallback installs
+`uv`, a Python 3.12 runtime, the package cache, and the virtual environment
+inside the current repository. It does not modify `/usr/bin/python3`, shell
+profiles, or installations used by other server users.
+
+From the repository root, create the project-local directories:
+
+```bash
+mkdir -p .local-tools .local-python .local-python-bin .uv-cache
+```
+
+Install an unmanaged, project-local copy of `uv` without changing `PATH` or a
+shell profile:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh |
+  env UV_UNMANAGED_INSTALL="$PWD/.local-tools" sh
+```
+
+Use it to download Python 3.12 into the repository and create `.venv`:
+
+```bash
+UV_PYTHON_INSTALL_DIR="$PWD/.local-python" \
+UV_PYTHON_BIN_DIR="$PWD/.local-python-bin" \
+UV_CACHE_DIR="$PWD/.uv-cache" \
+./.local-tools/uv venv --python 3.12 .venv
+```
+
+Install the pinned packages into that environment:
+
+```bash
+UV_CACHE_DIR="$PWD/.uv-cache" \
+./.local-tools/uv pip install \
+  --python .venv/bin/python \
+  -r requirements.txt
+```
+
+Verify both the isolated environment and the unchanged system interpreter:
+
+```bash
+.venv/bin/python --version
+/usr/bin/python3 --version
+readlink -f .venv/bin/python
+.venv/bin/python -m pip check
+.venv/bin/python -m unittest discover -q
+```
+
+The first command must report Python 3.12.x. The system command may continue
+to report Python 3.10.x; that is expected. `uv` is only an installation tool
+for this fallback and is not used by the anonymization algorithm. After setup,
+run the project through `.venv/bin/python` and the supplied shell wrappers.
+The relevant upstream references are the
+[`uv` installer options](https://docs.astral.sh/uv/reference/installer/) and
+[`uv` storage controls](https://docs.astral.sh/uv/reference/storage/).
+
 `xlrd` is required because PRTI-GH is an Excel 97-2003 `.xls` workbook. SciPy
 provides the compiled pairwise-distance kernels used by the PSO implementation.
 Every new PRTI audit and anonymization summary records the Python, NumPy,

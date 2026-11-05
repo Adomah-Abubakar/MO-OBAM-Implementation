@@ -19,6 +19,12 @@ dist/
 venv/
 env/
 
+# Fully project-local shared-server Python bootstrap
+.local-tools/
+.local-python/
+.local-python-bin/
+.uv-cache/
+
 # Jupyter checkpoints
 .ipynb_checkpoints/
 
