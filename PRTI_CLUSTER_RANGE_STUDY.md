@@ -389,7 +389,7 @@ until the k and lambda sets have been approved for the thesis:
 ```bash
 .venv/bin/python run_prti_experiments.py parameter-grid \
   --source data/PRTI-GH-study/PRTI-GH-study.xls \
-  --output-directory evidence/prti-parameter-grid-k10-15-20-v1 \
+  --output-directory evidence/prti-parameter-grid-k10-15-20-v2 \
   --minimum-clusters 1 \
   --maximum-clusters 148 \
   --k-values 10 15 20 \
@@ -422,6 +422,13 @@ are execution controls; they do not alter the grid, seeds, PSO budget, privacy
 rules, or selection. The single-writer lock deliberately rejects a second
 command using the same output directory.
 
+The plan predeclares a second, descriptive analysis alongside the automatic
+selection rule. Among configurations passing every privacy and feasibility
+gate, the reports identify the Pareto frontier that minimizes mean information
+loss and maximizes mean sensitive-attribute entropy sum. Selection remains
+privacy-first and then lowest mean information loss; Pareto membership does not
+silently replace that rule.
+
 The optimized distance kernel uses SciPy's compiled squared-Euclidean and
 Hamming implementations while retaining Equations 10-12. The entropy kernel
 uses an equivalent compiled grouped count. A recorded C=30, seed-9,
@@ -434,7 +441,7 @@ throughput must still be taken from the first real batch.
 Progress and selection files are:
 
 ```text
-evidence/prti-parameter-grid-k10-15-20-v1/
+evidence/prti-parameter-grid-k10-15-20-v2/
   prti_parameter_grid_plan.json
   prti_parameter_grid_runs.csv
   prti_parameter_grid_summary.csv

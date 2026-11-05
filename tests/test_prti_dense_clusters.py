@@ -41,6 +41,7 @@ class PRTIDenseClusterTests(unittest.TestCase):
             self.assertEqual(plan["number_of_planned_runs"], 270)
             self.assertFalse(plan["patient_level_outputs"])
             self.assertIn("lowest mean information loss", plan["selection_rule"])
+            self.assertIn("Pareto frontier", plan["analysis_rule"])
 
     def test_plan_cannot_be_silently_changed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -212,6 +213,78 @@ class PRTIDenseClusterTests(unittest.TestCase):
         self.assertEqual(
             assessed.loc["k20_c004_lambda0p5", "selection_rank"],
             1,
+        )
+
+    def test_parameter_grid_reports_privacy_eligible_il_entropy_pareto_frontier(
+        self,
+    ) -> None:
+        runner = PRTIParameterGridRunner(
+            PRTIParameterGridConfig(
+                minimum_clusters=4,
+                maximum_clusters=4,
+                k_values=(10,),
+                lambda_weights=(1.0,),
+                seeds=(0, 1),
+                held_out_seed=11,
+            )
+        )
+        base = {
+            "k": 10,
+            "configured_clusters": 4,
+            "lambda": 1.0,
+            "seeds_planned": 2,
+            "runs_completed": 2,
+            "runs_no_feasible_particle": 0,
+            "minimum_cluster_size_min": 10,
+            "linkage_records_tau_0_05_max": 0,
+            "linkage_records_tau_0_075_max": 0,
+            "linkage_records_tau_0_1_max": 0,
+            "homogeneity_records_any_sa_max": 0,
+            "zero_minimum_entropy_sensitive_attributes_max": 0,
+            "information_loss_max": 0.59,
+        }
+        summary = pd.DataFrame(
+            [
+                {
+                    **base,
+                    "configuration_id": "low_il",
+                    "information_loss_mean": 0.40,
+                    "entropy_sum_mean": 10.0,
+                },
+                {
+                    **base,
+                    "configuration_id": "high_entropy",
+                    "information_loss_mean": 0.50,
+                    "entropy_sum_mean": 12.0,
+                },
+                {
+                    **base,
+                    "configuration_id": "entropy_dominated",
+                    "information_loss_mean": 0.60,
+                    "entropy_sum_mean": 11.0,
+                },
+                {
+                    **base,
+                    "configuration_id": "utility_dominated",
+                    "information_loss_mean": 0.45,
+                    "entropy_sum_mean": 9.0,
+                },
+            ]
+        )
+
+        assessed = runner.assess_summary(summary).set_index("configuration_id")
+
+        self.assertTrue(
+            bool(assessed.loc["low_il", "pareto_efficient_il_entropy"])
+        )
+        self.assertTrue(
+            bool(assessed.loc["high_entropy", "pareto_efficient_il_entropy"])
+        )
+        self.assertFalse(
+            bool(assessed.loc["entropy_dominated", "pareto_efficient_il_entropy"])
+        )
+        self.assertFalse(
+            bool(assessed.loc["utility_dominated", "pareto_efficient_il_entropy"])
         )
 
     def test_selection_prefers_lowest_il_only_among_privacy_passes(self) -> None:

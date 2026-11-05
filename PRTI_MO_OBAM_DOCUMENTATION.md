@@ -937,6 +937,14 @@ remains privacy-first and is withheld until every declared outcome is
 recorded. The runner uses atomic file replacement and a single-writer lock so
 interrupted server runs can resume without accepting partial checkpoints.
 
+For analysis, the summary and selection evidence retain mean, standard
+deviation, minimum, and maximum entropy sums across seeds. Among configurations
+passing every predeclared privacy and feasibility rule, they also identify the
+Pareto frontier that minimizes mean information loss and maximizes mean
+sensitive-attribute entropy sum. This descriptive frontier does not replace the
+predeclared automatic rule: select the lowest mean information loss among
+eligible configurations, with the documented deterministic tie breakers.
+
 The proposed k={10,15,20}, paper-derived lambda={0.0001,0.001,0.01,0.1,1},
 C=1 through its k-specific maximum, ten-seed plan contains 1,605
 configurations and 16,050 runs. This is a proposed protocol, not a completed

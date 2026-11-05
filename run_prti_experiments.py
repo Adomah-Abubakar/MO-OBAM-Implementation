@@ -563,8 +563,10 @@ def main() -> None:
             "lambda",
             "runs_completed",
             "information_loss_mean",
+            "entropy_sum_mean",
             "homogeneity_fraction_any_sa_max",
             "passes_all_predeclared_rules",
+            "pareto_efficient_il_entropy",
             "selection_rank",
             "selected",
         ]
