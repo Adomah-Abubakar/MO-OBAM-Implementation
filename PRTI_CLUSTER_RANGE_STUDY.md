@@ -389,10 +389,10 @@ until the k and lambda sets have been approved for the thesis:
 ```bash
 .venv/bin/python run_prti_experiments.py parameter-grid \
   --source data/PRTI-GH-study/PRTI-GH-study.xls \
-  --output-directory evidence/prti-parameter-grid-k10-15-20-v2 \
+  --output-directory evidence/prti-parameter-grid-k10-15-20-25-30-v3 \
   --minimum-clusters 1 \
   --maximum-clusters 148 \
-  --k-values 10 15 20 \
+  --k-values 10 15 20 25 30 \
   --lambda-weights 0.0001 0.001 0.01 0.1 1 \
   --population 100 \
   --iterations 100 \
@@ -409,9 +409,11 @@ This plan contains:
 - 148 feasible C values for k=10;
 - 99 feasible C values for k=15;
 - 74 feasible C values for k=20;
+- 59 feasible C values for k=25;
+- 49 feasible C values for k=30;
 - five lambda values;
-- 1,605 configurations; and
-- 16,050 aggregate comparison runs across ten seeds.
+- 2,145 configurations; and
+- 21,450 aggregate comparison runs across ten seeds.
 
 Inspect `prti_parameter_grid_plan.json` before removing `--dry-run`. For the
 52-physical-core, 93-GiB server reviewed for this project, begin real execution
@@ -441,7 +443,7 @@ throughput must still be taken from the first real batch.
 Progress and selection files are:
 
 ```text
-evidence/prti-parameter-grid-k10-15-20-v2/
+evidence/prti-parameter-grid-k10-15-20-25-30-v3/
   prti_parameter_grid_plan.json
   prti_parameter_grid_runs.csv
   prti_parameter_grid_summary.csv

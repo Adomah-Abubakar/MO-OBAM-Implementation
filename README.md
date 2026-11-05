@@ -504,10 +504,10 @@ Write the proposed server plan without starting optimization:
 ```bash
 .venv/bin/python run_prti_experiments.py parameter-grid \
   --source data/PRTI-GH-study/PRTI-GH-study.xls \
-  --output-directory evidence/prti-parameter-grid-k10-15-20-v2 \
+  --output-directory evidence/prti-parameter-grid-k10-15-20-25-30-v3 \
   --minimum-clusters 1 \
   --maximum-clusters 148 \
-  --k-values 10 15 20 \
+  --k-values 10 15 20 25 30 \
   --lambda-weights 0.0001 0.001 0.01 0.1 1 \
   --population 100 \
   --iterations 100 \
@@ -526,10 +526,10 @@ approving that protocol, execute the first server batch:
 ```bash
 .venv/bin/python run_prti_experiments.py parameter-grid \
   --source data/PRTI-GH-study/PRTI-GH-study.xls \
-  --output-directory evidence/prti-parameter-grid-k10-15-20-v2 \
+  --output-directory evidence/prti-parameter-grid-k10-15-20-25-30-v3 \
   --minimum-clusters 1 \
   --maximum-clusters 148 \
-  --k-values 10 15 20 \
+  --k-values 10 15 20 25 30 \
   --lambda-weights 0.0001 0.001 0.01 0.1 1 \
   --population 100 \
   --iterations 100 \
@@ -553,7 +553,7 @@ That mode bounds C separately for each k, writes aggregate-only resumable
 checkpoints, requires an unseen held-out seed and an explicit reuse policy,
 prevents concurrent writers to one study directory, and withholds selection
 until every declared configuration/seed outcome is recorded. The proposed
-full-grid command and its 16,050-run count are documented in
+full-grid command and its 21,450-run count are documented in
 [`PRTI_CLUSTER_RANGE_STUDY.md`](PRTI_CLUSTER_RANGE_STUDY.md#16-joint-k-cluster-count-and-lambda-study-on-a-server).
 On a Linux server, `--worker-backend process` runs independent configurations
 in forked processes; `thread` remains the portable fallback. The backend
@@ -588,9 +588,9 @@ For a completed joint workflow, use:
 
 ```bash
 .venv/bin/python run_prti_selected_candidate.py \
-  --study-directory evidence/prti-parameter-grid-k10-15-20-v2 \
-  --output-directory outputs/prti/parameter-grid-selected-heldout-seed11-v2 \
-  --evidence-directory evidence/prti-parameter-grid-final-selection-v2 \
+  --study-directory evidence/prti-parameter-grid-k10-15-20-25-30-v3 \
+  --output-directory outputs/prti/parameter-grid-selected-heldout-seed11-v3 \
+  --evidence-directory evidence/prti-parameter-grid-final-selection-v3 \
   --plan-only
 ```
 

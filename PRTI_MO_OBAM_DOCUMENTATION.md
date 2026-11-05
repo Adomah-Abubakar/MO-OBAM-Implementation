@@ -945,11 +945,14 @@ sensitive-attribute entropy sum. This descriptive frontier does not replace the
 predeclared automatic rule: select the lowest mean information loss among
 eligible configurations, with the documented deterministic tie breakers.
 
-The proposed k={10,15,20}, paper-derived lambda={0.0001,0.001,0.01,0.1,1},
-C=1 through its k-specific maximum, ten-seed plan contains 1,605
-configurations and 16,050 runs. This is a proposed protocol, not a completed
-result; its exact grid must be approved before execution. Commands and server
-preflight checks are in [`PRTI_CLUSTER_RANGE_STUDY.md`](PRTI_CLUSTER_RANGE_STUDY.md).
+The proposed k={10,15,20,25,30}, paper-derived
+lambda={0.0001,0.001,0.01,0.1,1}, C=1 through its k-specific maximum,
+ten-seed plan contains 2,145 configurations and 21,450 runs. Values k=25 and
+k=30 extend the paper-derived sensitivity values as a declared PRTI-GH project
+adaptation so the search includes stronger privacy settings. This is a proposed
+protocol, not a completed result; its exact grid must be approved before
+execution. Commands and server preflight checks are in
+[`PRTI_CLUSTER_RANGE_STUDY.md`](PRTI_CLUSTER_RANGE_STUDY.md).
 
 Runtime optimization does not reduce that plan. Equation 12 now uses compiled
 SciPy squared-Euclidean and Hamming distance kernels, and the sensitive-state

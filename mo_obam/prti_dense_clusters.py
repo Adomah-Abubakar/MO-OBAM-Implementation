@@ -310,6 +310,7 @@ class PRTIDenseClusterRunner(PRTIRobustnessRunner):
                 "loss. Break exact ties by lower maximum homogeneity fraction, then "
                 "by the smaller cluster count."
             ),
+            "analysis_rule": self._analysis_rule(),
             "release_boundary": (
                 "Selection produces an aggregate research candidate only. It does "
                 "not approve patient-level or unrestricted release; direct-identifier, "
@@ -473,6 +474,10 @@ class PRTIDenseClusterRunner(PRTIRobustnessRunner):
                         item, "information_loss_mean"
                     ),
                     "information_loss_max": self._number(item, "information_loss_max"),
+                    "entropy_sum_mean": self._number(item, "entropy_sum_mean"),
+                    "entropy_sum_std": self._number(item, "entropy_sum_std"),
+                    "entropy_sum_min": self._number(item, "entropy_sum_min"),
+                    "entropy_sum_max": self._number(item, "entropy_sum_max"),
                     "homogeneity_records_any_sa_max": homogeneity_max,
                     "homogeneity_fraction_any_sa_max": homogeneity_fraction,
                     "minimum_cluster_size_min": self._number(
@@ -483,6 +488,7 @@ class PRTIDenseClusterRunner(PRTIRobustnessRunner):
                     ),
                     **checks,
                     "passes_all_predeclared_rules": all(checks.values()),
+                    "pareto_efficient_il_entropy": False,
                     "selection_rank": None,
                     "selected": False,
                 }
@@ -491,6 +497,10 @@ class PRTIDenseClusterRunner(PRTIRobustnessRunner):
         if assessed.empty:
             return assessed
         eligible = assessed.loc[assessed["passes_all_predeclared_rules"]].copy()
+        pareto_indices = self._pareto_efficient_indices(eligible)
+        assessed.loc[
+            list(pareto_indices), "pareto_efficient_il_entropy"
+        ] = True
         eligible = eligible.sort_values(
             [
                 "information_loss_mean",
@@ -545,6 +555,7 @@ class PRTIDenseClusterRunner(PRTIRobustnessRunner):
                 "selection_complete" if selection_complete else "selection_incomplete"
             ),
             "selection_rule": self._selection_rule(),
+            "analysis_rule": self._analysis_rule(),
             "selected_configuration": selected_rows[0] if selected_rows else None,
             "assessments": json.loads(
                 assessed.to_json(orient="records", double_precision=15)
@@ -589,6 +600,45 @@ class PRTIDenseClusterRunner(PRTIRobustnessRunner):
         )
 
     @staticmethod
+    def _analysis_rule() -> str:
+        return (
+            "Among configurations passing every predeclared privacy and feasibility "
+            "rule, report the Pareto frontier that minimizes mean information loss "
+            "and maximizes mean sensitive-attribute entropy sum. Pareto status is "
+            "descriptive and does not replace the predeclared selection rule."
+        )
+
+    @staticmethod
+    def _pareto_efficient_indices(eligible: pd.DataFrame) -> set[object]:
+        """Return eligible rows not dominated on mean IL and mean entropy."""
+
+        required = {"information_loss_mean", "entropy_sum_mean"}
+        if eligible.empty or not required.issubset(eligible.columns):
+            return set()
+        valid = eligible.dropna(subset=list(required)).copy()
+        efficient: set[object] = set()
+        best_entropy_at_lower_il: float | None = None
+        for _information_loss, group in valid.groupby(
+            "information_loss_mean", sort=True
+        ):
+            group_max_entropy = float(group["entropy_sum_mean"].max())
+            if (
+                best_entropy_at_lower_il is None
+                or group_max_entropy > best_entropy_at_lower_il
+            ):
+                efficient.update(
+                    group.index[
+                        group["entropy_sum_mean"].eq(group_max_entropy)
+                    ].tolist()
+                )
+            if (
+                best_entropy_at_lower_il is None
+                or group_max_entropy > best_entropy_at_lower_il
+            ):
+                best_entropy_at_lower_il = group_max_entropy
+        return efficient
+
+    @staticmethod
     def _optimality_boundary() -> str:
         return (
             "The selected configuration is the best observed eligible setting "
@@ -603,6 +653,8 @@ class PRTIDenseClusterRunner(PRTIRobustnessRunner):
 
         withheld = assessed.copy()
         if not withheld.empty:
+            if "pareto_efficient_il_entropy" in withheld:
+                withheld["pareto_efficient_il_entropy"] = None
             withheld["selection_rank"] = None
             withheld["selected"] = False
         return withheld
@@ -775,6 +827,7 @@ class PRTIParameterGridRunner(PRTIDenseClusterRunner):
                 "loss. Break exact ties by lower maximum homogeneity fraction, then "
                 "higher k, smaller cluster count, and higher lambda."
             ),
+            "analysis_rule": self._analysis_rule(),
             "optimality_boundary": (
                 "Selection is the best observed eligible point in this declared "
                 "finite grid and PSO budget, not a mathematical global optimum."
