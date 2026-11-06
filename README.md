@@ -768,12 +768,39 @@ inspect the immutable 30-run plan first:
 Remove only `--dry-run` after inspecting the plan. This validation remains
 aggregate-only and does not execute seed 12.
 
+After V3 reports `selection_complete`, predeclare the one held-out run. This
+reads the selected k/C pair and seed 12 from the saved V3 evidence; it accepts
+no manual k, C, lambda, or seed override:
+
+```bash
+.venv/bin/python run_prti_multiobjective_selected_candidate.py \
+  --study-directory evidence/prti-multiobjective-confirmation-v3 \
+  --output-directory outputs/prti/multiobjective-v3-heldout-seed12 \
+  --evidence-directory evidence/prti-multiobjective-final-selection-v3 \
+  --plan-only
+```
+
+Inspect the plan, then generate the anonymized data by running the same command
+without `--plan-only`:
+
+```bash
+.venv/bin/python run_prti_multiobjective_selected_candidate.py \
+  --study-directory evidence/prti-multiobjective-confirmation-v3 \
+  --output-directory outputs/prti/multiobjective-v3-heldout-seed12 \
+  --evidence-directory evidence/prti-multiobjective-final-selection-v3
+```
+
+The anonymized data is written to
+`outputs/prti/multiobjective-v3-heldout-seed12/prti_anonymized_final.csv`.
+The output directory contains only that CSV and its run summary; the immutable
+plan and acceptance decision remain in the evidence directory.
+
 ### 8. Generate one held-out candidate after selection
 
-This section applies to the existing scalar `dense-clusters` and
-`parameter-grid` workflows. The multi-objective command deliberately stops at
-aggregate selection and does not pass its result into the scalar held-out
-runner.
+The commands below apply to the existing scalar `dense-clusters` and
+`parameter-grid` workflows. Multi-objective V3 uses the separate held-out
+command in Section 7.3 because it must select from a Pareto archive rather than
+run the scalar optimizer.
 
 Do not manually choose a configuration after looking at the comparison
 results. Wait until the selected study reports completion, then let the

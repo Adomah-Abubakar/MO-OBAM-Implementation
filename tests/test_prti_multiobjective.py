@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from contextlib import closing
+import json
 from pathlib import Path
 from types import SimpleNamespace
 from tempfile import TemporaryDirectory
 import unittest
+from unittest.mock import patch
 
 from openpyxl import load_workbook
 import numpy as np
@@ -16,6 +18,10 @@ from mo_obam.prti_multiobjective import (
     PRTIMultiObjectiveStudy,
 )
 from mo_obam.prti_multiobjective_solver import PRTIMultiObjectiveParticleSwarm
+from mo_obam.prti_multiobjective_release import (
+    PRTIMultiObjectiveSelectedCandidateRunner,
+    PRTIMultiObjectiveSelectedPolicy,
+)
 from mo_obam.pso_solver import PSOConfig
 from mo_obam.schema import MOOBAMConfig, MOOBAMSchema
 
@@ -118,6 +124,67 @@ class PRTIMultiObjectiveTests(unittest.TestCase):
 
         self.assertIsNotNone(selected)
         self.assertEqual((selected["k"], selected["clusters"]), (20, 5))
+
+    def test_held_out_plan_uses_completed_selection_without_seed_override(self) -> None:
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            study = root / "study"
+            study.mkdir()
+            source_hash = "a" * 64
+            plan = {
+                "paper_identifier": "arXiv:2501.01002v2",
+                "paper_revision": "15 May 2025",
+                "source_sha256": source_hash,
+                "configuration_pairs": [[20, 5], [8, 5], [12, 3]],
+                "comparison_seeds": list(range(13, 23)),
+                "held_out_seed": 12,
+                "population_size": 100,
+                "iterations": 100,
+                "archive_size": 100,
+                "initialization_attempts": 20,
+                "random_coefficient_max": 0.01,
+            }
+            selection = {
+                "status": "selection_complete",
+                "patient_level_outputs": False,
+                "source_sha256": source_hash,
+                "planned_runs": 30,
+                "recorded_runs": 30,
+                "completed_runs": 30,
+                "privacy_thresholds": {
+                    "maximum_information_loss": 0.6,
+                    "maximum_homogeneity_fraction_any_sa": 0.2,
+                    "maximum_zero_minimum_entropy_sensitive_attributes": 1,
+                    "maximum_linkage_records_at_each_tau": 0,
+                },
+                "selected_configuration": {
+                    "k": 8,
+                    "clusters": 5,
+                    "privacy_eligible_seeds": 10,
+                    "passes_all_seeds": True,
+                },
+            }
+            (study / PRTIMultiObjectiveStudy.PLAN_FILE).write_text(
+                json.dumps(plan), encoding="utf-8"
+            )
+            (study / PRTIMultiObjectiveStudy.SELECTION_FILE).write_text(
+                json.dumps(selection), encoding="utf-8"
+            )
+            runner = PRTIMultiObjectiveSelectedCandidateRunner(
+                PRTIMultiObjectiveSelectedPolicy(
+                    study_directory=study,
+                    output_directory=root / "output",
+                    evidence_directory=root / "evidence",
+                    source_path=root / "source.xls",
+                )
+            )
+            with patch.object(runner.adapter, "file_sha256", return_value=source_hash):
+                final_plan = json.loads(runner.predeclare().read_text(encoding="utf-8"))
+
+            self.assertEqual(final_plan["selected_configuration"], {"k": 8, "clusters": 5})
+            self.assertEqual(final_plan["held_out_seed"], 12)
+            self.assertNotIn(12, final_plan["comparison_seeds"])
+            self.assertTrue(final_plan["patient_level_outputs"])
 
     def test_pareto_dominance_minimizes_il_and_maximizes_entropy(self) -> None:
         better = SimpleNamespace(information_loss=0.4, entropy_sum=10.0)
