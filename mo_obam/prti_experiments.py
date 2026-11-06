@@ -39,6 +39,21 @@ SensitivityProgressCallback = Callable[
 ]
 
 
+def one_factor_run_ids() -> set[str]:
+    """Return the historical 18-point one-factor subset identifiers."""
+
+    def run_id(k: int, clusters: int, weight: float) -> str:
+        label = format(weight, "g").replace(".", "p")
+        return f"k{k:02d}_c{clusters:03d}_lambda{label}"
+
+    values = {
+        run_id(k, 30, 1.0) for k in PAPER_K_VALUES
+    }
+    values.update(run_id(10, clusters, 1.0) for clusters in PAPER_ADULT_CLUSTER_VALUES)
+    values.update(run_id(10, 30, weight) for weight in PAPER_LAMBDA_VALUES)
+    return values
+
+
 @dataclass(frozen=True)
 class PRTISensitivityExperiment:
     """Identify one PRTI-GH adaptation of a Wei Appendix A grid point."""

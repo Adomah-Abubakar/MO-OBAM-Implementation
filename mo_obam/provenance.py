@@ -184,11 +184,9 @@ class ArtifactManifestWriter:
 
         generation_files = [
             *sorted((self.project_root / "mo_obam").glob("*.py")),
-            self.project_root / "generate_prti_results.py",
             self.project_root / "generate_prti_results_package.py",
             self.project_root / "run_prti.py",
             self.project_root / "run_prti_experiments.py",
-            self.project_root / "run_prti_release.py",
             self.project_root / "run_prti_selected_candidate.py",
             self.project_root / "run_prti_cluster_study.sh",
             self.project_root / "run_prti_cluster_range_study.sh",

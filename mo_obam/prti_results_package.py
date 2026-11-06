@@ -25,7 +25,7 @@ from .prti_data import (
     PRTI_NUMERIC_QIDS,
     PRTI_QIDS,
 )
-from .prti_results import PRTIResultsReporter
+from .prti_experiments import one_factor_run_ids
 from .prti_runner import PAPER_IDENTIFIER, PAPER_REVISION, PROJECT_ROOT
 
 
@@ -499,7 +499,7 @@ class PRTIResultsPackageBuilder:
         sensitivity = evidence["sensitivity"]
         robustness = evidence["robustness"]
         one_factor = sensitivity.loc[
-            sensitivity["run_id"].isin(PRTIResultsReporter.one_factor_run_ids())
+            sensitivity["run_id"].isin(one_factor_run_ids())
         ]
 
         def counts(frame: pd.DataFrame) -> tuple[int, int, int]:
@@ -525,7 +525,7 @@ class PRTIResultsPackageBuilder:
             {
                 "study_component": "one_factor_subset",
                 "scope_note": "Overlapping subset of the sensitivity grid",
-                "planned_runs": len(PRTIResultsReporter.one_factor_run_ids()),
+                "planned_runs": len(one_factor_run_ids()),
                 "recorded_runs": len(one_factor),
                 "completed_runs": one_factor_counts[0],
                 "no_feasible_particle_runs": one_factor_counts[1],
