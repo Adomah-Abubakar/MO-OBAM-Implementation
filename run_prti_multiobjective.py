@@ -13,6 +13,18 @@ from mo_obam.prti_multiobjective import (
 )
 
 
+def parse_configuration_pair(value: str) -> tuple[int, int]:
+    """Parse one explicit K:C configuration pair."""
+
+    try:
+        k_text, clusters_text = value.split(":", maxsplit=1)
+        return int(k_text), int(clusters_text)
+    except (ValueError, TypeError) as error:
+        raise argparse.ArgumentTypeError(
+            f"invalid configuration pair {value!r}; expected K:C, for example 20:5"
+        ) from error
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
@@ -45,9 +57,19 @@ def build_parser() -> argparse.ArgumentParser:
         "--output-directory", type=Path, required=True,
         help="New versioned evidence directory; an incompatible plan is never overwritten.",
     )
-    parser.add_argument("--minimum-clusters", type=int, required=True)
-    parser.add_argument("--maximum-clusters", type=int, required=True)
-    parser.add_argument("--k-values", type=int, nargs="+", required=True)
+    parser.add_argument("--minimum-clusters", type=int)
+    parser.add_argument("--maximum-clusters", type=int)
+    parser.add_argument("--k-values", type=int, nargs="+")
+    parser.add_argument(
+        "--configuration-pairs",
+        type=parse_configuration_pair,
+        nargs="+",
+        metavar="K:C",
+        help=(
+            "Run only explicit k/cluster pairs; mutually exclusive with "
+            "--minimum-clusters, --maximum-clusters, and --k-values."
+        ),
+    )
     parser.add_argument("--population", type=int, required=True)
     parser.add_argument("--iterations", type=int, required=True)
     parser.add_argument("--archive-size", type=int, required=True)
@@ -72,6 +94,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--maximum-homogeneity-fraction", type=float, required=True)
     parser.add_argument(
         "--maximum-zero-entropy-sensitive-attributes", type=int, required=True
+    )
+    parser.add_argument(
+        "--selection-information-loss-margin",
+        type=float,
+        default=0.0,
+        help=(
+            "If positive, retain all-seed-passing configurations within this "
+            "absolute mean-IL margin, then minimize maximum homogeneity."
+        ),
     )
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument(
@@ -101,12 +132,35 @@ def main() -> None:
     args = build_parser().parse_args()
     if args.dry_run and args.report_only:
         raise SystemExit("--dry-run and --report-only cannot be used together.")
+    range_arguments = (
+        args.minimum_clusters,
+        args.maximum_clusters,
+        args.k_values,
+    )
+    if args.configuration_pairs and any(value is not None for value in range_arguments):
+        raise SystemExit(
+            "--configuration-pairs cannot be combined with cluster ranges or --k-values."
+        )
+    if not args.configuration_pairs and any(value is None for value in range_arguments):
+        raise SystemExit(
+            "Provide --configuration-pairs or all of --minimum-clusters, "
+            "--maximum-clusters, and --k-values."
+        )
+    configuration_pairs = tuple(args.configuration_pairs or ())
+    if configuration_pairs:
+        minimum_clusters = min(clusters for _, clusters in configuration_pairs)
+        maximum_clusters = max(clusters for _, clusters in configuration_pairs)
+        k_values = tuple(dict.fromkeys(k for k, _ in configuration_pairs))
+    else:
+        minimum_clusters = args.minimum_clusters
+        maximum_clusters = args.maximum_clusters
+        k_values = tuple(args.k_values)
     config = PRTIMultiObjectiveConfig(
         source_path=args.source,
         output_directory=args.output_directory,
-        minimum_clusters=args.minimum_clusters,
-        maximum_clusters=args.maximum_clusters,
-        k_values=tuple(args.k_values),
+        minimum_clusters=minimum_clusters,
+        maximum_clusters=maximum_clusters,
+        k_values=k_values,
         seeds=tuple(args.seeds),
         held_out_seed=args.held_out_seed,
         population_size=args.population,
@@ -120,6 +174,8 @@ def main() -> None:
         maximum_zero_minimum_entropy_sensitive_attributes=(
             args.maximum_zero_entropy_sensitive_attributes
         ),
+        configuration_pairs=configuration_pairs,
+        selection_information_loss_margin=args.selection_information_loss_margin,
     )
     study = PRTIMultiObjectiveStudy(config)
     if args.dry_run:
@@ -128,11 +184,21 @@ def main() -> None:
         print("PRTI-GH multi-objective study plan")
         print(f"  configurations: {len(config.configurations)}")
         print(f"  comparison runs: {config.planned_runs}")
+        if config.configuration_pairs:
+            pairs = ", ".join(
+                f"k={k}/C={clusters}" for k, clusters in config.configuration_pairs
+            )
+            print(f"  configuration pairs: {pairs}")
+        else:
+            print(
+                f"  clusters: {config.minimum_clusters} through "
+                f"{config.maximum_clusters} inclusive"
+            )
+            print(f"  k values: {', '.join(map(str, config.k_values))}")
         print(
-            f"  clusters: {config.minimum_clusters} through "
-            f"{config.maximum_clusters} inclusive"
+            "  selection IL margin: "
+            f"{config.selection_information_loss_margin:g}"
         )
-        print(f"  k values: {', '.join(map(str, config.k_values))}")
         print("  lambda: continuous post-optimization analysis over [0, 1]")
         print(f"  plan: {path.resolve()}")
         print("  patient-level outputs: disabled")

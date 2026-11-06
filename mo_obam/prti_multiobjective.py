@@ -52,6 +52,8 @@ class PRTIMultiObjectiveConfig:
     maximum_information_loss: float = 0.60
     maximum_homogeneity_fraction: float = 0.20
     maximum_zero_minimum_entropy_sensitive_attributes: int = 1
+    configuration_pairs: tuple[tuple[int, int], ...] = ()
+    selection_information_loss_margin: float = 0.0
 
     def __post_init__(self) -> None:
         if self.minimum_clusters < 1:
@@ -92,9 +94,28 @@ class PRTIMultiObjectiveConfig:
             raise ValueError("maximum_homogeneity_fraction must be in [0, 1].")
         if self.maximum_zero_minimum_entropy_sensitive_attributes < 0:
             raise ValueError("maximum zero-entropy SA count cannot be negative.")
+        if len(set(self.configuration_pairs)) != len(self.configuration_pairs):
+            raise ValueError("configuration_pairs must contain distinct k/C pairs.")
+        if any(
+            k < 2 or clusters < 1 for k, clusters in self.configuration_pairs
+        ):
+            raise ValueError(
+                "Every configuration pair requires k >= 2 and clusters >= 1."
+            )
+        if any(
+            k * clusters > EXPECTED_PRTI_SHAPE[0]
+            for k, clusters in self.configuration_pairs
+        ):
+            raise ValueError(
+                "configuration_pairs contains a mathematically infeasible pair."
+            )
+        if not 0.0 <= self.selection_information_loss_margin <= 1.0:
+            raise ValueError("selection_information_loss_margin must be in [0, 1].")
 
     @property
     def configurations(self) -> tuple[tuple[int, int], ...]:
+        if self.configuration_pairs:
+            return self.configuration_pairs
         values: list[tuple[int, int]] = []
         for k in self.k_values:
             endpoint = min(self.maximum_clusters, EXPECTED_PRTI_SHAPE[0] // k)
@@ -107,6 +128,16 @@ class PRTIMultiObjectiveConfig:
     @property
     def planned_runs(self) -> int:
         return len(self.configurations) * len(self.seeds)
+
+    def checkpoint_configuration(self) -> dict[str, object]:
+        """Return metadata while preserving compatibility with pre-v3 studies."""
+
+        payload = asdict(self)
+        if not self.configuration_pairs:
+            payload.pop("configuration_pairs")
+        if self.selection_information_loss_margin == 0.0:
+            payload.pop("selection_information_loss_margin")
+        return payload
 
 
 def _run_in_worker(task: tuple[int, int, int]) -> dict[str, object]:
@@ -263,6 +294,21 @@ class PRTIMultiObjectiveStudy:
                 "Pareto archive, not proof of a mathematical global optimum."
             ),
         }
+        if self.config.configuration_pairs:
+            payload["configuration_pairs"] = [
+                [k, clusters] for k, clusters in self.config.configuration_pairs
+            ]
+        if self.config.selection_information_loss_margin > 0.0:
+            margin = self.config.selection_information_loss_margin
+            payload["selection_rule"] = (
+                "For each k/C/seed archive choose the privacy-eligible candidate with "
+                "the lowest IL. A k/C configuration is eligible only when every "
+                "comparison seed has such a candidate. Retain configurations whose "
+                f"mean IL is within {margin:g} absolute IL of the lowest eligible "
+                "mean; select the lowest maximum homogeneity fraction, then lower "
+                "mean IL, higher mean entropy, higher k, and smaller C. Lambda "
+                "intervals remain descriptive."
+            )
         if path.exists():
             existing = json.loads(path.read_text(encoding="utf-8"))
             ignored = {"declared_at_utc", "source_sha256"}
@@ -433,7 +479,9 @@ class PRTIMultiObjectiveStudy:
         metadata = {
             "source_sha256": source_hash,
             "paper_revision": PAPER_REVISION,
-            "configuration_json": json.dumps(asdict(self.config), default=str, sort_keys=True),
+            "configuration_json": json.dumps(
+                self.config.checkpoint_configuration(), default=str, sort_keys=True
+            ),
         }
         for key, value in metadata.items():
             existing = connection.execute(
@@ -547,19 +595,7 @@ class PRTIMultiObjectiveStudy:
         selected_by_seed = self._best_eligible_by_seed(candidates)
         summary = self._configuration_summary(runs, selected_by_seed)
         complete = len(runs) == self.config.planned_runs
-        eligible = summary.loc[summary.get("passes_all_seeds", False)].copy()
-        if not eligible.empty:
-            eligible = eligible.sort_values(
-                [
-                    "information_loss_mean",
-                    "homogeneity_fraction_max",
-                    "k",
-                    "clusters",
-                ],
-                ascending=[True, True, False, True],
-                kind="stable",
-            )
-        selected = eligible.iloc[0].to_dict() if complete and not eligible.empty else None
+        summary, selected = self._apply_selection_policy(summary, complete)
         lambda_intervals = self._lambda_intervals(candidates, selected)
         payload = {
             "generated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -591,6 +627,20 @@ class PRTIMultiObjectiveStudy:
             ),
             "patient_level_outputs": False,
         }
+        if self.config.selection_information_loss_margin > 0.0:
+            payload["selection_policy"] = {
+                "type": "information_loss_margin_then_privacy",
+                "absolute_information_loss_margin": (
+                    self.config.selection_information_loss_margin
+                ),
+                "primary_within_margin": "lowest_maximum_homogeneity_fraction",
+                "tie_breakers": [
+                    "lower_mean_information_loss",
+                    "higher_mean_entropy_sum",
+                    "higher_k",
+                    "smaller_cluster_count",
+                ],
+            }
         selection_path = self.config.output_directory / self.SELECTION_FILE
         atomic_write_text(selection_path, json.dumps(payload, indent=2, default=self._json_default))
         report_path = self.config.output_directory / self.REPORT_FILE
@@ -621,6 +671,55 @@ class PRTIMultiObjectiveStudy:
             kind="stable",
         )
         return eligible.groupby(["k", "clusters", "seed"], as_index=False).first()
+
+    def _apply_selection_policy(
+        self, summary: pd.DataFrame, complete: bool
+    ) -> tuple[pd.DataFrame, dict[str, object] | None]:
+        """Apply the immutable default or margin-based configuration rule."""
+
+        result = summary.copy()
+        eligible = result.loc[result.get("passes_all_seeds", False)].copy()
+        margin = self.config.selection_information_loss_margin
+        if margin > 0.0:
+            result["information_loss_margin_from_best"] = np.nan
+            result["within_information_loss_margin"] = False
+            if not eligible.empty:
+                best_mean = float(eligible["information_loss_mean"].min())
+                differences = result["information_loss_mean"] - best_mean
+                result["information_loss_margin_from_best"] = differences
+                within = result["passes_all_seeds"] & differences.le(
+                    margin + 1e-12
+                )
+                result["within_information_loss_margin"] = within
+                eligible = result.loc[within].copy()
+                eligible = eligible.sort_values(
+                    [
+                        "homogeneity_fraction_max",
+                        "information_loss_mean",
+                        "entropy_sum_mean",
+                        "k",
+                        "clusters",
+                    ],
+                    ascending=[True, True, False, False, True],
+                    kind="stable",
+                )
+        elif not eligible.empty:
+            eligible = eligible.sort_values(
+                [
+                    "information_loss_mean",
+                    "homogeneity_fraction_max",
+                    "k",
+                    "clusters",
+                ],
+                ascending=[True, True, False, True],
+                kind="stable",
+            )
+        selected = (
+            eligible.iloc[0].to_dict()
+            if complete and not eligible.empty
+            else None
+        )
+        return result, selected
 
     def _configuration_summary(
         self, runs: pd.DataFrame, selected_by_seed: pd.DataFrame
@@ -809,6 +908,14 @@ class PRTIMultiObjectiveStudy:
                         ),
                     ]
                 )
+            selection_policy = payload.get("selection_policy")
+            if isinstance(selection_policy, dict):
+                overview_rows.append(
+                    (
+                        "Selection information-loss margin",
+                        selection_policy["absolute_information_loss_margin"],
+                    )
+                )
             overview = pd.DataFrame(overview_rows, columns=["Measure", "Value"])
             run_status = (
                 runs.groupby("status", as_index=False).size()
@@ -876,6 +983,7 @@ class PRTIMultiObjectiveStudy:
                     "Maximum homogeneity fraction": "0.00%",
                     "Maximum permitted information loss": "0.00",
                     "Maximum permitted homogeneity fraction": "0.00%",
+                    "Selection information-loss margin": "0.000000",
                 }
                 for row_number in range(4, 4 + len(overview)):
                     label = summary_sheet.cell(row_number, 1).value
@@ -901,6 +1009,15 @@ class PRTIMultiObjectiveStudy:
                         cell.number_format = "0.000000"
                 for cell in configurations["K"][1:]:
                     cell.number_format = "0.00%"
+                for column_index, cell in enumerate(configurations[1], start=1):
+                    if cell.value == "information_loss_margin_from_best":
+                        for value_cell in configurations.iter_cols(
+                            min_col=column_index,
+                            max_col=column_index,
+                            min_row=2,
+                        ):
+                            for item in value_cell:
+                                item.number_format = "0.000000"
                 lambda_sheet = workbook["Lambda intervals"]
                 for column in ("A", "B"):
                     for cell in lambda_sheet[column][1:]:

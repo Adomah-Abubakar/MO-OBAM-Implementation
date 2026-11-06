@@ -738,6 +738,36 @@ This is an adaptive exploratory refinement informed by v1, not a
 paper-reported experiment or an independent confirmation. Seed 12 remains
 unseen. Selection remains withheld until all 2,340 outcomes are recorded.
 
+#### 7.3 Fresh-seed validation of the v2 frontier
+
+After v2 is complete, validate only its three declared frontier configurations
+with fresh comparison seeds. The `0.01` absolute mean-IL margin is applied
+before minimizing maximum homogeneity; seed 12 remains held out. Write and
+inspect the immutable 30-run plan first:
+
+```bash
+.venv/bin/python run_prti_multiobjective.py \
+  --source data/PRTI-GH-study/PRTI-GH-study.xls \
+  --output-directory evidence/prti-multiobjective-confirmation-v3 \
+  --configuration-pairs 20:5 8:5 12:3 \
+  --population 100 \
+  --iterations 100 \
+  --archive-size 100 \
+  --initialization-attempts 20 \
+  --random-coefficient-max 0.01 \
+  --seeds 13 14 15 16 17 18 19 20 21 22 \
+  --held-out-seed 12 \
+  --maximum-information-loss 0.60 \
+  --maximum-homogeneity-fraction 0.20 \
+  --maximum-zero-entropy-sensitive-attributes 1 \
+  --selection-information-loss-margin 0.01 \
+  --workers 32 \
+  --dry-run
+```
+
+Remove only `--dry-run` after inspecting the plan. This validation remains
+aggregate-only and does not execute seed 12.
+
 ### 8. Generate one held-out candidate after selection
 
 This section applies to the existing scalar `dense-clusters` and

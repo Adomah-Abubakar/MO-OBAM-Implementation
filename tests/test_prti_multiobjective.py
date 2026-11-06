@@ -32,6 +32,93 @@ class PRTIMultiObjectiveTests(unittest.TestCase):
         self.assertEqual(len(config.configurations), 150)
         self.assertEqual(config.planned_runs, 1500)
 
+    def test_explicit_configuration_pairs_define_only_the_validation_runs(self) -> None:
+        pairs = ((20, 5), (8, 5), (12, 3))
+        config = PRTIMultiObjectiveConfig(
+            configuration_pairs=pairs,
+            seeds=tuple(range(13, 23)),
+            held_out_seed=12,
+            selection_information_loss_margin=0.01,
+        )
+
+        self.assertEqual(config.configurations, pairs)
+        self.assertEqual(config.planned_runs, 30)
+        self.assertEqual(
+            config.checkpoint_configuration()["configuration_pairs"], pairs
+        )
+
+    def test_information_loss_margin_selects_lower_maximum_homogeneity(self) -> None:
+        summary = pd.DataFrame(
+            [
+                {
+                    "k": 20,
+                    "clusters": 5,
+                    "passes_all_seeds": True,
+                    "information_loss_mean": 0.4681,
+                    "homogeneity_fraction_max": 0.1744,
+                    "entropy_sum_mean": 96.36,
+                },
+                {
+                    "k": 8,
+                    "clusters": 5,
+                    "passes_all_seeds": True,
+                    "information_loss_mean": 0.4695,
+                    "homogeneity_fraction_max": 0.1522,
+                    "entropy_sum_mean": 95.85,
+                },
+                {
+                    "k": 12,
+                    "clusters": 3,
+                    "passes_all_seeds": True,
+                    "information_loss_mean": 0.4982,
+                    "homogeneity_fraction_max": 0.0,
+                    "entropy_sum_mean": 102.28,
+                },
+            ]
+        )
+        study = PRTIMultiObjectiveStudy(
+            PRTIMultiObjectiveConfig(selection_information_loss_margin=0.01)
+        )
+
+        ranked, selected = study._apply_selection_policy(summary, complete=True)
+
+        self.assertIsNotNone(selected)
+        self.assertEqual((selected["k"], selected["clusters"]), (8, 5))
+        within = ranked.set_index(["k", "clusters"])[
+            "within_information_loss_margin"
+        ]
+        self.assertTrue(bool(within.loc[(20, 5)]))
+        self.assertTrue(bool(within.loc[(8, 5)]))
+        self.assertFalse(bool(within.loc[(12, 3)]))
+
+    def test_zero_margin_preserves_lowest_mean_information_loss_rule(self) -> None:
+        summary = pd.DataFrame(
+            [
+                {
+                    "k": 20,
+                    "clusters": 5,
+                    "passes_all_seeds": True,
+                    "information_loss_mean": 0.4681,
+                    "homogeneity_fraction_max": 0.1744,
+                    "entropy_sum_mean": 96.36,
+                },
+                {
+                    "k": 8,
+                    "clusters": 5,
+                    "passes_all_seeds": True,
+                    "information_loss_mean": 0.4695,
+                    "homogeneity_fraction_max": 0.1522,
+                    "entropy_sum_mean": 95.85,
+                },
+            ]
+        )
+        study = PRTIMultiObjectiveStudy(PRTIMultiObjectiveConfig())
+
+        _, selected = study._apply_selection_policy(summary, complete=True)
+
+        self.assertIsNotNone(selected)
+        self.assertEqual((selected["k"], selected["clusters"]), (20, 5))
+
     def test_pareto_dominance_minimizes_il_and_maximizes_entropy(self) -> None:
         better = SimpleNamespace(information_loss=0.4, entropy_sum=10.0)
         worse = SimpleNamespace(information_loss=0.5, entropy_sum=9.0)
@@ -161,6 +248,12 @@ class PRTIMultiObjectiveTests(unittest.TestCase):
                 plan.read_text(encoding="utf-8"),
             )
 
+    def test_default_checkpoint_metadata_omits_v3_only_fields(self) -> None:
+        metadata = PRTIMultiObjectiveConfig().checkpoint_configuration()
+
+        self.assertNotIn("configuration_pairs", metadata)
+        self.assertNotIn("selection_information_loss_margin", metadata)
+
     def test_report_only_rejects_changed_scientific_configuration(self) -> None:
         with TemporaryDirectory() as directory:
             output = Path(directory)
@@ -190,6 +283,9 @@ class PRTIMultiObjectiveTests(unittest.TestCase):
                 "recorded_runs": 1,
                 "completed_runs": 1,
                 "patient_level_outputs": False,
+                "selection_policy": {
+                    "absolute_information_loss_margin": 0.01,
+                },
                 "selected_configuration": {
                     "k": 20,
                     "clusters": 5,
@@ -224,6 +320,9 @@ class PRTIMultiObjectiveTests(unittest.TestCase):
                 self.assertEqual(summary_values["Patient-level outputs"], "No")
                 self.assertEqual(summary_values["Selected k"], 20)
                 self.assertEqual(summary_values["Selected clusters"], 5)
+                self.assertEqual(
+                    summary_values["Selection information-loss margin"], 0.01
+                )
             finally:
                 workbook.close()
 
