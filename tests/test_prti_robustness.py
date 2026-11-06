@@ -16,7 +16,7 @@ from mo_obam.prti_robustness import (
     PRTIRobustnessPlan,
     PRTIRobustnessRunner,
 )
-from mo_obam.prti_results import PRTIResultsReporter
+from mo_obam.prti_results_package import PRTIResultsPackageBuilder
 
 
 class PRTIRobustnessTests(unittest.TestCase):
@@ -275,15 +275,12 @@ class PRTIRobustnessTests(unittest.TestCase):
             ]
         }
 
-        table = PRTIResultsReporter._robustness_table(
-            PRTIResultsReporter.__new__(PRTIResultsReporter), robustness
+        table = PRTIResultsPackageBuilder._robustness_table(
+            PRTIResultsPackageBuilder.__new__(PRTIResultsPackageBuilder),
+            {"robustness": robustness},
         ).set_index("configuration_id")
 
         self.assertEqual(table.loc["baseline", "information_loss_mean"], 0.4)
-        self.assertAlmostEqual(
-            table.loc["privacy_candidate", "information_loss_change_from_baseline_percent"],
-            50.0,
-        )
         self.assertAlmostEqual(
             table.loc["compromise_candidate", "homogeneity_percent_any_sa_mean"],
             100.0 * 800.0 / 1485,

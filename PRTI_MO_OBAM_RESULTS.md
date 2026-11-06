@@ -428,25 +428,10 @@ Recreate or resume the aggregate-only robustness study:
 Existing matching checkpoints are reused, so this command does not repeat
 completed runs unless their recorded source or configuration differs.
 
-The held-out candidate was generated with the prospectively recorded default
-policy:
-
-```bash
-.venv/bin/python run_prti_release.py
-```
-
-The command refuses to overwrite an existing candidate. Recheck the saved
-candidate without rerunning PSO:
-
-```bash
-.venv/bin/python run_prti_release.py --evaluate-only
-```
-
-Regenerate the aggregate result tables without rerunning anonymization:
-
-```bash
-.venv/bin/python generate_prti_results.py
-```
+The historical seed-10 held-out candidate and acceptance decision remain
+preserved in their recorded output and evidence directories. Their dedicated
+legacy CLI has been retired; current studies use the selected-candidate
+runners.
 
 Continue the full Appendix A sensitivity grid one checkpoint at a time:
 

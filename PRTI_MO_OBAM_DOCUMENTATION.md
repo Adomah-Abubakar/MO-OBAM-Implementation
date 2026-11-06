@@ -672,26 +672,10 @@ deterministic project robustness protocol, not a setting prescribed by Wei et
 al. Every checkpoint is aggregate-only and can be resumed without repeating a
 matching completed run.
 
-Generate the prospectively declared held-out candidate:
-
-```bash
-.venv/bin/python run_prti_release.py
-```
-
-The command first writes or verifies the selection plan, refuses to overwrite
-an existing candidate, runs seed 10, and saves an aggregate acceptance result.
-Re-evaluate the existing candidate without rerunning PSO:
-
-```bash
-.venv/bin/python run_prti_release.py --evaluate-only
-```
-
-Regenerate the first aggregate table set from the baseline, sensitivity, and
-robustness evidence:
-
-```bash
-.venv/bin/python generate_prti_results.py
-```
+The historical seed-10 held-out candidate and its acceptance decision remain
+preserved in the recorded output and evidence directories. Its dedicated
+legacy CLI has been retired; current studies use the selected-candidate
+runners.
 
 Regenerate the current consolidated aggregate package, including the held-out
 candidate, QID/SA tables, figures, experiment coverage, and provenance:
@@ -700,8 +684,8 @@ candidate, QID/SA tables, figures, experiment coverage, and provenance:
 .venv/bin/python generate_prti_results_package.py
 ```
 
-The second command requires GNUPlot for its PNG/SVG figures. Neither command
-reruns PSO or copies patient rows into `evidence/`.
+The package command requires GNUPlot for its PNG/SVG figures. It neither
+reruns PSO nor copies patient rows into `evidence/`.
 
 Generate the aggregate-only release-readiness register and decision record:
 
@@ -1047,8 +1031,8 @@ before/after and candidate files remain only under the ignored
 `outputs/prti/privacy-candidate-heldout-seed10/` directory.
 
 Write-up-ready baseline, one-factor, multi-seed, per-SA, and per-cluster tables
-are stored under `evidence/prti-results-v1/` and regenerated with
-`generate_prti_results.py`. They also contain no patient rows.
+are stored under `evidence/prti-results-v1/` as a retained archive. They contain
+no patient rows.
 
 The current consolidated package is stored under `evidence/prti-results-v2/`
 and regenerated with `generate_prti_results_package.py`. It adds the held-out
@@ -1076,24 +1060,21 @@ QID representatives, or cluster centroids.
 | [`mo_obam/prti_dense_release.py`](mo_obam/prti_dense_release.py) | Validates completed scalar selection evidence and derives one prospectively held-out candidate without manual parameter overrides |
 | [`mo_obam/prti_multiobjective_solver.py`](mo_obam/prti_multiobjective_solver.py) | Additive Pareto PSO extension that jointly minimizes information loss and maximizes sensitive-attribute entropy |
 | [`mo_obam/prti_multiobjective.py`](mo_obam/prti_multiobjective.py) | Immutable multi-objective planning, process execution, SQLite checkpoints, aggregate selection and Excel reporting |
-| [`mo_obam/prti_results.py`](mo_obam/prti_results.py) | Aggregate write-up tables, per-SA risk ranking, class-risk table, and results provenance |
 | [`mo_obam/prti_results_package.py`](mo_obam/prti_results_package.py) | Validates recorded evidence and builds the aggregate-only results-v2 tables, GNUPlot figures, index, and hash manifest |
 | [`mo_obam/prti_release.py`](mo_obam/prti_release.py) | Prospective selection-plan enforcement, held-out execution, project-screening assessment, and aggregate evidence |
 | [`mo_obam/prti_release_readiness.py`](mo_obam/prti_release_readiness.py) | Value-free attribute triage, bounded experiment/utility decisions, and explicit external release gates |
 | [`run_prti.py`](run_prti.py) | Reproducible command-line interface |
 | [`run_prti_experiments.py`](run_prti_experiments.py) | Reproducible seed-screen, sensitivity, robustness, and comparison command-line interface |
 | [`run_prti_multiobjective.py`](run_prti_multiobjective.py) | Reproducible aggregate-only C=1 through C=30 multi-objective command-line interface |
-| [`run_prti_release.py`](run_prti_release.py) | Reproducible held-out candidate and evaluate-only command-line interface |
 | [`run_prti_selected_candidate.py`](run_prti_selected_candidate.py) | Derives and executes a scalar study's prospectively reserved held-out candidate |
 | [`generate_prti_release_readiness.py`](generate_prti_release_readiness.py) | Regenerates the aggregate-only attribute review and release-readiness decision record |
-| [`generate_prti_results.py`](generate_prti_results.py) | Regenerates write-up-ready result tables without rerunning PSO |
 | [`generate_prti_results_package.py`](generate_prti_results_package.py) | Regenerates the consolidated results-v2 package without rerunning PSO |
 | [`tests/`](tests/) | Equation, solver, data-preservation, output, and regression checks |
 
 The active implementation is the `mo_obam/` package and the entry points shown
-above. The root `MO-OBAM.ipynb`, `constants.py`, `utils.py`, `model_train.py`,
-and `particle_swarm.py` files are retained authors' reference material. The
-active PRTI-GH workflow does not import them.
+above. The inactive authors' Python snapshot was removed from the active
+repository to avoid confusion with the maintained `mo_obam/` package; the
+paper and upstream repository remain the reference sources.
 
 ### 10.2 Recorded export checks
 

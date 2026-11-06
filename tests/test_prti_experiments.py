@@ -12,8 +12,8 @@ from mo_obam.prti_experiments import (
     PRTISensitivityExperiment,
     PRTISensitivityPlan,
     PRTISensitivityRunner,
+    one_factor_run_ids,
 )
-from mo_obam.prti_results import PRTIResultsReporter
 
 
 class PRTIExperimentTests(unittest.TestCase):
@@ -59,7 +59,7 @@ class PRTIExperimentTests(unittest.TestCase):
             self.assertIn("project adaptation", plan["grid_source"])
 
     def test_writeup_one_factor_design_contains_18_unique_grid_points(self) -> None:
-        run_ids = PRTIResultsReporter.one_factor_run_ids()
+        run_ids = one_factor_run_ids()
 
         self.assertEqual(len(run_ids), 18)
         self.assertIn("k10_c030_lambda1", run_ids)
