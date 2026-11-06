@@ -227,6 +227,52 @@ Raw files in `data/adult/` are read-only inputs and are never overwritten.
 
 ## PRTI-GH experiment
 
+### Quick start: choose what you want to produce
+
+Do not run every command in this README. Choose one of these three tasks:
+
+| What you need | Command to use | Parameters you control | Patient-level anonymized CSV? |
+|---|---|---|---|
+| Anonymize once with settings you already chose | `run_prti.py` | `k`, clusters (`C`), lambda, seed, population, iterations | Yes |
+| Compare candidate values of `k`, `C`, and lambda before selecting one | `run_prti_experiments.py parameter-grid` | Lists of `k`, `C`, and lambda values plus comparison/held-out seeds | Comparison is aggregate-only; the selected held-out command produces the final CSV |
+| Run the Pareto multi-objective workflow used by V3 | `run_prti_multiobjective.py`, then `run_prti_multiobjective_selected_candidate.py` | `k` and `C`; lambda is analysed continuously after optimization | Only the final held-out command produces the CSV |
+
+#### Produce one anonymized dataset with your own k, C, and lambda
+
+Use this when the parameter values are already decided and you only need the
+anonymized records. Change the values and output label in this command:
+
+```bash
+.venv/bin/python run_prti.py \
+  --source data/PRTI-GH-study/PRTI-GH-study.xls \
+  --output-directory outputs/prti/custom-k10-c5-lambda1-seed12 \
+  --run-label custom-k10-c5-lambda1-seed12 \
+  --k 10 \
+  --clusters 5 \
+  --lambda-weight 1 \
+  --population 100 \
+  --iterations 100 \
+  --seed 12
+```
+
+The anonymized dataset will be:
+
+```text
+outputs/prti/custom-k10-c5-lambda1-seed12/prti_anonymized_final.csv
+```
+
+Always use a new `--output-directory` and matching `--run-label` when changing
+`k`, `C`, lambda, or seed. This one-run command does not compare settings or
+prove that the chosen configuration is best. To compare candidate values of
+all three parameters, use Section 6. To reproduce the completed V3 Pareto
+workflow and its reserved seed 12, use Section 7.3; do not replace its selected
+configuration manually.
+
+In scalar mode, `--lambda-weight` is a required scientific choice in the
+objective `IL - lambda * entropy_sum`. In Pareto multi-objective mode, there is
+no `--lambda-weight` input: the optimizer retains the IL/entropy frontier and
+calculates lambda crossover intervals over `[0, 1]` afterward.
+
 ### 1. Input and attribute roles
 
 By default, `run_prti.py` reads the unchanged source workbook from:
