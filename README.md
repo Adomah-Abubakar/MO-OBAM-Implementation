@@ -141,22 +141,29 @@ outputs/prti/custom-k10-c5-lambda1-seed9/prti_anonymized_final.csv
 ## 5. Compare k, clusters, and lambda
 
 Use the scalar parameter grid when lambda itself is one of the values being
-compared. The following small example declares `k={8,10}`, `C=2..5`,
-`lambda={0.1,1}`, comparison seeds `0,1,2`, and held-out seed `11`:
+compared. This broad first-stage screen emphasizes the small lambda values that
+may reduce information loss while retaining larger values to expose the
+privacy-utility trade-off. It declares eight k values, `C=2..10`, fourteen
+lambda values, comparison seeds `0,1,2`, and held-out seed `12` (3,024 runs):
 
 ```bash
+export OMP_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
+export MKL_NUM_THREADS=1
+export NUMEXPR_NUM_THREADS=1
+
 .venv/bin/python run_prti_experiments.py parameter-grid \
   --source data/PRTI-GH-study/PRTI-GH-study.xls \
-  --output-directory evidence/prti-parameter-grid-example \
+  --output-directory evidence/prti-parameter-grid-broad-v1 \
   --minimum-clusters 2 \
-  --maximum-clusters 5 \
-  --k-values 8 10 \
-  --lambda-weights 0.1 1 \
+  --maximum-clusters 10 \
+  --k-values 5 8 10 12 15 20 25 30 \
+  --lambda-weights 0 0.0001 0.0005 0.001 0.0025 0.005 0.01 0.025 0.05 0.1 0.25 0.5 0.75 1 \
   --population 100 \
   --iterations 100 \
   --seeds 0 1 2 \
-  --held-out-seed 11 \
-  --workers 4 \
+  --held-out-seed 12 \
+  --workers 32 \
   --worker-backend process \
   --no-reuse \
   --dry-run
@@ -164,16 +171,19 @@ compared. The following small example declares `k={8,10}`, `C=2..5`,
 
 Inspect the generated plan, then repeat the exact command without `--dry-run`.
 The study is resumable and retains aggregate metrics for every run, including
-information loss. Use `--max-new-runs N` to execute a limited batch.
+information loss. Adjust `--workers` for available server resources. Use
+`--max-new-runs N` to execute a limited batch. Population and iterations should
+be raised to 200 only in a new refinement study containing the shortlisted
+configurations, not by changing this immutable broad-study directory.
 
 After the selection JSON reports `selection_complete`, predeclare and run the
 selected held-out candidate:
 
 ```bash
 .venv/bin/python run_prti_selected_candidate.py \
-  --study-directory evidence/prti-parameter-grid-example \
-  --output-directory outputs/prti/parameter-grid-example-heldout-seed11 \
-  --evidence-directory evidence/prti-parameter-grid-example-final \
+  --study-directory evidence/prti-parameter-grid-broad-v1 \
+  --output-directory outputs/prti/parameter-grid-broad-v1-heldout-seed12 \
+  --evidence-directory evidence/prti-parameter-grid-broad-v1-final \
   --plan-only
 ```
 
