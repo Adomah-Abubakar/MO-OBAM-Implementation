@@ -43,6 +43,7 @@ from .prti_experiments import (
     PRTISensitivityExperiment,
     PRTISensitivityPlan,
     PRTISensitivityRunner,
+    one_factor_run_ids,
 )
 from .prti_runner import PRTIAnonymizationRunner, PRTIRunConfig
 from .prti_dense_clusters import (
@@ -63,7 +64,6 @@ from .prti_robustness import (
     PRTIRobustnessPlan,
     PRTIRobustnessRunner,
 )
-from .prti_results import PRTIResultsConfig, PRTIResultsReporter
 from .prti_results_package import (
     PRTIResultsPackageBuilder,
     PRTIResultsPackageConfig,
@@ -137,10 +137,8 @@ __all__ = [
     "PRTIRobustnessExperiment",
     "PRTIRobustnessPlan",
     "PRTIRobustnessRunner",
-    "PRTIResultsConfig",
     "PRTIResultsPackageBuilder",
     "PRTIResultsPackageConfig",
-    "PRTIResultsReporter",
     "PRTIFinalCandidateRunner",
     "PRTIReleasePolicy",
     "ReleaseReadinessPaths",
@@ -150,6 +148,7 @@ __all__ = [
     "PRTISensitivityExperiment",
     "PRTISensitivityPlan",
     "PRTISensitivityRunner",
+    "one_factor_run_ids",
     "PRTI_CATEGORICAL_QIDS",
     "PRTI_NUMERIC_QIDS",
     "PRTI_QIDS",
