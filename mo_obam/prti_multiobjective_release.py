@@ -16,6 +16,7 @@ import pandas as pd
 from .formulation import MOOBAMFormulation
 from .privacy_metrics import PrivacyRiskEvaluator, PrivacyRiskMetrics
 from .provenance import atomic_write_text, exclusive_directory_lock
+from .prti_analysis import generate_analysis_bundle
 from .prti_data import DEFAULT_PRTI_SOURCE, EXPECTED_PRTI_SHAPE, PRTIDataAdapter
 from .prti_multiobjective import PRTIMultiObjectiveStudy
 from .prti_multiobjective_solver import (
@@ -23,7 +24,7 @@ from .prti_multiobjective_solver import (
     PRTIMultiObjectiveParticleSwarm,
     PRTIParetoCandidate,
 )
-from .prti_runner import PAPER_IDENTIFIER, PAPER_REVISION
+from .prti_runner import PAPER_IDENTIFIER, PAPER_REVISION, PRTIAnonymizationRunner
 from .pso_solver import PSOConfig
 from .schema import MOOBAMConfig
 
@@ -362,6 +363,26 @@ class PRTIMultiObjectiveSelectedCandidateRunner:
             if saved.shape != EXPECTED_PRTI_SHAPE or list(saved.columns) != list(decoded.columns):
                 raise AssertionError("The saved anonymized CSV failed shape/column validation.")
             final_hash = self._file_sha256(final_path)
+            analysis = generate_analysis_bundle(
+                before=prepared.original,
+                after=decoded,
+                schema=prepared.schema,
+                information_loss=float(candidate.information_loss),
+                configured_k=context.k,
+                configuration={
+                    "run_label": self.policy.run_label,
+                    "method": "Wei/MO-OBAM Pareto held-out candidate",
+                    "k": context.k,
+                    "clusters": context.clusters,
+                    "held_out_seed": context.held_out_seed,
+                    "population_size": context.population_size,
+                    "iterations": context.iterations,
+                },
+                output_directory=self.policy.output_directory,
+            )
+            analysis_validation = PRTIAnonymizationRunner._validate_analysis_outputs(
+                analysis.paths, len(prepared.original), len(prepared.original.columns)
+            )
             run_id = (
                 f"prti-{started_at.strftime('%Y%m%dT%H%M%SZ')}-"
                 f"k{context.k}-c{context.clusters}-seed{context.held_out_seed}"
@@ -391,6 +412,11 @@ class PRTIMultiObjectiveSelectedCandidateRunner:
                     "returned_archive_candidates": len(result.candidates),
                 },
                 "observed": observed,
+                "post_anonymization_analysis": analysis.metrics,
+                "analysis_sha256": {
+                    name: self._file_sha256(path)
+                    for name, path in analysis.paths.items()
+                },
                 "cluster_sizes": list(candidate.cluster_sizes),
                 "entropy_by_sensitive_attribute": candidate.entropy_by_sensitive_attribute,
                 "validation": {
@@ -400,11 +426,16 @@ class PRTIMultiObjectiveSelectedCandidateRunner:
                     "all_sensitive_attributes_unchanged": True,
                     "column_order_preserved": True,
                     "saved_csv_reloaded": True,
+                    "analysis_outputs": analysis_validation,
                 },
                 "outputs": {
                     "anonymized_final": str(final_path),
                     "anonymized_final_sha256": final_hash,
                     "acceptance": str(acceptance_path),
+                    **{
+                        name: str(path)
+                        for name, path in analysis.paths.items()
+                    },
                 },
                 "release_boundary": (
                     "Internal research candidate only; external governance approval is "

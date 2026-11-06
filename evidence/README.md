@@ -69,8 +69,8 @@ patient-level before/after and candidate files remain under the ignored
 The `prti-results-v1/` directory contains write-up-ready aggregate tables built
 from the recorded baseline, sensitivity, and robustness evidence. Its JSON
 summary records source hashes, output hashes, and a code/test/documentation
-snapshot. Regenerate it with `generate_prti_results.py`; do not place patient
-rows in this directory.
+snapshot. It is retained as an archive; use the results-v2 package generator
+for current reporting and do not place patient rows in this directory.
 
 The `prti-results-v2/` directory is the consolidated reporting package. It
 integrates the held-out candidate with the baseline, sensitivity, robustness,

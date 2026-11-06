@@ -1003,6 +1003,12 @@ fresh-versus-legacy comparison and is not a third result.
 | `prti_model_evaluation.csv` | Two-row baseline/result table for information loss and privacy-risk metrics. `configuredClusters` and `equivalenceClasses` are separate fields. Despite its name, it does not contain PRTI-GH machine-learning performance. |
 | `prti_run_summary.json` | Authoritative machine-readable record of paper revision, environment, schema, configuration, metrics, cluster sizes, optimizer evidence, validation, runtime, and output names. |
 | `prti_artifact_manifest.json` | Source and artifact SHA-256 evidence, run identity, configuration, timestamps, canonical command, and the generation-time Git/code snapshot. Artifact refreshes preserve an existing run-start snapshot. It never modifies research data. |
+| `prti_reidentification_risk.csv` | Before/after sample-based prosecutor risk, marketer risk, class-size statistics, and threshold exposure. Journalist risk requires population information and is not fabricated. |
+| `prti_l_diversity.csv` | Per-sensitive-attribute distinct and entropy-effective diversity measured after anonymization; this is analysis, not a new optimizer constraint. |
+| `prti_distribution_analysis.csv` | Per-attribute changes plus normalized Wasserstein/KS metrics for numeric data and total-variation/Jensen-Shannon metrics for categorical data. |
+| `prti_summary_statistics.csv` | Compact release-level k, diversity, risk, information-loss, and schema statistics. |
+| `prti_data_dictionary.csv` | Value-free technical attribute roles, types, counts, and Wei treatment. |
+| `prti_anonymization_report.md` and `figures/` | Readable consolidated analysis and SVG graphs derived from the saved CSV metrics. |
 
 The JSON summaries are the authoritative source for exact configuration and
 unrounded metrics. CSV files should be read with a conforming CSV parser because

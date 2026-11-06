@@ -117,7 +117,19 @@ The selected output directory contains:
 - `prti_model_evaluation.csv`: readable before/after metrics;
 - `prti_before_after_anonymization.csv`: aligned QID changes and unchanged
   sensitive attributes; and
-- supporting audit and manifest files.
+- `prti_reidentification_risk.csv`: numerical before/after prosecutor and
+  marketer risk;
+- `prti_l_diversity.csv`: achieved distinct and entropy-effective diversity;
+- `prti_distribution_analysis.csv` and `prti_summary_statistics.csv`:
+  information-loss context and typed distribution metrics;
+- `prti_anonymization_report.md` and `figures/`: the consolidated report and
+  graphs generated from the saved analysis tables; and
+- `prti_data_dictionary.csv` plus supporting audit and manifest files.
+
+Journalist risk is recorded as unavailable unless population QID frequencies
+and the sampling fraction are supplied; the code does not invent a sample-only
+substitute. These analyses measure the Wei result and do not add another
+anonymization transformation.
 
 The terminal also prints the run's information loss, entropy sum, and
 objective. For the example above, the anonymized data will be:

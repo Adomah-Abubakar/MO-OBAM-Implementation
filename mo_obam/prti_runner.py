@@ -19,6 +19,7 @@ import pandas as pd
 from .formulation import MOOBAMFormulation
 from .privacy_metrics import PrivacyRiskEvaluator, PrivacyRiskMetrics
 from .provenance import ArtifactManifestWriter, atomic_write_text
+from .prti_analysis import generate_analysis_bundle
 from .prti_data import (
     DEFAULT_PRTI_SOURCE,
     PRTI_QIDS,
@@ -136,6 +137,23 @@ class PRTIAnonymizationRunner:
         validation["saved_csvs"] = self._validate_saved_exports(
             {**audit_outputs, **paths}, prepared
         )
+        analysis = generate_analysis_bundle(
+            before=prepared.original,
+            after=decoded.drop(columns="cluster"),
+            schema=prepared.schema,
+            information_loss=float(result.metrics.information_loss),
+            configured_k=self.config.model.k,
+            configuration={
+                "run_label": self.config.run_label,
+                "model": asdict(self.config.model),
+                "pso": asdict(self.config.pso),
+            },
+            output_directory=output,
+        )
+        paths.update(analysis.paths)
+        validation["analysis_outputs"] = self._validate_analysis_outputs(
+            analysis.paths, len(prepared.original), len(prepared.original.columns)
+        )
 
         summary: dict[str, object] = {
             "run_id": self._run_id(started_at),
@@ -174,11 +192,18 @@ class PRTIAnonymizationRunner:
                 "prepared_baseline": asdict(baseline_risk),
                 "anonymized": asdict(anonymized_risk),
             },
+            "post_anonymization_analysis": analysis.metrics,
             "validation": validation,
             "runtime_seconds": time.monotonic() - started,
             "outputs": {
-                **{name: path.name for name, path in audit_outputs.items()},
-                **{name: path.name for name, path in paths.items()},
+                **{
+                    name: path.relative_to(output).as_posix()
+                    for name, path in audit_outputs.items()
+                },
+                **{
+                    name: path.relative_to(output).as_posix()
+                    for name, path in paths.items()
+                },
             },
         }
         atomic_write_text(paths["run_summary"], json.dumps(summary, indent=2))
@@ -188,6 +213,40 @@ class PRTIAnonymizationRunner:
             summary,
         )
         return summary
+
+    @staticmethod
+    def _validate_analysis_outputs(
+        paths: dict[str, Path], records: int, attributes: int
+    ) -> dict[str, object]:
+        """Reload the analysis tables and verify their expected coverage."""
+
+        distributions = pd.read_csv(paths["distribution_analysis"])
+        risk = pd.read_csv(paths["reidentification_risk"])
+        dictionary = pd.read_csv(paths["data_dictionary"])
+        diversity = pd.read_csv(paths["diversity_analysis"])
+        if len(distributions) != attributes or len(dictionary) != attributes:
+            raise AssertionError("Analysis outputs do not cover every attribute.")
+        if risk["dataset_version"].tolist() != [
+            "before",
+            "after",
+            "change_after_minus_before",
+        ]:
+            raise AssertionError("Risk analysis does not contain the expected stages.")
+        if int(risk.loc[1, "records"]) != records:
+            raise AssertionError("Risk analysis does not cover every released record.")
+        if diversity.empty:
+            raise AssertionError("Diversity analysis is empty.")
+        for role in ("anonymization_report", "risk_figure", "class_figure", "distribution_figure"):
+            if not paths[role].is_file() or paths[role].stat().st_size == 0:
+                raise AssertionError(f"Analysis artifact is missing or empty: {role}")
+        return {
+            "all_analysis_outputs_reloaded": True,
+            "distribution_rows": len(distributions),
+            "risk_rows": len(risk),
+            "diversity_rows": len(diversity),
+            "data_dictionary_rows": len(dictionary),
+            "figures": 3,
+        }
 
     def refresh_saved_manifest(self) -> Path:
         """Refresh hashes and code provenance for an existing saved run."""
