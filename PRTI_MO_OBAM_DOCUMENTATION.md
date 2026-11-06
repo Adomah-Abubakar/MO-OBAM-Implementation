@@ -1060,21 +1060,23 @@ QID representatives, or cluster centroids.
 | [`mo_obam/prti_dense_release.py`](mo_obam/prti_dense_release.py) | Validates completed scalar selection evidence and derives one prospectively held-out candidate without manual parameter overrides |
 | [`mo_obam/prti_multiobjective_solver.py`](mo_obam/prti_multiobjective_solver.py) | Additive Pareto PSO extension that jointly minimizes information loss and maximizes sensitive-attribute entropy |
 | [`mo_obam/prti_multiobjective.py`](mo_obam/prti_multiobjective.py) | Immutable multi-objective planning, process execution, SQLite checkpoints, aggregate selection and Excel reporting |
+| [`mo_obam/prti_multiobjective_release.py`](mo_obam/prti_multiobjective_release.py) | Validates completed Pareto selection evidence and generates the reserved held-out anonymized candidate |
 | [`mo_obam/prti_results_package.py`](mo_obam/prti_results_package.py) | Validates recorded evidence and builds the aggregate-only results-v2 tables, GNUPlot figures, index, and hash manifest |
 | [`mo_obam/prti_release.py`](mo_obam/prti_release.py) | Prospective selection-plan enforcement, held-out execution, project-screening assessment, and aggregate evidence |
 | [`mo_obam/prti_release_readiness.py`](mo_obam/prti_release_readiness.py) | Value-free attribute triage, bounded experiment/utility decisions, and explicit external release gates |
 | [`run_prti.py`](run_prti.py) | Reproducible command-line interface |
 | [`run_prti_experiments.py`](run_prti_experiments.py) | Reproducible seed-screen, sensitivity, robustness, and comparison command-line interface |
 | [`run_prti_multiobjective.py`](run_prti_multiobjective.py) | Reproducible aggregate-only C=1 through C=30 multi-objective command-line interface |
+| [`run_prti_multiobjective_selected_candidate.py`](run_prti_multiobjective_selected_candidate.py) | Generates the Pareto study's prospectively reserved held-out candidate |
 | [`run_prti_selected_candidate.py`](run_prti_selected_candidate.py) | Derives and executes a scalar study's prospectively reserved held-out candidate |
 | [`generate_prti_release_readiness.py`](generate_prti_release_readiness.py) | Regenerates the aggregate-only attribute review and release-readiness decision record |
 | [`generate_prti_results_package.py`](generate_prti_results_package.py) | Regenerates the consolidated results-v2 package without rerunning PSO |
 | [`tests/`](tests/) | Equation, solver, data-preservation, output, and regression checks |
 
 The active implementation is the `mo_obam/` package and the entry points shown
-above. The inactive authors' Python snapshot was removed from the active
-repository to avoid confusion with the maintained `mo_obam/` package; the
-paper and upstream repository remain the reference sources.
+above. The inactive authors' Python snapshot and notebook were removed from
+the active repository to avoid confusion with the maintained `mo_obam/`
+package; the paper and upstream repository remain the reference sources.
 
 ### 10.2 Recorded export checks
 
