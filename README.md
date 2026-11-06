@@ -179,6 +179,20 @@ This command is the stable interface for later studies. The k values, cluster
 range, lambda values, optimizer budget, seeds, and workers may be edited, with
 these rules:
 
+Settings you can modify for a new study:
+
+```text
+--minimum-clusters
+--maximum-clusters
+--k-values
+--lambda-weights
+--population
+--iterations
+--seeds
+--held-out-seed
+--workers
+```
+
 - run with `--dry-run` first and inspect the generated plan;
 - remove `--dry-run` only after the configuration and run counts are correct;
 - use unique, ordered k, lambda, and comparison-seed values;
