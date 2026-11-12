@@ -120,8 +120,11 @@ The selected output directory contains:
 - `prti_reidentification_risk.csv`: numerical before/after prosecutor and
   marketer risk;
 - `prti_l_diversity.csv`: achieved distinct and entropy-effective diversity;
-- `prti_distribution_analysis.csv` and `prti_summary_statistics.csv`:
-  information-loss context and typed distribution metrics;
+- `prti_distribution_analysis.csv`: per-attribute numeric and categorical
+  distribution metrics, including numeric spread and skewness;
+- `prti_distribution_summary.csv`: dataset-wide, QID, and sensitive-attribute
+  distribution summaries with missingness and mean/maximum distances;
+- `prti_summary_statistics.csv`: information-loss and privacy context;
 - `prti_anonymization_report.md` and `figures/`: the consolidated report and
   graphs generated from the saved analysis tables; and
 - `prti_data_dictionary.csv` plus supporting audit and manifest files.
