@@ -123,6 +123,13 @@ def distribution_analysis(
 ) -> pd.DataFrame:
     """Measure per-attribute pre/post distribution changes with typed metrics."""
 
+    if before.shape != after.shape:
+        raise ValueError("Before and after datasets must have the same shape.")
+    if list(before.columns) != list(after.columns):
+        raise ValueError("Before and after datasets must have the same column order.")
+    if not before.index.equals(after.index):
+        raise ValueError("Before and after datasets must have aligned row indexes.")
+
     rows: list[dict[str, object]] = []
     qids = set(schema.qids)
     for attribute in before.columns:
@@ -143,8 +150,23 @@ def distribution_analysis(
             "ks_statistic": np.nan,
             "mean_before": np.nan,
             "mean_after": np.nan,
+            "mean_change_after_minus_before": np.nan,
             "median_before": np.nan,
             "median_after": np.nan,
+            "median_change_after_minus_before": np.nan,
+            "standard_deviation_before": np.nan,
+            "standard_deviation_after": np.nan,
+            "standard_deviation_change_after_minus_before": np.nan,
+            "q1_before": np.nan,
+            "q1_after": np.nan,
+            "q3_before": np.nan,
+            "q3_after": np.nan,
+            "iqr_before": np.nan,
+            "iqr_after": np.nan,
+            "iqr_change_after_minus_before": np.nan,
+            "skewness_before": np.nan,
+            "skewness_after": np.nan,
+            "skewness_change_after_minus_before": np.nan,
             "total_variation_distance": np.nan,
             "jensen_shannon_distance": np.nan,
         }
@@ -154,14 +176,38 @@ def distribution_analysis(
             if len(a) and len(b):
                 scale = float(np.max(a) - np.min(a))
                 raw_wasserstein = float(wasserstein_distance(a, b))
+                mean_before, mean_after = float(np.mean(a)), float(np.mean(b))
+                median_before, median_after = float(np.median(a)), float(np.median(b))
+                std_before = float(np.std(a, ddof=1)) if len(a) > 1 else np.nan
+                std_after = float(np.std(b, ddof=1)) if len(b) > 1 else np.nan
+                q1_before, q3_before = (float(value) for value in np.quantile(a, [0.25, 0.75]))
+                q1_after, q3_after = (float(value) for value in np.quantile(b, [0.25, 0.75]))
+                iqr_before, iqr_after = q3_before - q1_before, q3_after - q1_after
+                skewness_before = float(pd.Series(a).skew()) if len(a) > 2 else np.nan
+                skewness_after = float(pd.Series(b).skew()) if len(b) > 2 else np.nan
                 row.update(
                     {
                         "normalized_wasserstein": raw_wasserstein / scale if scale else (0.0 if raw_wasserstein == 0 else np.nan),
                         "ks_statistic": float(ks_2samp(a, b).statistic),
-                        "mean_before": float(np.mean(a)),
-                        "mean_after": float(np.mean(b)),
-                        "median_before": float(np.median(a)),
-                        "median_after": float(np.median(b)),
+                        "mean_before": mean_before,
+                        "mean_after": mean_after,
+                        "mean_change_after_minus_before": mean_after - mean_before,
+                        "median_before": median_before,
+                        "median_after": median_after,
+                        "median_change_after_minus_before": median_after - median_before,
+                        "standard_deviation_before": std_before,
+                        "standard_deviation_after": std_after,
+                        "standard_deviation_change_after_minus_before": std_after - std_before,
+                        "q1_before": q1_before,
+                        "q1_after": q1_after,
+                        "q3_before": q3_before,
+                        "q3_after": q3_after,
+                        "iqr_before": iqr_before,
+                        "iqr_after": iqr_after,
+                        "iqr_change_after_minus_before": iqr_after - iqr_before,
+                        "skewness_before": skewness_before,
+                        "skewness_after": skewness_after,
+                        "skewness_change_after_minus_before": skewness_after - skewness_before,
                     }
                 )
         else:
@@ -169,6 +215,83 @@ def distribution_analysis(
             row["total_variation_distance"] = tvd
             row["jensen_shannon_distance"] = jsd
         rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def distribution_summary(distributions: pd.DataFrame) -> pd.DataFrame:
+    """Summarize typed distribution metrics across the dataset and attribute roles.
+
+    Each attribute contributes equally to ``mean_attribute_distance``. Numeric
+    attributes contribute the mean of normalized Wasserstein and KS distances;
+    categorical attributes contribute the mean of total variation and
+    Jensen-Shannon distances.
+    """
+
+    required = {
+        "role",
+        "metric_family",
+        "records",
+        "missing_before",
+        "missing_after",
+        "normalized_wasserstein",
+        "ks_statistic",
+        "total_variation_distance",
+        "jensen_shannon_distance",
+    }
+    missing = sorted(required.difference(distributions.columns))
+    if missing:
+        raise ValueError(f"Distribution analysis is missing columns: {', '.join(missing)}")
+
+    working = distributions.copy()
+    numeric_distance = working[["normalized_wasserstein", "ks_statistic"]].mean(axis=1)
+    categorical_distance = working[
+        ["total_variation_distance", "jensen_shannon_distance"]
+    ].mean(axis=1)
+    working["attribute_distance"] = np.where(
+        working["metric_family"].eq("numeric"), numeric_distance, categorical_distance
+    )
+
+    scopes = (
+        ("overall dataset", working),
+        ("quasi-identifiers", working.loc[working["role"].eq("quasi-identifier")]),
+        ("sensitive attributes", working.loc[working["role"].eq("sensitive attribute")]),
+    )
+    rows: list[dict[str, object]] = []
+    for scope, frame in scopes:
+        if frame.empty:
+            raise ValueError(f"Distribution summary scope is empty: {scope}")
+        records = int(frame["records"].iloc[0])
+        if not frame["records"].eq(records).all():
+            raise ValueError(f"Attributes have inconsistent record counts in scope: {scope}")
+        cells = records * len(frame)
+        mean_distance = float(frame["attribute_distance"].mean())
+        rows.append(
+            {
+                "scope": scope,
+                "records": records,
+                "attributes": len(frame),
+                "numeric_attributes": int(frame["metric_family"].eq("numeric").sum()),
+                "categorical_attributes": int(frame["metric_family"].eq("categorical").sum()),
+                "missing_fraction_before": float(frame["missing_before"].sum() / cells),
+                "missing_fraction_after": float(frame["missing_after"].sum() / cells),
+                "missing_fraction_change_after_minus_before": float(
+                    (frame["missing_after"].sum() - frame["missing_before"].sum()) / cells
+                ),
+                "missingness_preserved": bool(
+                    frame["missing_before"].eq(frame["missing_after"]).all()
+                ),
+                "mean_normalized_wasserstein": float(frame["normalized_wasserstein"].mean()),
+                "maximum_normalized_wasserstein": float(frame["normalized_wasserstein"].max()),
+                "mean_ks_statistic": float(frame["ks_statistic"].mean()),
+                "maximum_ks_statistic": float(frame["ks_statistic"].max()),
+                "mean_total_variation_distance": float(frame["total_variation_distance"].mean()),
+                "maximum_total_variation_distance": float(frame["total_variation_distance"].max()),
+                "mean_jensen_shannon_distance": float(frame["jensen_shannon_distance"].mean()),
+                "maximum_jensen_shannon_distance": float(frame["jensen_shannon_distance"].max()),
+                "mean_attribute_distance": mean_distance,
+                "mean_attribute_similarity": 1.0 - mean_distance,
+            }
+        )
     return pd.DataFrame(rows)
 
 
@@ -240,6 +363,8 @@ def generate_analysis_bundle(
     risk = risk_analysis(before, after, schema)
     diversity = diversity_analysis(after, schema)
     distributions = distribution_analysis(before, after, schema)
+    distribution_overview = distribution_summary(distributions)
+    distribution_by_scope = distribution_overview.set_index("scope")
     dictionary = data_dictionary(before, schema)
     after_risk = risk.loc[risk["dataset_version"].eq("after")].iloc[0]
     summary = pd.DataFrame(
@@ -259,6 +384,7 @@ def generate_analysis_bundle(
     )
     paths = {
         "distribution_analysis": output_directory / "prti_distribution_analysis.csv",
+        "distribution_summary": output_directory / "prti_distribution_summary.csv",
         "summary_statistics": output_directory / "prti_summary_statistics.csv",
         "reidentification_risk": output_directory / "prti_reidentification_risk.csv",
         "diversity_analysis": output_directory / "prti_l_diversity.csv",
@@ -269,6 +395,7 @@ def generate_analysis_bundle(
         "distribution_figure": figures / "distribution_similarity.svg",
     }
     distributions.to_csv(paths["distribution_analysis"], index=False)
+    distribution_overview.to_csv(paths["distribution_summary"], index=False)
     summary.to_csv(paths["summary_statistics"], index=False)
     risk.to_csv(paths["reidentification_risk"], index=False)
     diversity.to_csv(paths["diversity_analysis"], index=False)
@@ -308,8 +435,16 @@ The prosecutor and marketer values are sample-based equivalence-class risks. Jou
 
 - QIDs with changed records: **{int((distributions.loc[distributions['role'].eq('quasi-identifier'), 'changed_records'] > 0).sum())}** of {len(schema.qids)}.
 - Sensitive attributes with changed records: **{int((distributions.loc[distributions['role'].eq('sensitive attribute'), 'changed_records'] > 0).sum())}** of {len(schema.sensitive_attributes)}.
-- Numeric attributes use normalized Wasserstein distance and the KS statistic.
+- Numeric attributes use mean, median, standard deviation, quartiles, IQR, skewness, normalized Wasserstein distance, and the KS statistic.
 - Categorical attributes use total variation and Jensen-Shannon distance.
+- The distribution summary reports the overall dataset, quasi-identifiers, and sensitive attributes separately so unchanged sensitive attributes do not hide QID distortion.
+- Mean attribute distance gives every attribute equal weight. It averages Wasserstein and KS for numeric attributes, and total variation and Jensen-Shannon for categorical attributes.
+
+| Scope | Attributes | Missing before | Missing after | Mean attribute similarity |
+|---|---:|---:|---:|---:|
+| Overall dataset | {int(distribution_by_scope.loc['overall dataset', 'attributes'])} | {distribution_by_scope.loc['overall dataset', 'missing_fraction_before']:.4%} | {distribution_by_scope.loc['overall dataset', 'missing_fraction_after']:.4%} | {distribution_by_scope.loc['overall dataset', 'mean_attribute_similarity']:.6f} |
+| Quasi-identifiers | {int(distribution_by_scope.loc['quasi-identifiers', 'attributes'])} | {distribution_by_scope.loc['quasi-identifiers', 'missing_fraction_before']:.4%} | {distribution_by_scope.loc['quasi-identifiers', 'missing_fraction_after']:.4%} | {distribution_by_scope.loc['quasi-identifiers', 'mean_attribute_similarity']:.6f} |
+| Sensitive attributes | {int(distribution_by_scope.loc['sensitive attributes', 'attributes'])} | {distribution_by_scope.loc['sensitive attributes', 'missing_fraction_before']:.4%} | {distribution_by_scope.loc['sensitive attributes', 'missing_fraction_after']:.4%} | {distribution_by_scope.loc['sensitive attributes', 'mean_attribute_similarity']:.6f} |
 
 ## Release boundary
 
@@ -356,5 +491,20 @@ These measurements support technical review but do not replace custodian, govern
         "journalist_risk": None,
         "journalist_risk_status": "not estimable without population QID frequencies and sampling fraction",
         "information_loss": information_loss,
+        "distribution_similarity_overall": float(
+            distribution_by_scope.loc["overall dataset", "mean_attribute_similarity"]
+        ),
+        "distribution_similarity_qids": float(
+            distribution_by_scope.loc["quasi-identifiers", "mean_attribute_similarity"]
+        ),
+        "distribution_similarity_sensitive_attributes": float(
+            distribution_by_scope.loc["sensitive attributes", "mean_attribute_similarity"]
+        ),
+        "missing_fraction_before_overall": float(
+            distribution_by_scope.loc["overall dataset", "missing_fraction_before"]
+        ),
+        "missing_fraction_after_overall": float(
+            distribution_by_scope.loc["overall dataset", "missing_fraction_after"]
+        ),
     }
     return PRTIAnalysisBundle(paths=paths, metrics=metrics)

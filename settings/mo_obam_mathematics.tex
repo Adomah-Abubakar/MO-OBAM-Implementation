@@ -1,0 +1,1260 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=2.35cm]{geometry}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,longtable,array}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+
+\hypersetup{
+  colorlinks=true,
+  hypertexnames=false,
+  linkcolor=MidnightBlue,
+  urlcolor=MidnightBlue,
+  citecolor=MidnightBlue,
+  pdftitle={Complete Mathematical Specification of the MO-OBAM PRTI-GH Work}
+}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\I}{\mathbb{I}}
+\newcommand{\card}[1]{\left\lvert #1\right\rvert}
+\newcommand{\mean}[1]{\overline{#1}}
+\newcommand{\given}{\,\middle\vert\,}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator{\median}{median}
+\DeclareMathOperator{\mode}{mode}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\KL}{KL}
+\DeclareMathOperator{\JSD}{JSD}
+
+\title{Complete Mathematical Specification\\
+of the MO-OBAM PRTI-GH Work}
+\author{Repository-grounded mathematical compendium}
+\date{11 November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document collects the scientific and analytical mathematics actually used
+by the repository: data representation, the MO-OBAM objective and constraints,
+the exact and particle-swarm solvers, the Pareto extension, disclosure-risk and
+diversity measures, before--after distribution statistics, cross-seed summaries,
+screening gates, configuration selection, held-out selection, and experiment-size
+arithmetic.  It distinguishes the paper equations from project-defined evaluation
+and selection rules.  Cryptographic hash internals, file-locking, spreadsheet
+formatting, and plotting coordinates are engineering mechanisms and are outside
+the scientific-mathematics scope.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Status labels and scope}
+
+Four labels are used throughout:
+\begin{itemize}
+  \item \textbf{MO-OBAM equation}: a mathematical definition implemented from
+  the active arXiv v2 formulation.
+  \item \textbf{Optimizer mechanic}: mathematics used by the scalar PSO or the
+  additive Pareto PSO extension.
+  \item \textbf{Project metric}: a post-anonymization measurement implemented
+  for PRTI-GH evaluation.
+  \item \textbf{Project rule}: an eligibility, ranking, or held-out rule defined
+  by this project rather than asserted as a universal privacy standard.
+\end{itemize}
+
+Every displayed formula has one of the following implementation provenances:
+\begin{itemize}
+  \item \textbf{Direct}: the formula is the literal scalar or array arithmetic in
+  the repository.
+  \item \textbf{Equivalent}: the formula is an algebraically exact statement of
+  a loop, grouping, vectorized operation, comparison, or stable sort in the code.
+  \item \textbf{Delegated}: the repository calls NumPy, pandas, or SciPy, and the
+  displayed formula is the definition implemented by that invoked library routine.
+  \item \textbf{Configured arithmetic}: the formula formalizes a declared grid,
+  threshold, gate, or count that the repository constructs programmatically.
+\end{itemize}
+Thus ``coming from the code'' does not mean that every displayed formula occurs as
+one Python source line.  It means that every formula is executed directly, is
+algebraically identical to executed operations, defines an invoked library result,
+or formalizes an executed project protocol.  No alternative scientific formula is
+introduced solely for exposition.
+
+The primary PRTI-GH model has
+\[
+n=1485,\qquad p_N=2,\qquad p_C=27,\qquad p_Q=p_N+p_C=29,
+\qquad p_S=77.
+\]
+Here $p_N$, $p_C$, $p_Q$, and $p_S$ denote the numbers of numerical QIDs,
+categorical QIDs, all QIDs, and sensitive attributes (SAs), respectively.
+
+\section{Notation and data representation}
+
+\subsection{Index sets and variables}
+
+Let
+\[
+\mathcal I=\{1,\ldots,n\},\quad
+\mathcal C=\{1,\ldots,C\},\quad
+\mathcal J_N=\{1,\ldots,p_N\},
+\]
+\[
+\mathcal J_C=\{p_N+1,\ldots,p_N+p_C\},\quad
+\mathcal J_S=\{1,\ldots,p_S\}.
+\]
+For record $i$, $x_{ij}$ is QID $j$, $S_{ij}$ is SA $j$, $q_{cj}$ is the
+representative of QID $j$ in cluster $c$, and
+\[
+w_{ic}\in\{0,1\}
+\]
+is the record--cluster membership variable.  The model hyperparameters are
+minimum cluster size $k$, configured cluster count $C$, and scalar entropy
+weight $\lambda\in[0,1]$.
+
+\subsection{Deterministic categorical coding}
+
+For each categorical attribute $j$, the preparation layer constructs a
+one-to-one code map
+\[
+e_j:\mathcal V_j\longrightarrow\{1,\ldots,\card{\mathcal V_j}\},
+\qquad e_j(v_1)=e_j(v_2)\iff v_1=v_2.
+\]
+Missing categorical values receive code $0$.  The codes are identifiers, not
+ordinal magnitudes.  Consequently, categorical distance uses equality only:
+\[
+\delta(a,b)=\I(a\ne b)=
+\begin{cases}
+1,&a\ne b,\\
+0,&a=b.
+\end{cases}
+\tag{1}
+\]
+
+For an attribute with $d_j$ distinct non-missing states and $m_j$ missing
+records, the audit reports
+\[
+\operatorname{cardinalityFraction}_j=\frac{d_j}{n},
+\qquad
+\operatorname{missingFraction}_j=\frac{m_j}{n}.
+\tag{2}
+\]
+For state $v$, its mapping-table proportion is
+\[
+\widehat p_j(v)=\frac{\#\{i:x_{ij}=v\}}{n}.
+\tag{3}
+\]
+
+\subsection{Lossless preparation check}
+
+Let $f_j^{\mathrm{src}}(v)$ and $f_j^{\mathrm{dec}}(v)$ be the exact
+source and decoded frequencies of state $v$, treating missingness and data
+types as part of the state identity.  The largest round-trip discrepancy is
+\[
+\Delta_j^{\mathrm{freq}}
+=\max_v\left|f_j^{\mathrm{src}}(v)-f_j^{\mathrm{dec}}(v)\right|.
+\tag{4}
+\]
+The implemented preparation invariant is
+\[
+\Delta_j^{\mathrm{freq}}=0\qquad\text{for every attribute }j,
+\tag{5}
+\]
+together with equal shape, column order, and cellwise values after decoding.
+
+\section{MO-OBAM mathematical formulation}
+
+\subsection{Exactly one cluster per record: paper Equation (9)}
+
+\begin{equation}
+\sum_{c=1}^{C}w_{ic}=1,
+\qquad i\in\mathcal I.
+\tag{P9}
+\end{equation}
+
+The implementation also enforces $w_{ic}\in\{0,1\}$.  Assignments may
+therefore be represented by labels
+\[
+a_i=\argmax_{c\in\mathcal C}w_{ic},
+\qquad w_{ic}=\I(a_i=c).
+\tag{6}
+\]
+
+\subsection{Numerical and categorical deviations: paper Equations (10)--(13)}
+
+The numerical deviation within cluster $c$ is
+\begin{equation}
+D^{(N)}_c=
+\sum_{i=1}^{n}w_{ic}\sum_{j\in\mathcal J_N}(x_{ij}-q_{cj})^2.
+\tag{P10}
+\end{equation}
+The categorical deviation is
+\begin{equation}
+D^{(C)}_c=
+\sum_{i=1}^{n}w_{ic}\sum_{j\in\mathcal J_C}\delta(x_{ij},q_{cj}).
+\tag{P11}
+\end{equation}
+The record-to-centroid distance is
+\begin{equation}
+d(i,c)=
+\sum_{j\in\mathcal J_N}(x_{ij}-q_{cj})^2
++\sum_{j\in\mathcal J_C}\delta(x_{ij},q_{cj}).
+\tag{P12}
+\end{equation}
+The total deviation introduced by anonymization is
+\begin{equation}
+D_{\mathrm{anon}}
+=\sum_{c=1}^{C}\sum_{i=1}^{n}w_{ic}d(i,c)
+=\sum_{c=1}^{C}\left(D^{(N)}_c+D^{(C)}_c\right).
+\tag{P13}
+\end{equation}
+
+Nearest-centroid assignment in both PSO solvers is
+\[
+a_i=\argmin_{c\in\mathcal C}d(i,c).
+\tag{7}
+\]
+The array implementation uses the first minimum in a distance tie.
+
+\subsection{Original deviation and information loss: paper Equation (14)}
+
+Let
+\[
+\overline X_j=\frac1n\sum_{i=1}^{n}x_{ij}
+\quad(j\in\mathcal J_N)
+\]
+and let $\widehat X_j$ be the first observed state among the most frequent
+states of categorical QID $j$.  The denominator is
+\begin{equation}
+D_{\mathrm{original}}=
+\sum_{j\in\mathcal J_N}\sum_{i=1}^{n}(x_{ij}-\overline X_j)^2
++\sum_{j\in\mathcal J_C}\sum_{i=1}^{n}
+\delta(x_{ij},\widehat X_j).
+\tag{P14}
+\end{equation}
+Information loss is
+\begin{equation}
+IL=\frac{D_{\mathrm{anon}}}{D_{\mathrm{original}}}.
+\tag{IL}
+\end{equation}
+The implementation requires $D_{\mathrm{original}}>0$ and does not add a
+smoothing constant.  Although $IL\ge0$, it is not constrained to be at most
+one; a poor set of searched representatives can give $IL>1$.
+
+\subsection{Entropy over multiple sensitive attributes: paper Equations (15)--(19)}
+
+The size of cluster $c$ is
+\[
+n_c=\sum_{i=1}^{n}w_{ic}.
+\tag{$n_c$}
+\]
+For sensitive attribute $j$ and cluster $c$, the paper entropy is
+\begin{equation}
+H_{cj}=-\sum_{s:p_{cjs}>0}p_{cjs}\log_2 p_{cjs}.
+\tag{P15}
+\end{equation}
+For state $s$, its within-cluster probability is
+\begin{equation}
+p_{cjs}
+=\frac{\sum_{i=1}^{n}w_{ic}\I(S_{ij}=s)}
+{\sum_{i=1}^{n}w_{ic}}.
+\tag{P16}
+\end{equation}
+The indicator is
+\[
+\I(S_{ij}=s)=
+\begin{cases}
+1,&S_{ij}=s,\\
+0,&\text{otherwise}.
+\end{cases}
+\tag{P17}
+\]
+The worst-cluster entropy for SA $j$ and the total entropy term are
+\begin{equation}
+H_j^{\min}=\min_{c\in\mathcal C}H_{cj},
+\tag{P18}
+\end{equation}
+\begin{equation}
+H_{\mathrm{sum}}=\sum_{j=1}^{p_S}H_j^{\min}.
+\tag{P19}
+\end{equation}
+Missing SA values are explicit states and therefore enter the probabilities
+and entropy in exactly the same way as other observed states.  The sum is
+unweighted: every one of the 77 SAs contributes one minimum-entropy term.
+
+\subsection{Hard \texorpdfstring{$k$}{k}-anonymity: paper Equation (20)}
+
+\begin{equation}
+\sum_{i=1}^{n}w_{ic}=n_c\ge k,
+\qquad c\in\mathcal C.
+\tag{P20}
+\end{equation}
+This applies to every configured cluster, including one that would otherwise
+be empty.  A necessary mathematical feasibility condition is
+\begin{equation}
+kC\le n,
+\qquad
+C\le\left\lfloor\frac nk\right\rfloor.
+\tag{23}
+\end{equation}
+Failure of a stochastic initialization to discover a feasible particle is not
+the same statement as violation of the necessary condition in (23), nor is it
+a proof of mathematical infeasibility.
+
+\subsection{Active scalar objective}
+
+The active scalar problem is
+\begin{equation}
+\min_{q,w}\;F_{\lambda}(q,w)
+=IL(q,w)-\lambda H_{\mathrm{sum}}(w),
+\qquad 0\le\lambda\le1,
+\tag{24}
+\end{equation}
+subject to the assignment and hard-$k$ constraints and using the deviations
+and entropy above.  A negative objective is valid.  Objective values at
+different $\lambda$ values do not share a fixed scale and are not ranked
+directly across $\lambda$ in the project selection rules.
+
+\subsection{Anonymization transformation}
+
+Only QIDs are replaced.  For every QID $j$,
+\begin{equation}
+x'_{ij}=q_{a_i j};
+\tag{25}
+\end{equation}
+for every sensitive or otherwise non-QID attribute,
+\begin{equation}
+S'_{ij}=S_{ij}.
+\tag{26}
+\end{equation}
+
+\section{Centroid mathematics and exact small-data validation}
+
+\subsection{Best representatives for fixed membership}
+
+For a fixed nonempty cluster $c$, squared error is minimized by the arithmetic
+mean:
+\begin{equation}
+q^*_{cj}=\frac{1}{n_c}\sum_{i:a_i=c}x_{ij},
+\qquad j\in\mathcal J_N.
+\tag{27}
+\end{equation}
+Categorical mismatch is minimized by any within-cluster mode:
+\begin{equation}
+q^*_{cj}\in\argmax_{v}\sum_{i:a_i=c}\I(x_{ij}=v),
+\qquad j\in\mathcal J_C.
+\tag{28}
+\end{equation}
+If modes tie, the exact solver chooses the first tied mode observed in record
+order.  Entropy depends on $w$, not $q$, so (27)--(28) minimize the scalar
+objective over $q$ for fixed membership.
+
+\subsection{Exhaustive partition search}
+
+For small validation data, the exact solver enumerates every unlabeled
+partition of $n$ records into exactly $C$ nonempty blocks satisfying
+$n_c\ge k$.  Restricted-growth labels enforce
+\begin{equation}
+a_1=0,
+\qquad
+a_i\le1+\max_{h<i}a_h,
+\tag{29}
+\end{equation}
+so relabelings of the same partition are not evaluated repeatedly.  At a
+partial assignment, suppose exactly $p$ records have been assigned.  The code's
+next zero-based array position is then also $p$, and $r=n-p$ records remain.  The
+branch is pruned when
+\begin{equation}
+\sum_{c=1}^{C}\max(k-n_c,0)>r,
+\qquad r=n-p,
+\tag{30}
+\end{equation}
+because the remaining records cannot fill all cluster deficits.  The globally
+best enumerated objective is
+\begin{equation}
+(w^*,q^*)\in\argmin_{(w,q)\in\mathcal F}F_\lambda(w,q),
+\tag{31}
+\end{equation}
+where $\mathcal F$ is the complete feasible partition set and $q$ is given by
+(27)--(28).  This exact route is intentionally limited to at most 12 records.
+
+\section{Lossless QID-profile acceleration}
+
+Let $u=1,\ldots,U$ index distinct QID tuples, let $m_u$ be the number of
+records with profile $u$, and let $z_u$ be that profile.  Since all records in
+a profile have the same distance to every centroid,
+\begin{equation}
+a_u=\argmin_{c\in\mathcal C}d(z_u,q_c),
+\qquad a_i=a_{u(i)}.
+\tag{32}
+\end{equation}
+Cluster sizes and anonymization deviation can therefore be evaluated as
+\begin{equation}
+n_c=\sum_{u=1}^{U}m_u\I(a_u=c),
+\tag{33}
+\end{equation}
+\begin{equation}
+D_{\mathrm{anon}}=\sum_{u=1}^{U}m_u d(z_u,q_{a_u}).
+\tag{34}
+\end{equation}
+For SA $j$ and state $s$, let $m_{ujs}$ be the count of that state within QID
+profile $u$.  The cluster/state count used in entropy is
+\begin{equation}
+N_{cjs}=\sum_{u=1}^{U}m_{ujs}\I(a_u=c),
+\qquad p_{cjs}=\frac{N_{cjs}}{n_c}.
+\tag{35}
+\end{equation}
+Equations (32)--(35) are algebraically identical to record-level evaluation.
+
+The compiled categorical kernel returns the Hamming fraction.  With $p_C$
+categorical QIDs, exact mismatch count is recovered as
+\begin{equation}
+d_C(z_u,q_c)=\operatorname{round}\!\left(
+p_C\,d_{\mathrm{Hamming}}(z_u,q_c)\right).
+\tag{36}
+\end{equation}
+
+\section{Scalar particle-swarm optimization}
+
+\subsection{Particle representation and initialization}
+
+Particle $r$ contains all centroid coordinates
+\[
+Q_r^{(t)}=\{q_{rcj}^{(t)}:c\in\mathcal C,
+j\in\mathcal J_N\cup\mathcal J_C\}.
+\]
+Each initial numerical centroid coordinate is sampled uniformly from the
+distinct observed values of its QID, and each categorical coordinate is
+sampled uniformly from its encoded category levels.  Initial velocities are
+zero.
+
+\subsection{Continuous update}
+
+For each particle and iteration, the implementation draws broadcast
+coefficients
+\begin{equation}
+\alpha_{r,t},\beta_{r,t}\overset{\mathrm{ind}}{\sim}
+\operatorname{Uniform}(0,r_{\max}),
+\qquad r_{\max}=0.01
+\tag{37}
+\end{equation}
+in the recorded studies, and sets
+\begin{equation}
+\omega_{r,t}=1-\alpha_{r,t}-\beta_{r,t}>0.
+\tag{38}
+\end{equation}
+For a numerical coordinate, with personal best $P_r$ and global best $G$,
+\begin{equation}
+V_{r}^{(t+1)}=
+\omega_{r,t}V_r^{(t)}
++\alpha_{r,t}\bigl(P_r^{(t)}-Q_r^{(t)}\bigr)
++\beta_{r,t}\bigl(G^{(t)}-Q_r^{(t)}\bigr),
+\tag{39}
+\end{equation}
+\begin{equation}
+Q_r^{(t+1)}=Q_r^{(t)}+V_r^{(t+1)}.
+\tag{40}
+\end{equation}
+If a numerical coordinate leaves its observed range
+$[L_j,U_j]$, it is reset to the dataset mean $\overline X_j$ rather than
+clipped:
+\begin{equation}
+q_{rcj}^{(t+1)}\leftarrow\overline X_j
+\quad\text{if }q_{rcj}^{(t+1)}\notin[L_j,U_j].
+\tag{41}
+\end{equation}
+
+\subsection{Categorical update}
+
+For a categorical coordinate, inequality is converted to a binary difference.
+The velocity update is
+\begin{equation}
+V_{r}^{(t+1)}=
+\omega_{r,t}V_r^{(t)}
++\alpha_{r,t}\I(P_r^{(t)}\ne Q_r^{(t)})
++\beta_{r,t}\I(G^{(t)}\ne Q_r^{(t)}).
+\tag{42}
+\end{equation}
+The transfer probability is
+\begin{equation}
+T(v)=\left|\frac{v}{\sqrt{v^2+1}}\right|.
+\tag{43}
+\end{equation}
+With $U\sim\operatorname{Uniform}(0,1)$, the coordinate is replaced by an
+independent uniformly sampled category if $U<T(V_r^{(t+1)})$; otherwise it is
+retained.  A newly sampled category may equal the current category.
+
+\subsection{Feasible evaluation and best updates}
+
+Every particle is assigned by (7).  It is discarded when any $n_c<k$.
+For a feasible particle, the score is (24).  Personal and global bests are
+updated only under strict score improvement:
+\[
+P_r^{(t+1)}=
+\begin{cases}
+Q_r^{(t)},&F_\lambda(Q_r^{(t)})<F_\lambda(P_r^{(t)}),\\
+P_r^{(t)},&\text{otherwise},
+\end{cases}
+\tag{44}
+\]
+\[
+G^{(t+1)}\in\argmin_{(r,h)\in\mathcal E_t}F_\lambda(Q_r^{(h)}),
+\qquad
+\mathcal E_t=\{(r,h):h\le t,\ Q_r^{(h)}\text{ is hard-$k$ feasible}\}.
+\tag{45}
+\]
+For population $P$ and iteration count $T$, a normal completed scalar run
+performs
+\begin{equation}
+N_{\mathrm{eval}}=PT
+\tag{46}
+\end{equation}
+particle evaluations.  The recorded $P=T=100$ setting gives $10{,}000$.
+The feasible-evaluation percentage is
+\begin{equation}
+100\frac{N_{\mathrm{feasible}}}
+{N_{\mathrm{feasible}}+N_{\mathrm{infeasible}}}.
+\tag{47}
+\end{equation}
+If the initial scalar population contains no hard-$k$ feasible particle, the
+run returns the status
+\[
+\code{no\_feasible\_particle}.
+\]
+No penalty-derived pseudo-result is invented.
+
+\section{Additive Pareto multi-objective extension}
+
+\subsection{Objective vector and dominance}
+
+The extension searches the two objectives directly:
+\begin{equation}
+\min\;\mathbf f(x)=\bigl(IL(x),-H_{\mathrm{sum}}(x)\bigr).
+\tag{48}
+\end{equation}
+Candidate $x$ dominates $y$, written $x\prec y$, exactly when
+\begin{equation}
+IL(x)\le IL(y),\qquad H_{\mathrm{sum}}(x)\ge H_{\mathrm{sum}}(y),
+\tag{49}
+\end{equation}
+and at least one inequality is strict.  The archive is the set of discovered
+hard-$k$ feasible candidates that are not dominated by another retained
+candidate, subject to a finite archive-size limit.
+
+For a particle's personal archive point, a new candidate replaces the
+incumbent if it dominates it.  If neither dominates the other, replacement is
+selected by a Bernoulli$(1/2)$ draw.  If the incumbent dominates the new
+candidate, the incumbent remains.
+
+\subsection{Archive uniqueness and crowding distance}
+
+An archive candidate is treated as a duplicate when it has the same assignment
+vector and numerically equal $IL$ and entropy sum.  For objective coordinate
+$m\in\{1,2\}$, sort archive values as
+$f_{(1)m}\le\cdots\le f_{(A)m}$.  Boundary entries receive infinite crowding
+distance.  Each interior entry accumulates
+\begin{equation}
+d_{(r)}\mathrel{+}=
+\frac{f_{(r+1)m}-f_{(r-1)m}}
+{f_{(A)m}-f_{(1)m}}
+\quad\text{when }f_{(A)m}>f_{(1)m}.
+\tag{50}
+\end{equation}
+When the archive is oversized, an entry having the smallest finite $d$ is
+removed; boundary points are preserved whenever finite alternatives exist.
+
+Leader-selection weights are
+\begin{equation}
+\widetilde d_r=
+\begin{cases}
+d_r+10^{-12},&d_r<\infty,\\
+1+\max\{d_h:d_h<\infty\},&d_r=\infty,
+\end{cases}
+\qquad
+\pi_r=\frac{\widetilde d_r}{\sum_h\widetilde d_h}.
+\tag{51}
+\end{equation}
+If every distance is infinite, the replacement value in (51) is $1$.  The
+global leader is drawn from the archive with probability $\pi_r$ and is then
+used in the same PSO updates (39)--(43).
+
+\subsection{Initialization attempts}
+
+If no feasible archive member is found, a fresh independent population is
+sampled, up to the declared initialization-attempt limit $A_0$ (20 in the
+recorded Pareto studies).  Iteration count advances only after a nonempty
+archive exists.  Exhausting all attempts produces
+\code{no\_feasible\_particle}, which remains an algorithmic search outcome.
+
+\section{Equivalence classes and disclosure-risk mathematics}
+
+\subsection{Released equivalence classes}
+
+Define equality of released records by their complete released QID vectors:
+\begin{equation}
+i\sim h\iff x'_{ij}=x'_{hj}\quad\text{for every QID }j.
+\tag{52}
+\end{equation}
+The equivalence classes are $E_1,\ldots,E_G$.  Because different configured
+clusters can in principle release the same QID representatives, $G$ is
+reported separately from configured $C$.
+
+\subsection{Sample prosecutor/linkage risk}
+
+For record $i\in E_{g(i)}$, the sample prosecutor-risk proxy is
+\begin{equation}
+r_i=\frac{1}{\card{E_{g(i)}}}.
+\tag{53}
+\end{equation}
+For threshold $\tau$, the implementation uses the strict boundary
+\begin{equation}
+L_\tau=\sum_{i=1}^{n}\I(r_i>\tau),
+\qquad \tau\in\{0.05,0.075,0.10\}.
+\tag{54}
+\end{equation}
+It also reports
+\[
+r_{\max}=\max_i r_i,\qquad
+\overline r=\frac1n\sum_i r_i,
+\qquad
+r_{\mathrm{med}}=\median_i(r_i),
+\tag{55}
+\]
+and the exposed fraction $L_\tau/n$.
+
+\subsection{Sample marketer risk}
+
+Since every class contributes
+$\card{E_g}(1/\card{E_g})=1$ expected correct match under the implemented
+sample model,
+\begin{equation}
+R_{\mathrm{marketer}}
+=\frac1n\sum_{g=1}^{G}\card{E_g}\frac1{\card{E_g}}
+=\frac Gn,
+\tag{56}
+\end{equation}
+and the expected number of correct matches is $G$.  Journalist risk is not
+estimated because population QID frequencies and the sampling fraction are not
+available.
+
+\subsection{Homogeneity exposure}
+
+For SA $j$ in class $E_g$, let
+\begin{equation}
+d_{gj}=\card{\{S_{ij}:i\in E_g\}}.
+\tag{57}
+\end{equation}
+The records exposed to homogeneity for SA $j$ are counted by
+\begin{equation}
+A_j=\sum_{g=1}^{G}\card{E_g}\I(d_{gj}=1).
+\tag{58}
+\end{equation}
+The record-level union across all SAs is
+\begin{equation}
+A_{\cup}=\sum_{g=1}^{G}\card{E_g}
+\I\!\left(\min_{1\le j\le p_S}d_{gj}=1\right),
+\qquad
+h_{\cup}=\frac{A_{\cup}}n.
+\tag{59}
+\end{equation}
+Thus a record is counted once in $A_{\cup}$ even if its class is homogeneous
+for several SAs.
+
+\section{Diversity measures}
+
+\subsection{Distinct \texorpdfstring{$\ell$}{l}-diversity}
+
+For SA $j$ the achieved worst-class distinct diversity is
+\begin{equation}
+\ell^{\mathrm{distinct}}_j=\min_{1\le g\le G}d_{gj}.
+\tag{60}
+\end{equation}
+The analysis also counts classes satisfying $d_{gj}\ge2$ and $d_{gj}\ge3$,
+and records in classes below those levels:
+\begin{equation}
+N_{j,<\ell}=\sum_{g=1}^{G}\card{E_g}\I(d_{gj}<\ell),
+\qquad \ell\in\{2,3\}.
+\tag{61}
+\end{equation}
+
+\subsection{Entropy-effective diversity}
+
+Let $p_{gjs}$ be the within-equivalence-class SA probability.  The analysis
+uses natural-log entropy
+\begin{equation}
+H^{(e)}_{gj}=-\sum_s p_{gjs}\ln p_{gjs}
+\tag{62}
+\end{equation}
+and its effective number of states
+\begin{equation}
+\ell^{\mathrm{eff}}_{gj}=\exp(H^{(e)}_{gj})
+=2^{H^{(2)}_{gj}}.
+\tag{63}
+\end{equation}
+The reported per-SA minimum is
+\begin{equation}
+\ell^{\mathrm{eff}}_j=\min_g\ell^{\mathrm{eff}}_{gj}.
+\tag{64}
+\end{equation}
+These diversity quantities are post-anonymization measurements, not additional
+optimizer constraints.
+
+\subsection{Zero-minimum-entropy count}
+
+The privacy screens use
+\begin{equation}
+Z_H=\sum_{j=1}^{p_S}\I\!\left(H_j^{\min}\approx0\right),
+\tag{65}
+\end{equation}
+where the implementation uses numerical closeness to zero.
+
+\section{Before--after distribution mathematics}
+
+Let $X_j=(x_{1j},\ldots,x_{nj})$ and
+$X'_j=(x'_{1j},\ldots,x'_{nj})$ be aligned before and after columns.
+
+\subsection{Cell changes, distinctness, and missingness}
+
+Missing-to-missing is treated as unchanged.  Define
+\begin{equation}
+c_{ij}=\I\bigl(x_{ij}\ne x'_{ij}\bigr),
+\qquad
+C_j=\sum_i c_{ij},
+\qquad
+f^{\mathrm{change}}_j=\frac{C_j}{n}.
+\tag{66}
+\end{equation}
+The tables also report before/after numbers of distinct states and missing
+cells.  For a scope containing $p$ attributes, its missing fraction is
+\begin{equation}
+f_{\mathrm{miss}}=\frac{\sum_{j=1}^{p}m_j}{np}.
+\tag{67}
+\end{equation}
+
+\subsection{Numerical location, spread, and shape}
+
+For the $m$ non-missing values $y_1,\ldots,y_m$ of a numeric attribute,
+\begin{equation}
+\overline y=\frac1m\sum_{i=1}^{m}y_i,
+\qquad
+s=\sqrt{\frac{1}{m-1}\sum_{i=1}^{m}(y_i-\overline y)^2}.
+\tag{68}
+\end{equation}
+The median, first quartile $Q_{0.25}$, third quartile $Q_{0.75}$, and
+interquartile range
+\begin{equation}
+IQR=Q_{0.75}-Q_{0.25}
+\tag{69}
+\end{equation}
+are reported.  NumPy's default linear quantile interpolation is used: after
+sorting, let $h=(m-1)q$, $r=\lfloor h\rfloor$, and $\gamma=h-r$; then
+\begin{equation}
+Q_q=(1-\gamma)y_{(r+1)}+\gamma y_{(r+2)},
+\tag{70}
+\end{equation}
+with the obvious endpoint convention.  For $m>2$, pandas' adjusted Fisher--
+Pearson sample skewness is
+\begin{equation}
+G_1=\frac{m}{(m-1)(m-2)}
+\sum_{i=1}^{m}\left(\frac{y_i-\overline y}{s}\right)^3.
+\tag{71}
+\end{equation}
+The invoked pandas routine returns $0$ for a numerically constant sample and an
+undefined value when $m<3$; these are its executed edge-case branches around
+(71).
+Every change column is computed as
+\begin{equation}
+\Delta T=T_{\mathrm{after}}-T_{\mathrm{before}}.
+\tag{72}
+\end{equation}
+
+\subsection{Numerical distribution distances}
+
+For empirical CDFs $F$ and $G$, the one-dimensional Wasserstein distance is
+\begin{equation}
+W_1(F,G)=\int_{-\infty}^{\infty}|F(t)-G(t)|\,dt.
+\tag{73}
+\end{equation}
+It is normalized by the before-data range
+\begin{equation}
+W_{\mathrm{norm}}=
+\frac{W_1(F,G)}{\max(X_j)-\min(X_j)}.
+\tag{74}
+\end{equation}
+If the range is zero, the value is $0$ only when raw $W_1=0$; otherwise it is
+undefined.  The two-sample Kolmogorov--Smirnov statistic is
+\begin{equation}
+D_{KS}=\sup_t|F(t)-G(t)|.
+\tag{75}
+\end{equation}
+
+\subsection{Categorical distribution distances}
+
+After taking the union of before/after states and treating missingness as the
+explicit state \code{<MISSING>}, let $p=(p_v)$ and $q=(q_v)$.  Total variation
+distance is
+\begin{equation}
+D_{TV}(p,q)=\frac12\sum_v|p_v-q_v|.
+\tag{76}
+\end{equation}
+Let $m=(p+q)/2$.  With base-2 logarithms,
+\begin{equation}
+\JSD_2(p,q)=\frac12\KL_2(p\|m)+\frac12\KL_2(q\|m),
+\tag{77}
+\end{equation}
+\begin{equation}
+\KL_2(p\|m)=\sum_{v:p_v>0}p_v\log_2\frac{p_v}{m_v}.
+\tag{78}
+\end{equation}
+The code reports Jensen--Shannon \emph{distance}
+\begin{equation}
+D_{JS}(p,q)=\sqrt{\JSD_2(p,q)}.
+\tag{79}
+\end{equation}
+
+\subsection{Attribute-level distance and scope similarity}
+
+Let $\operatorname{mean}_{\mathrm{obs}}$ denote the pandas row mean over the
+available applicable components (its default is to skip an undefined component).
+The per-attribute composite is
+\begin{equation}
+d_j^{\mathrm{attr}}=
+\begin{cases}
+\operatorname{mean}_{\mathrm{obs}}
+  \{W_{\mathrm{norm},j},D_{KS,j}\},
+&j\text{ numeric},\\[2mm]
+\operatorname{mean}_{\mathrm{obs}}
+  \{D_{TV,j},D_{JS,j}\},
+&j\text{ categorical}.
+\end{cases}
+\tag{80}
+\end{equation}
+When both applicable components are defined, as in the recorded analysis, each
+row mean is their ordinary one-half sum.
+For a scope $\mathcal A$ (all attributes, QIDs, or SAs),
+\begin{equation}
+\overline d_{\mathcal A}
+=\frac1{\card{\mathcal A}}\sum_{j\in\mathcal A}d_j^{\mathrm{attr}},
+\qquad
+\operatorname{similarity}_{\mathcal A}=1-\overline d_{\mathcal A}.
+\tag{81}
+\end{equation}
+The implementation also reports the mean and maximum of each component metric,
+ignoring non-applicable missing metric cells.
+
+\section{Cluster-level descriptive summaries}
+
+For configured cluster $c$, the released proportion is
+\begin{equation}
+\pi_c=\frac{n_c}{n},
+\qquad \sum_{c=1}^{C}\pi_c=1.
+\tag{82}
+\end{equation}
+Across the $p_S$ cluster-specific SA entropies, the cluster table reports
+\begin{equation}
+H_c^{\min}=\min_j H_{cj},\qquad
+\overline H_c=\frac1{p_S}\sum_{j=1}^{p_S}H_{cj},\qquad
+H_c^{\max}=\max_j H_{cj},
+\tag{83}
+\end{equation}
+and
+\begin{equation}
+Z_c=\sum_{j=1}^{p_S}\I(H_{cj}\approx0).
+\tag{84}
+\end{equation}
+
+\section{Cross-seed summaries}
+
+For a configuration with $R$ completed comparison seeds and metric values
+$y_1,\ldots,y_R$, the repository reports
+\begin{equation}
+\overline y=\frac1R\sum_{r=1}^{R}y_r,
+\qquad
+s_y=\sqrt{\frac1{R-1}\sum_{r=1}^{R}(y_r-\overline y)^2},
+\tag{85}
+\end{equation}
+together with $\min_r y_r$ and $\max_r y_r$.  Sample standard deviation is
+undefined when $R<2$.  Completion percentage is
+\begin{equation}
+100\frac{R}{R_{\mathrm{planned}}}.
+\tag{86}
+\end{equation}
+Worst-case screening uses maxima for loss and exposure and minima for cluster
+size, for example
+\begin{equation}
+IL_{\max}=\max_r IL_r,
+\quad
+A_{\cup,\max}=\max_r A_{\cup,r},
+\quad
+n_{\min,\min}=\min_r\min_c n_{cr}.
+\tag{87}
+\end{equation}
+
+\section{Privacy eligibility and project screening}
+
+For one run or one Pareto archive candidate, define the project eligibility
+indicator
+\begin{align}
+P={}&\I\!\left(\min_c n_c\ge k\right)
+\prod_{\tau\in\{0.05,0.075,0.10\}}\I(L_\tau=0)\notag\\
+&\times\I\!\left(\frac{A_{\cup}}n\le0.20\right)
+\I(Z_H\le1)\I(IL\le0.60).
+\tag{88}
+\end{align}
+These numerical limits are project screening rules, not claims of universal
+release safety.
+
+For a configuration with comparison-seed set $\mathcal S$, all-seed
+eligibility is
+\begin{equation}
+P_{\mathrm{all}}=
+\I(\text{every planned run is recorded and completed})
+\prod_{s\in\mathcal S}P_s.
+\tag{89}
+\end{equation}
+For the Pareto workflow, each seed first chooses from its eligible archive:
+\begin{equation}
+x_s^*=\argmin_{x\in\mathcal A_s:P(x)=1}
+\bigl(IL(x),-H_{\mathrm{sum}}(x),\operatorname{ord}_s(x)\bigr)
+\tag{90}
+\end{equation}
+in lexicographic order, where $\operatorname{ord}_s$ is the stable input-row
+order (the stored archive candidate index in the executed study).  Configuration-level
+mean IL and entropy are then
+computed from the $x_s^*$ values, and $P_{\mathrm{all}}=1$ requires an eligible
+$x_s^*$ for every seed.
+
+\section{Pareto-front and configuration-selection mathematics}
+
+\subsection{Descriptive cross-configuration Pareto frontier}
+
+Among eligible scalar-grid configurations, configuration $a$ dominates $b$ in
+the descriptive frontier if
+\begin{equation}
+\overline{IL}_a\le\overline{IL}_b,\qquad
+\overline H_a\ge\overline H_b,
+\tag{91}
+\end{equation}
+with at least one strict inequality.  This label is descriptive and does not
+replace the declared automatic ranking.
+
+\subsection{Default Pareto-study selection}
+
+With zero information-loss margin, the Pareto study ranks all
+$P_{\mathrm{all}}=1$ configurations lexicographically by
+\begin{equation}
+\left(\overline{IL},\ h_{\cup,\max},\ -k,\ C\right),
+\tag{92}
+\end{equation}
+so the preferred order is lower mean IL, lower maximum homogeneity fraction,
+higher $k$, then smaller $C$.
+
+\subsection{Information-loss-margin selection}
+
+Let
+\begin{equation}
+\overline{IL}_{\mathrm{best}}
+=\min_{a:P_{\mathrm{all},a}=1}\overline{IL}_a.
+\tag{93}
+\end{equation}
+For declared absolute margin $m\ge0$, the retained set is
+\begin{equation}
+\mathcal W_m=\left\{a:P_{\mathrm{all},a}=1,
+\ \overline{IL}_a-\overline{IL}_{\mathrm{best}}
+\le m+10^{-12}\right\}.
+\tag{94}
+\end{equation}
+When $m>0$, the winner in $\mathcal W_m$ minimizes lexicographically
+\begin{equation}
+\left(h_{\cup,\max},\ \overline{IL},\ -\overline H,\ -k,\ C\right).
+\tag{95}
+\end{equation}
+The confirmation protocol uses $m=0.01$.
+
+\subsection{Scalar dense-range and joint-grid tie breakers}
+
+The fixed-$k$, fixed-$\lambda$ dense-cluster workflow ranks eligible settings by
+\begin{equation}
+\left(\overline{IL},\ h_{\cup,\max},\ C\right).
+\tag{96}
+\end{equation}
+The scalar joint $k/C/\lambda$ grid ranks them by
+\begin{equation}
+\left(\overline{IL},\ h_{\cup,\max},\ -k,\ C,\ -\lambda\right).
+\tag{97}
+\end{equation}
+All selection is withheld until every declared comparison outcome is recorded.
+
+\subsection{Exploratory seed-screen selection}
+
+The historical seed screen for one fixed scalar configuration selected
+\begin{equation}
+s^*=\argmin_{s\in\mathcal S_{\mathrm{completed}}}
+\bigl(F_\lambda(s),s\bigr),
+\tag{98}
+\end{equation}
+that is, minimum scalar objective with smaller seed as the exact tie breaker.
+This was an exploratory local-screen rule.
+
+\section{Post-optimization \texorpdfstring{$\lambda$}{lambda} crossover analysis}
+
+For archive candidate $a$, define its scalar line
+\begin{equation}
+F_a(\lambda)=IL_a-\lambda H_a,
+\qquad \lambda\in[0,1].
+\tag{99}
+\end{equation}
+For candidates $a$ and $b$ with $H_a\ne H_b$, their crossover is
+\begin{equation}
+\lambda_{ab}=\frac{IL_a-IL_b}{H_a-H_b}.
+\tag{100}
+\end{equation}
+Only crossovers strictly inside $(0,1)$ are retained, rounded to 15 decimal
+places, together with endpoints $0$ and $1$.  If consecutive boundaries are
+$b_r<b_{r+1}$, their midpoint is
+\begin{equation}
+\lambda_r^{\mathrm{mid}}=\frac{b_r+b_{r+1}}2.
+\tag{101}
+\end{equation}
+Within each seed $s$, the chosen archive member on that interval is
+\begin{equation}
+a_s(r)=\argmin_a
+\bigl(F_{sa}(\lambda_r^{\mathrm{mid}}),\operatorname{index}(a)\bigr).
+\tag{102}
+\end{equation}
+The interval's seed-mean values are
+\begin{equation}
+\overline{IL}_r=\frac1{\card{\mathcal S}}
+\sum_{s\in\mathcal S}IL_{s,a_s(r)},
+\qquad
+\overline H_r=\frac1{\card{\mathcal S}}
+\sum_{s\in\mathcal S}H_{s,a_s(r)},
+\tag{103}
+\end{equation}
+and the reported midpoint objective is
+\begin{equation}
+\overline F_r^{\mathrm{mid}}
+=\overline{IL}_r-\lambda_r^{\mathrm{mid}}\overline H_r.
+\tag{104}
+\end{equation}
+Adjacent intervals having the same seed--candidate signature are merged.
+After merging, (101) and (104) are recomputed using the merged endpoints; this
+prevents a stale pre-merge midpoint value.
+
+\section{Held-out candidate mathematics}
+
+Comparison and held-out seeds must be disjoint:
+\begin{equation}
+s_{\mathrm{heldout}}\notin\mathcal S_{\mathrm{comparison}}.
+\tag{105}
+\end{equation}
+The held-out Pareto run keeps only candidates satisfying (88).  If none does,
+the run fails and another seed or candidate is not substituted.  Otherwise it
+selects lexicographically
+\begin{equation}
+x_{\mathrm{heldout}}^*
+=\argmin_{x:P(x)=1}\bigl(IL(x),-H_{\mathrm{sum}}(x),\operatorname{index}(x)\bigr).
+\tag{106}
+\end{equation}
+This is evaluated once after aggregate selection.  It remains a technical
+screening result rather than an unrestricted-release approval.
+
+\section{Experiment-size arithmetic}
+
+\subsection{General finite-grid count}
+
+For a scalar grid with $k$ set $\mathcal K$, cluster interval
+$[C_{\min},C_{\max}]$, lambda set $\Lambda$, and seed set $\mathcal S$, the
+feasible endpoint for $k$ is
+\begin{equation}
+C_k^{\max}=\min\!\left(C_{\max},\left\lfloor\frac nk\right\rfloor\right).
+\tag{107}
+\end{equation}
+The configuration and run counts are
+\begin{equation}
+N_{\mathrm{cfg}}^{\mathrm{scalar}}
+=\card{\Lambda}\sum_{k\in\mathcal K}
+\max\bigl(0,C_k^{\max}-C_{\min}+1\bigr),
+\tag{108}
+\end{equation}
+\begin{equation}
+N_{\mathrm{runs}}=N_{\mathrm{cfg}}\card{\mathcal S}.
+\tag{109}
+\end{equation}
+The Pareto workflow removes $\lambda$ as an optimizer-grid dimension:
+\begin{equation}
+N_{\mathrm{cfg}}^{\mathrm{Pareto}}
+=\sum_{k\in\mathcal K}
+\max\bigl(0,C_k^{\max}-C_{\min}+1\bigr).
+\tag{110}
+\end{equation}
+For explicitly listed pairs $\mathcal P\subset\mathcal K\times\mathcal C$,
+\begin{equation}
+N_{\mathrm{cfg}}=\card{\mathcal P},
+\qquad
+N_{\mathrm{runs}}=\card{\mathcal P}\card{\mathcal S}.
+\tag{111}
+\end{equation}
+
+\subsection{Counts used in the recorded and configured work}
+
+\begin{longtable}{@{}L{0.39\textwidth}L{0.55\textwidth}@{}}
+\toprule
+\textbf{Protocol} & \textbf{Arithmetic}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Protocol} & \textbf{Arithmetic}\\
+\midrule
+\endhead
+Pareto broad v1, $k\in\{10,15,20,25,30\}$, $C=1,\ldots,30$, ten seeds
+& $5\times30=150$ configurations and $150\times10=1{,}500$ runs.\\
+Pareto adaptive refinement, every integer $k=5,\ldots,30$, $C=2,\ldots,10$, ten seeds
+& $26\times9=234$ configurations and $234\times10=2{,}340$ runs.\\
+Pareto confirmation, three explicit $k/C$ pairs and ten fresh comparison seeds
+& $3\times10=30$ runs.\\
+Dense $k=10$, $C=1,\ldots,148$, ten seeds
+& $148$ configurations and $148\times10=1{,}480$ runs; $148=\lfloor1485/10\rfloor$.\\
+Scalar setup recorded in \code{settings/setup.tex}: every integer $k=5,\ldots,30$, $C=2,\ldots,20$, 20 lambda values, three seeds
+& $26\times19\times20=9{,}880$ configurations and $9{,}880\times3=29{,}640$ runs.\\
+Reusable scalar README example: eight listed $k$ values, $C=2,\ldots,20$, 20 lambda values, three seeds
+& $8\times19\times20=3{,}040$ configurations and $3{,}040\times3=9{,}120$ runs.\\
+Historical full sensitivity grid: four $k$ values, 11 cluster counts, five lambda values
+& $4\times11\times5=220$ declared configurations.\\
+\bottomrule
+\end{longtable}
+
+The held-out seed is excluded from all counts in the comparison-stage run
+totals and contributes one separate final optimizer run only after selection.
+
+\section{Release-readiness triage quantities}
+
+The aggregate-only readiness module uses a few additional descriptive rules.
+For non-missing text values in attribute $j$, it records maximum character
+length, maximum token count, and mean token count
+\begin{equation}
+\overline t_j=\frac1{n_j^{\mathrm{obs}}}
+\sum_{i:x_{ij}\text{ observed}}t_{ij}.
+\tag{112}
+\end{equation}
+Potential free text is flagged when
+\begin{equation}
+\max_i\operatorname{characters}(x_{ij})\ge120
+\quad\text{or}\quad
+\max_i t_{ij}\ge8.
+\tag{113}
+\end{equation}
+A phone-like value must contain between 7 and 15 digits inclusive and contain
+only digits plus the permitted punctuation characters.  These are triage
+heuristics, not disclosure guarantees.
+
+\section{Important mathematical boundaries}
+
+\begin{enumerate}
+  \item Hard $k$ is enforced directly; the repository does not use the paper's
+  ambiguous printed violation-penalty sign or invent a penalty multiplier.
+  \item No unpublished normalization is applied to $IL$, entropy, or the
+  scalar objective.
+  \item Multiple-SA entropy is the sum of per-SA minimum cluster entropies in
+  (P18)--(P19), not the minimum of within-cluster entropy sums.
+  \item Linkage exposure uses the strict operator $r_i>\tau$.
+  \item $\code{no\_feasible\_particle}$ describes a failed stochastic search,
+  not proof that the mathematical feasible set is empty.
+  \item PSO output is a best-found stochastic result under a recorded budget,
+  not a proof of a global optimum.
+  \item Passing (88) is an internal screen, not permission for unrestricted
+  release.
+  \item Objectives evaluated under different $\lambda$, schemas, SA counts,
+  or preprocessing policies are not directly comparable.
+\end{enumerate}
+
+\appendix
+\section{Implementation source map}
+
+\begin{longtable}{@{}L{0.40\textwidth}L{0.54\textwidth}@{}}
+\toprule
+\textbf{Mathematics} & \textbf{Primary implementation source}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Mathematics} & \textbf{Primary implementation source}\\
+\midrule
+\endhead
+MO-OBAM deviations, information loss, entropy, hard $k$, objective, anonymization
+& \code{mo\_obam/formulation.py}\\
+Exact partitions, optimal fixed-membership centroids
+& \code{mo\_obam/exact\_solver.py}\\
+Profile weighting, compiled distance, scalar PSO updates
+& \code{mo\_obam/pso\_solver.py}\\
+Pareto dominance, archive, crowding, leader probabilities
+& \code{mo\_obam/prti\_multiobjective\_solver.py}\\
+Eligibility, seed aggregation, margin selection, lambda intervals
+& \code{mo\_obam/prti\_multiobjective.py}\\
+Held-out Pareto candidate rule
+& \code{mo\_obam/prti\_multiobjective\_release.py}\\
+Equivalence-class linkage and homogeneity measures
+& \code{mo\_obam/privacy\_metrics.py}\\
+Prosecutor/marketer risk, diversity, distribution distances and summaries
+& \code{mo\_obam/prti\_analysis.py}\\
+Preparation frequencies, cardinality, missingness, round-trip checks
+& \code{mo\_obam/prti\_data.py}\\
+Cross-seed means, sample deviations, feasible-evaluation percentage
+& \code{mo\_obam/prti\_robustness.py}\\
+Dense-range and joint scalar-grid selection
+& \code{mo\_obam/prti\_dense\_clusters.py}\\
+Scalar held-out screening
+& \code{mo\_obam/prti\_release.py}\\
+Cluster entropy summaries and transformation validation
+& \code{mo\_obam/prti\_runner.py}\\
+Text/identifier triage quantities
+& \code{mo\_obam/prti\_release\_readiness.py}\\
+Recorded mathematical narrative and implementation boundaries
+& \code{PRTI\_MO\_OBAM\_DOCUMENTATION.md}\\
+Delegated quantiles, sample skewness, Wasserstein/KS, and Jensen--Shannon distance
+& NumPy \code{quantile}, pandas \code{Series.skew}, and SciPy
+  \code{wasserstein\_distance}, \code{ks\_2samp}, and \code{jensenshannon}\\
+\bottomrule
+\end{longtable}
+
+\section{Compact symbol table}
+
+\begin{longtable}{@{}L{0.20\textwidth}L{0.73\textwidth}@{}}
+\toprule
+\textbf{Symbol} & \textbf{Meaning}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Symbol} & \textbf{Meaning}\\
+\midrule
+\endhead
+$n$ & number of records\\
+$p_N,p_C,p_Q,p_S$ & numerical QIDs, categorical QIDs, all QIDs, and SAs\\
+$C$ & configured number of clusters\\
+$k$ & minimum records required in every configured cluster\\
+$w_{ic}$ & binary membership of record $i$ in cluster $c$\\
+$q_{cj}$ & QID representative for cluster $c$, attribute $j$\\
+$d(i,c)$ & mixed squared-numeric plus categorical-mismatch distance\\
+$IL$ & information-loss ratio\\
+$H_{cj}$ & entropy of SA $j$ in cluster $c$\\
+$H_j^{\min}$ & minimum cluster entropy for SA $j$\\
+$H_{\mathrm{sum}}$ & sum of the $p_S$ per-SA minimum entropies\\
+$\lambda$ & scalar entropy weight\\
+$E_g$ & released QID equivalence class\\
+$L_\tau$ & records with $1/\card{E_g}>\tau$\\
+$A_j,A_\cup$ & per-SA and any-SA homogeneity-exposed record counts\\
+$Z_H$ & SAs whose minimum cluster entropy is numerically zero\\
+$P$ & one-run/candidate project eligibility indicator\\
+$P_{\mathrm{all}}$ & all-comparison-seed eligibility indicator\\
+\bottomrule
+\end{longtable}
+
+\end{document}

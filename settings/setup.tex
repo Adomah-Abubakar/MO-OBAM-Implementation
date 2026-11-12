@@ -1,0 +1,232 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[margin=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+
+\begin{document}
+
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{6pt}
+
+\begin{longtable}{
+        @{}
+        >{\raggedright\arraybackslash}p{0.30\textwidth}
+        >{\raggedright\arraybackslash}p{\dimexpr0.70\textwidth-2\tabcolsep\relax}
+        @{}
+    }
+
+    \caption{Experimental setup for the MO-OBAM parameter study on the
+        PRTI-GH dataset.}
+    \label{tab:prti-experimental-setup}\\
+
+    \toprule
+    \textbf{Setting} & \textbf{Configured value} \\
+    \midrule
+    \endfirsthead
+
+    \multicolumn{2}{@{}l}{\tablename~\thetable\ continued}\\
+    \toprule
+    \textbf{Setting} & \textbf{Configured value} \\
+    \midrule
+    \endhead
+
+    \midrule
+    \multicolumn{2}{r@{}}{\textit{Continued on next page}}\\
+    \endfoot
+
+    \bottomrule
+    \endlastfoot
+
+    \multicolumn{2}{@{}l}{\textbf{Dataset and study scope}}\\*
+    \midrule
+
+    Dataset
+    & PRTI-GH clinical dataset, supplied as
+    \texttt{PRTI-GH-study.xls}. \\
+
+    Number of records
+    & 1,485. \\
+
+    Quasi-identifiers
+    & 29 attributes. \\
+
+    Sensitive attributes
+    & 77 attributes. \\
+
+    Source-data SHA-256
+    & \texttt{0deb1fc54a3dccba3a4c0339696ed1fb\allowbreak
+        4f124a0349afde9f06e4b79dbf89a37e}. \\
+
+    Grid-study identifier
+    & \texttt{prti-grid-k5-30-c2-20-p100-i100-v1}. \\
+
+    MO-OBAM reference
+    & arXiv:2501.01002v2, revision dated 15 May 2025. \\
+
+    Grid-study output policy
+    & Aggregate checkpoints and summary evidence only; patient-level outputs
+    were disabled during parameter comparison. \\
+
+    Final-output policy
+    & Patient-level anonymized output was generated only for the selected
+    configuration in the separate held-out run. \\
+
+    \midrule
+    \multicolumn{2}{@{}l}{\textbf{Parameter-grid settings}}\\*
+    \midrule
+
+    Minimum cluster size, $k$
+    & Every integer from 5 to 30 inclusive (26 values). \\
+
+    Number of clusters, $n_C$
+    & Every integer from 2 to 20 inclusive (19 values). \\
+
+    Diversity weight, $\lambda$
+    & $0,\;10^{-7},\;2\times10^{-7},\;10^{-6},$
+    \newline
+    $10^{-5},\;2\times10^{-5},\;10^{-4},\;2\times10^{-4},$
+    \newline
+    $5\times10^{-4},\;10^{-3},\;0.0025,\;0.005,\;0.01,$
+    \newline
+    $0.025,\;0.05,\;0.1,\;0.25,\;0.5,\;0.75,\;1$
+    (20 values). \\
+
+    Comparison seeds
+    & 0, 1, and 2. \\
+
+    Held-out seed
+    & 12; excluded from parameter selection and reserved for one final
+    evaluation of the selected configuration. \\
+
+    Planned configurations
+    & $26\times19\times20=9{,}880$. \\
+
+    Planned comparison runs
+    & $9{,}880\times3=29{,}640$. \\
+
+    Fixed $\ell$-diversity setting
+    & No fixed $\ell$-diversity constraint was imposed. Distinct and
+    entropy-effective diversity were designated as post-anonymization
+    evaluation measures. \\
+
+    \midrule
+    \multicolumn{2}{@{}l}{\textbf{PSO and execution settings}}\\*
+    \midrule
+
+    PSO population size
+    & 100 particles per run. \\
+
+    PSO iterations
+    & 100 iterations per run. \\
+
+    Cognitive/social random-coefficient maximum
+    & 0.01. \\
+
+    Population initialization policy
+    & One randomly initialized particle population per configuration--seed
+    run; no automatic reinitialization was applied when that population
+    contained no particle satisfying hard $k$-anonymity. \\
+
+    Configured process-worker pool
+    & Maximum of 32 worker processes; this is the configured pool size, not a
+    claim that 32 CPU cores were simultaneously utilized. \\
+
+    Worker backend
+    & Independent process workers. \\
+
+    Numerical-library thread limits
+    & \texttt{OMP\_NUM\_THREADS=1},
+    \texttt{OPENBLAS\_NUM\_THREADS=1},
+    \texttt{MKL\_NUM\_THREADS=1}, and
+    \texttt{NUMEXPR\_NUM\_THREADS=1}. \\
+
+    Checkpoint reuse for the declared grid
+    & Disabled at study creation (\texttt{--no-reuse}); matching checkpoints
+    created by the study were subsequently used to resume unfinished work. \\
+
+    \midrule
+    \multicolumn{2}{@{}l}{\textbf{Screening settings}}\\*
+    \midrule
+
+    Required comparison runs
+    & All three comparison seeds must complete for a configuration to be
+    eligible. \\
+
+    Cluster-size requirement
+    & Every configured cluster must contain at least $k$ records in every
+    comparison run. \\
+
+    Maximum information loss
+    & $IL\leq0.60$ in every comparison run. \\
+
+    Maximum homogeneity fraction
+    & At most 0.20 (20\%) of records in every comparison run. \\
+
+    Maximum zero-entropy sensitive attributes
+    & At most one sensitive attribute in every comparison run. \\
+
+    Linkage thresholds
+    & $\tau\in\{0.05,\,0.075,\,0.10\}$. \\
+
+    Maximum linkage flags
+    & Zero records at every configured linkage threshold in every comparison
+    run. \\
+
+    \midrule
+    \multicolumn{2}{@{}l}{\textbf{Software and provenance settings}}\\*
+    \midrule
+
+    Python
+    & Version 3.12.16. \\
+
+    Numerical and data libraries
+    & NumPy 2.5.2, pandas 3.0.5, SciPy 1.18.1, xlrd 2.0.2,
+    and openpyxl 3.1.5. \\
+
+    Operating system
+    & Ubuntu 22.04.5 LTS, Linux kernel 5.15.0-203-generic, x86-64. \\
+
+    Processor
+    & Two Intel Xeon Gold 6230R processors at 2.10\,GHz, with 26 physical
+    cores per socket and two hardware threads per core. \\
+
+    Host logical CPUs
+    & 104 logical CPUs reported by \texttt{lscpu}. This describes the host
+    hardware inventory; the job-level CPU allocation during the completed
+    experiment was not independently recorded. \\
+
+    System memory
+    & 93\,GiB RAM and 8\,GiB swap. \\
+
+    Grid-selection evidence date
+    & 7 November 2026 (selection report generated at 18:51:43 UTC). \\
+
+    Held-out evaluation date
+    & 8 November 2026 (completed at 01:50:04 UTC). \\
+
+    Git base commit for the held-out run
+    & \texttt{22a1c4982455709acd0b877a9c7e3ba834081c0d}. \\
+
+    Code-snapshot qualification
+    & The held-out run began from a working tree containing 11 changed paths.
+    Exact SHA-256 hashes of generation and validation files were captured in
+    the final artifact manifest. \\
+
+\end{longtable}
+
+\noindent
+\textit{Scope note:}
+This table reports configured experimental values only. Algorithmic equations,
+data-preparation procedures, metric definitions, configuration-selection logic,
+and threshold rationale belong to the methodology. Run outcomes, the selected
+configuration, held-out measurements, and before--after comparisons belong to
+the results.
+
+\endgroup
+
+\end{document}

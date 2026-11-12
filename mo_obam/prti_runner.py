@@ -221,11 +221,18 @@ class PRTIAnonymizationRunner:
         """Reload the analysis tables and verify their expected coverage."""
 
         distributions = pd.read_csv(paths["distribution_analysis"])
+        distribution_summary = pd.read_csv(paths["distribution_summary"])
         risk = pd.read_csv(paths["reidentification_risk"])
         dictionary = pd.read_csv(paths["data_dictionary"])
         diversity = pd.read_csv(paths["diversity_analysis"])
         if len(distributions) != attributes or len(dictionary) != attributes:
             raise AssertionError("Analysis outputs do not cover every attribute.")
+        if distribution_summary["scope"].tolist() != [
+            "overall dataset",
+            "quasi-identifiers",
+            "sensitive attributes",
+        ]:
+            raise AssertionError("Distribution summary does not contain the expected scopes.")
         if risk["dataset_version"].tolist() != [
             "before",
             "after",
@@ -242,6 +249,7 @@ class PRTIAnonymizationRunner:
         return {
             "all_analysis_outputs_reloaded": True,
             "distribution_rows": len(distributions),
+            "distribution_summary_rows": len(distribution_summary),
             "risk_rows": len(risk),
             "diversity_rows": len(diversity),
             "data_dictionary_rows": len(dictionary),

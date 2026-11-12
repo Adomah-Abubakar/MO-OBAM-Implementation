@@ -1,0 +1,210 @@
+\documentclass[9pt]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{booktabs,array,colortbl,tabularx}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,calc}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins}
+\usetheme{default}
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\setbeamertemplate{caption}[numbered]
+\definecolor{headerblue}{RGB}{35,78,112}
+\definecolor{lightblue}{RGB}{235,243,248}
+\definecolor{lightgray}{RGB}{247,247,247}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newtcolorbox{milpsummarybox}{%
+	enhanced,
+	colback=lightblue!55,
+	colframe=headerblue!65,
+	boxrule=0.45pt,
+	arc=2mm,
+	outer arc=2mm,
+	left=2mm,
+	right=2mm,
+	top=1.2mm,
+	bottom=1.2mm,
+	boxsep=0pt
+}
+
+\title{Design and Evaluation of a Privacy-Preserving Clinical Data Anonymization Framework for Hospital-to-University Research Data Sharing}
+\subtitle{PROGRESS UPDATE}
+\institute{Kwame Nkrumah University of Science and Technology\\Facilitated by: \textbf{National Institute for Mathematical Sciences (NIMS), Ghana}\\Program: \textbf{Scientific Computing And Industrial Modelling}}
+\date{\today}
+\author{
+	Adomah Abubakar\\[2mm]
+	\textit{
+		\underline{Supervisory Committee}\\
+		Prof. Peter Amoako-Yirenkyi,\\
+		Dr. Richard Owusu,\\
+		Dr. Maxwell Boateng
+	}
+}
+\IfFileExists{logo.png}{\logo{\includegraphics[width=0.3\textwidth]{logo.png}}}{\logo{}}
+
+\setbeamertemplate{footline}{%
+	\leavevmode%
+	\hbox{%
+		\begin{beamercolorbox}[wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm]{author in head/foot}%
+			\usebeamerfont{author in head/foot} Adomah Abubakar%
+		\end{beamercolorbox}%
+		\begin{beamercolorbox}[wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,rightskip=.3cm,right]{date in head/foot}%
+			\usebeamerfont{date in head/foot}\insertframenumber/\inserttotalframenumber%
+		\end{beamercolorbox}%
+	}%
+	\vskip0pt%
+}
+
+\begin{document}
+	
+	\begin{frame}[plain]
+		\maketitle
+	\end{frame}
+	
+	\begin{frame}{OUTLINE OF PRESENTATION}
+		\small
+		\begin{itemize}
+			\item Anonymized Version of the dataset
+			\item Next steps
+		\end{itemize}
+	\end{frame}
+
+
+\begin{frame}{PRTI-GH: Anonymized Dataset}
+	\scriptsize
+	\centering
+	
+	\textbf{Parameters:}
+	$n=15$, $n_c=30$
+	
+	\vspace{0.3cm}
+	\renewcommand{\arraystretch}{1.25}
+	\setlength{\tabcolsep}{3pt}
+	
+	\resizebox{\textwidth}{!}{%
+		\begin{tabular}{l l c r c c l l}
+			\toprule
+			
+			\multicolumn{5}{c}{\textbf{Quasi-Identifiers (QIs)}}
+			& \multicolumn{3}{c}{\textbf{Sensitive Attributes (SAs)}} \\
+			
+			\cmidrule(lr){1-5}
+			\cmidrule(lr){6-8}
+			
+			\textbf{Zone} &
+			\textbf{Community} &
+			\textbf{Hospital} &
+			\textbf{Age} &
+			\textbf{Sex} &
+			\textbf{Head Injury} &
+			\textbf{ISS Category} &
+			\textbf{Outcome} \\
+			
+			\midrule
+			
+		Southern & Peri-urban & CCTH  & 1.0536  & Female & Yes & Mild     & Partial recovery \\
+			Southern &  Rural     & TTH  & 2.89  & Male   & Yes & Severe   & Partial recovery \\
+			Southern & Rural      & TTH  & 3.84  & Male   & No  & Mild     & Fully recovered \\
+			Northern & Urban      & TTH  & 4.79  & Female & Yes & Moderate & Fully recovered \\
+			Southern & Urban      & KATH & 13.41 & Male   & Yes & Moderate & Fully recovered \\
+			Middle   & Urban      & CCTH & 2.95  & Female & Yes & Mild     & Partial recovery \\
+			Middle   & Urban      & CCTH & 18.00 & Male   & No  & Mild     & Fully recovered \\
+			Middle   & Urban      & CCTH & 2.95  & Female & Yes & Severe   & Partial recovery \\
+			Middle   & Urban      & CCTH & 18.00 & Male   & Yes & Mild     & Fully recovered \\
+			Southern & Urban      & KATH & 13.41 & Male   & Yes & Severe   & Partial recovery \\
+			Southern & Urban      & KATH & 3.59  & Female & No  & Mild     & Partial recovery \\
+			Southern & Peri-urban & CCTH  & 1.0536  & Female & Yes & Mild     & Partial recovery \\
+			Southern & Urban      & KATH & 3.59  & Female & No  & Mild     & Fully recovered \\
+			Middle   & Urban      & KATH & 13.46 & Male   & No  & Mild     & Fully recovered \\
+			Northern & Peri-urban & KATH & 17.05 & Female & Yes & Mild     & Fully recovered \\
+			
+			\bottomrule
+		\end{tabular}%
+	}
+	
+%	\vspace{0.3cm}
+%	{\tiny\textit{Source: PRTI-GH anonymized dataset.
+%			Ages rounded to two decimal places for display.}}
+%	
+\end{frame}
+
+
+\begin{frame}{PRTI-GH: Sample Cluster}
+	\scriptsize
+	\centering
+	
+%	\textbf{Parameters:}
+%	$k=15$, $|c_i|=30$
+	\quad (15 records shown)
+	
+	\vspace{0.25cm}
+	\renewcommand{\arraystretch}{1.18}
+	\setlength{\tabcolsep}{3pt}
+	
+	\resizebox{\textwidth}{!}{%
+		\begin{tabular}{l l c r c c l l}
+			\toprule
+			
+			\multicolumn{5}{c}{\textbf{Quasi-Identifiers (QIs)}}
+			& \multicolumn{3}{c}{\textbf{Sensitive Attributes (SAs)}} \\
+			
+			\cmidrule(lr){1-5}
+			\cmidrule(lr){6-8}
+			
+			\textbf{Zone} &
+			\textbf{Community} &
+			\textbf{Hospital} &
+			\textbf{Age} &
+			\textbf{Sex} &
+			\textbf{Head Injury} &
+			\textbf{ISS Category} &
+			\textbf{Outcome} \\
+			
+			\midrule
+			
+			Southern & Peri-urban & CCTH & 1.0536 & Female & Yes & Moderate & Partial recovery \\
+			Southern & Peri-urban & CCTH & 1.0536 & Female & Yes & Mild     & Partial recovery \\
+			Southern & Peri-urban & CCTH & 1.0536 & Female & No  & Critical & Fully recovered \\
+			Southern & Peri-urban & CCTH & 1.0536 & Female & Yes & Moderate & Fully recovered \\
+			Southern & Peri-urban & CCTH & 1.0536 & Female & Yes & Mild     & Partial recovery \\
+			Southern & Peri-urban & CCTH & 1.0536 & Female & No  & Moderate & Partial recovery \\
+			Southern & Peri-urban & CCTH & 1.0536 & Female & Yes & Mild     & Partial recovery \\
+			Southern & Peri-urban & CCTH & 1.0536 & Female & No  & Mild     & Partial recovery \\
+			Southern & Peri-urban & CCTH & 1.0536 & Female & Yes & Mild     & Died \\
+			Southern & Peri-urban & CCTH & 1.0536 & Female & Yes & Mild     & Partial recovery \\
+			Southern & Peri-urban & CCTH & 1.0536 & Female & Yes & Severe   & Died \\
+			Southern & Peri-urban & CCTH & 1.0536 & Female & Yes & Mild     & Partial recovery \\
+			Southern & Peri-urban & CCTH & 1.0536 & Female & No  & Mild     & Fully recovered \\
+			Southern & Peri-urban & CCTH & 1.0536 & Female & Yes & Moderate & Fully recovered \\
+			Southern & Peri-urban & CCTH & 1.0536 & Female & Yes & Moderate & Died \\
+			
+			\bottomrule
+		\end{tabular}%
+	}
+	
+%	\vspace{0.25cm}
+%	{\tiny\textit{Source: Filtered PRTI-GH anonymized dataset.
+%			Age is rounded for presentation;
+%			Zone and ISS labels are shortened.}}
+	
+\end{frame}
+
+	\begin{frame}{Next Steps}
+		\begin{itemize}
+			\item Continue to run the code and generate analysis on the data.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}[plain]
+		\centering
+		\vfill
+		{\usebeamercolor[fg]{structure}\rule{6cm}{0.6pt}}\\[0.8cm]
+		{\fontsize{28}{32}\selectfont \textcolor{blue!55!black}{\textbf{Thank You}}}\\[0.5cm]
+		{\usebeamercolor[fg]{structure}\rule{6cm}{0.6pt}}
+		\vfill
+	\end{frame}
+	
+\end{document}
